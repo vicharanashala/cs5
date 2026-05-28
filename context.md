@@ -51,6 +51,7 @@
 - Fixed: Auth interceptor redirected to login on 401 for public routes (created publicApi.js)
 - Fixed: FAQs page now shows all 125 FAQs from database in accordion format
 - Fixed: Cards and buttons now have smooth rounded corners
+- Fixed: Login redirect loop - ProtectedRoute now checks localStorage directly to avoid race condition, added 50ms delay before navigation
 
 ### Next Actions
 - Build response routes and controller
