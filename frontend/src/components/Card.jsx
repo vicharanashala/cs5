@@ -17,7 +17,7 @@ const Card = ({ children, className = '', title, subtitle }) => {
   return (
     <div
       className={`
-        bg-background-card border border-border-subtle rounded-sm
+        bg-background-card border border-border-subtle rounded-lg
         shadow-card transition-shadow duration-200 hover:shadow-card-hover
         ${className}
       `}
