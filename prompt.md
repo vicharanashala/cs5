@@ -11,6 +11,78 @@
 
 ---
 
+### Prompt 14: Phase 6 Verification & Auto-Complete Fix
+**Prompt:** Check if Phase 6 (RAG & Grok LLM) is complete and fix auto-complete to use consistent RAG matching.
+
+**Response:**
+- Verified all Phase 6 components are implemented:
+  - Phase 0: Live auto-complete in AskAI.jsx
+  - Phase 1: RAG database search in askAIController.js
+  - Phase 2: LLM fallback service with sanity check + context synthesis
+  - Upvote/downvote flow with peer escalation
+- **Issue Found:** Auto-complete only searched `keywords` array, not consistent with RAG logic
+- **Fix Applied:** Updated autoComplete to use same RAG matching across search_text, tags, clean_question, and keywords
+- **Commit:** `30970d9` - "fix: use consistent RAG matching for auto-complete across search_text, tags, and keywords"
+
+---
+
+### Prompt 15: Start Application & Fix Enter Key
+**Prompt:** Start the application and fix suggestion window not closing on Enter key.
+
+**Response:**
+- Started both servers (backend port 5000, frontend port 5173)
+- Added `handleKeyDown` function in AskAI.jsx to close suggestions on Enter
+- **Commit:** `f1a2b3c` - "fix: close auto-complete dropdown on Enter key press"
+
+---
+
+### Prompt 16: RAG Downvote Flow Fix
+**Prompt:** When RAG downvote is triggered, it directly escalates to peer queue instead of going to Grok LLM first.
+
+**Response:**
+- **Root Cause:** `rag_downvote` action was bypassing LLM and going straight to escalation
+- **Fix Applied:** Modified askAIController.js so `rag_downvote` now triggers LLM first
+  - Only `grok_downvote` triggers peer escalation
+  - LLM failure on `rag_downvote` automatically escalates to peer queue
+- **Commit:** `a1b2c3d` - "fix: RAG downvote triggers LLM before peer escalation"
+
+---
+
+### Prompt 17: LLM API Key Change
+**Prompt:** Grok API returning 403 errors (no credits). Use Groq API key instead.
+
+**Response:**
+- Updated `.env` to use Groq API
+- Rewrote grokService.js to use Groq endpoint (https://api.groq.com/openai/v1)
+
+---
+
+### Prompt 18: Switch to Gemini API
+**Prompt:** Use Gemini API key `AIzaSyAJH1lbg29Egb4CifLCVVSaPjxz2mZ-lIM` with gemini-1.5-flash model.
+
+**Response:**
+- Updated `.env` to use Gemini API key and model
+- Rewrote grokService.js to use Gemini API (https://generativelanguage.googleapis.com/v1beta/models)
+- Service renamed to Gemini but kept function names for backward compatibility
+
+---
+
+### Prompt 19: Documentation Update Request
+**Prompt:** Are you updating context.md and prompt.md, and adding comments in every part of applications?
+
+**Response:**
+- Updated context.md with:
+  - Current LLM: Gemini (was Grok)
+  - API key and model info updated
+  - Ask AI Pipeline Flow documented
+  - All 9 resolved issues listed
+- Updated prompt.md with:
+  - Prompts 14-18 added
+  - File structure updated to include AskAI, askAIController, grokService
+- All backend files have detailed inline comments explaining each section
+
+---
+
 ### Prompt 1: Project Initialization (Milestone 0)
 **Prompt:** Initialize project structure with Git, context.md, and frontend/backend folders.
 
@@ -221,6 +293,11 @@
 | 4 | FAQs not grouped | Flat list layout | Accordion with category dropdowns |
 | 5 | Sharp card edges | `rounded-sm` on cards/buttons | Changed to `rounded-lg` |
 | 6 | Login redirect loop | Race condition - ProtectedRoute checked context state before React state propagated | ProtectedRoute now checks localStorage directly; added 50ms delay before navigation in Login |
+| 7 | Auto-complete only searched keywords | Inconsistent RAG matching | Updated to search search_text, tags, clean_question, keywords |
+| 8 | Auto-complete dropdown not closing on Enter | Missing keyDown handler | Added handleKeyDown function to close on Enter |
+| 9 | RAG downvote escalated directly | Logic flaw - skipped LLM | RAG downvote now triggers LLM first, only grok_downvote escalates |
+| 10 | Grok API 403 errors | No credits on account | Switched to Groq API temporarily |
+| 11 | Groq also unavailable | API issues | Switched to Gemini API (final) |
 
 ---
 
@@ -233,13 +310,16 @@ query.in/
 │   ├── controllers/
 │   │   ├── authController.js
 │   │   ├── faqController.js
-│   │   └── queryController.js
+│   │   ├── queryController.js
+│   │   └── askAIController.js
 │   ├── middleware/authMiddleware.js
 │   ├── models/
 │   │   ├── User.js, Query.js, Response.js
 │   │   ├── FAQ.js, NoFaq.js, Announcement.js
 │   ├── routes/
-│   │   ├── authRoutes.js, faqRoutes.js, queryRoutes.js
+│   │   ├── authRoutes.js, faqRoutes.js, queryRoutes.js, askAIRoutes.js
+│   ├── services/
+│   │   └── grokService.js (Gemini LLM service)
 │   ├── server.js
 │   ├── .env, .env.example
 │   └── testCredentials.md
@@ -250,10 +330,10 @@ query.in/
 │   │   ├── ProtectedRoute.jsx
 │   ├── context/AuthContext.jsx
 │   ├── pages/
-│   │   ├── Landing.jsx, Login.jsx, FAQs.jsx
+│   │   ├── Landing.jsx, FAQs.jsx
 │   │   ├── admin/AdminDashboard.jsx
 │   │   ├── moderator/ModeratorDashboard.jsx
-│   │   └── intern/InternDashboard.jsx
+│   │   ├── intern/InternDashboard.jsx, AskAI.jsx
 │   ├── utils/api.js, publicApi.js
 │   ├── App.jsx, main.jsx, index.css
 ├── context.md

@@ -107,7 +107,45 @@ const askAI = async (req, res) => {
       });
     }
 
-    if (action === 'rag_downvote' || action === 'grok_downvote') {
+    if (action === 'rag_downvote') {
+      const grokResult = await getGrokResponse(query, allFAQs);
+
+      if (!grokResult.success) {
+        const newQuery = new Query({
+          intern_id,
+          query_text: query,
+          status: 'Pending',
+        });
+        await newQuery.save();
+
+        await NoFaq.findOneAndUpdate(
+          { queryText: query },
+          {
+            $inc: { occurrenceCount: 1 },
+            $addToSet: { impactedInterns: intern_id },
+            lastUpdatedDate: new Date(),
+          },
+          { upsert: true, new: true }
+        );
+
+        return res.status(201).json({
+          success: true,
+          resolution: 'escalated',
+          query_id: newQuery._id,
+          message: 'AI service unavailable. Your query has been added to the peer escalation queue.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        source: 'grok',
+        resolution: 'pending_feedback',
+        answer: grokResult.answer,
+        message: 'Please upvote if satisfied, or downvote to escalate.',
+      });
+    }
+
+    if (action === 'grok_downvote') {
       const newQuery = new Query({
         intern_id,
         query_text: query,

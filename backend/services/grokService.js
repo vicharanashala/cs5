@@ -1,8 +1,8 @@
 /**
  * =============================================================================
- * QUERY.IN - GROK LLM SERVICE
+ * QUERY.IN - GEMINI LLM SERVICE
  * =============================================================================
- * Handles all communication with the Grok API for query synthesis.
+ * Handles all communication with the Gemini API for query synthesis.
  * All calls originate from the backend only - API key never exposed to frontend.
  *
  * PIPELINE STAGES:
@@ -15,13 +15,13 @@
 
 const axios = require('axios');
 
-const GROK_API_KEY = process.env.GROK_API_KEY || '';
-const GROK_MODEL = process.env.GROK_MODEL || 'grok-3';
-const GROK_BASE_URL = 'https://api.x.ai/v1';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 /**
  * STAGE 1: Sanity Check
- * Sends the user's query to Grok to evaluate if it's coherent English.
+ * Sends the user's query to Gemini to evaluate if it's coherent English.
  * Rejects keyboard mashing, random characters, or gibberish.
  *
  * @param {string} query - The user's raw query text
@@ -41,32 +41,31 @@ Your response (VALID or INVALID):`;
 
   try {
     const response = await axios.post(
-      `${GROK_BASE_URL}/chat/completions`,
+      `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
-        model: GROK_MODEL,
-        messages: [
+        contents: [
           {
-            role: 'system',
-            content: 'You are a strict linguistic evaluator. Respond with only ONE word.',
-          },
-          {
-            role: 'user',
-            content: sanityPrompt,
+            parts: [
+              {
+                text: sanityPrompt,
+              },
+            ],
           },
         ],
-        max_tokens: 5,
-        temperature: 0.1,
+        generationConfig: {
+          maxOutputTokens: 5,
+          temperature: 0.1,
+        },
       },
       {
         headers: {
-          Authorization: `Bearer ${GROK_API_KEY}`,
           'Content-Type': 'application/json',
         },
         timeout: 15000,
       }
     );
 
-    const result = response.data?.choices?.[0]?.message?.content?.trim().toUpperCase();
+    const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toUpperCase();
 
     if (result === 'INVALID') {
       return {
@@ -77,14 +76,14 @@ Your response (VALID or INVALID):`;
 
     return { isValid: true };
   } catch (error) {
-    console.error('Grok sanity check error:', error.message);
+    console.error('Gemini sanity check error:', error.response?.data || error.message);
     return { isValid: true };
   }
 };
 
 /**
  * STAGE 2: Deep Context Synthesis
- * Synthesizes an answer using Grok with the full FAQ knowledge base as context.
+ * Synthesizes an answer using Gemini with the full FAQ knowledge base as context.
  * Uses strict low temperature (0.1) to minimize hallucinations.
  *
  * @param {string} query - The user's query
@@ -118,52 +117,50 @@ Your Answer (using ONLY the context above):`;
 
   try {
     const response = await axios.post(
-      `${GROK_BASE_URL}/chat/completions`,
+      `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
-        model: GROK_MODEL,
-        messages: [
+        contents: [
           {
-            role: 'system',
-            content:
-              'You are a knowledgeable FAQ assistant. Answer ONLY from the provided context. If the answer is not in the context, clearly state that you cannot answer.',
-          },
-          {
-            role: 'user',
-            content: synthesisPrompt,
+            parts: [
+              {
+                text: synthesisPrompt,
+              },
+            ],
           },
         ],
-        max_tokens: 800,
-        temperature: 0.1,
+        generationConfig: {
+          maxOutputTokens: 800,
+          temperature: 0.1,
+        },
       },
       {
         headers: {
-          Authorization: `Bearer ${GROK_API_KEY}`,
           'Content-Type': 'application/json',
         },
         timeout: 30000,
       }
     );
 
-    return response.data?.choices?.[0]?.message?.content?.trim() || null;
+    return response.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
   } catch (error) {
-    console.error('Grok synthesis error:', error.message);
+    console.error('Gemini synthesis error:', error.response?.data || error.message);
     return null;
   }
 };
 
 /**
- * Main Grok Service Entry Point
- * Executes the full pipeline: Sanity Check → Context Synthesis
+ * Main Gemini Service Entry Point
+ * Executes the full pipeline: Sanity Check -> Context Synthesis
  *
  * @param {string} query - The intern's query
  * @param {Array} faqContext - FAQ documents for context injection
  * @returns {Object} { success, answer?, error?, stage: 'sanity'|'synthesis' }
  */
 const getGrokResponse = async (query, faqContext = []) => {
-  if (!GROK_API_KEY) {
+  if (!GEMINI_API_KEY) {
     return {
       success: false,
-      error: 'Grok API is not configured. Please try again later.',
+      error: 'Gemini API is not configured. Please try again later.',
       stage: 'config',
     };
   }

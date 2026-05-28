@@ -3,12 +3,12 @@
 ## Project Overview
 - **Name:** Query.in
 - **Type:** MERN Stack Crowd-sourced FAQ & P2P Query Resolution Platform
-- **Stack:** MongoDB, Express.js, React (Vite), Node.js, Tailwind CSS, Socket.IO, Grok Cloud API
+- **Stack:** MongoDB, Express.js, React (Vite), Node.js, Tailwind CSS, Socket.IO, Gemini LLM API
 
 ---
 
 ## Current Phase
-**Phase 6: RAG & Grok LLM Integration**
+**Phase 6: RAG & LLM Integration**
 
 ### Status: ✅ Complete
 - Git repository initialized
@@ -46,12 +46,14 @@
 - FAQs display grouped by category with collapsible dropdowns
 - Smooth rounded corners (rounded-lg) applied to cards and buttons
 - AskAI routes and controller (autoComplete, askAI endpoints)
-- Grok service (sanity check, context synthesis with temperature 0.1)
+- LLM service (sanity check, context synthesis with temperature 0.1)
 - Intern AskAI page (/intern/ask) with live auto-complete dropdown
 - RAG database search (keyword matching on search_text, tags, keywords)
-- Grok LLM fallback pipeline with upvote/downvote flow
+- LLM fallback pipeline with upvote/downvote flow
 - Peer escalation on downvote (writes to Queries collection)
-- Grok API key configured in .env
+- Gemini API key configured in .env
+- Auto-complete closes on Enter key press
+- RAG downvote triggers LLM fallback before escalation
 
 ### Resolved Issues
 - Fixed: Explore FAQs button redirected to login instead of FAQ page
@@ -59,6 +61,10 @@
 - Fixed: FAQs page now shows all 125 FAQs from database in accordion format
 - Fixed: Cards and buttons now have smooth rounded corners
 - Fixed: Login redirect loop - ProtectedRoute now checks localStorage directly to avoid race condition
+- Fixed: Auto-complete dropdown not closing on Enter key
+- Fixed: RAG downvote now triggers LLM before escalation (not direct peer escalation)
+- Fixed: Auto-complete now uses consistent RAG matching across search_text, tags, and keywords
+- Fixed: LLM service updated from Grok to Gemini API
 
 ### Next Actions
 - Build response routes and controller
@@ -77,7 +83,7 @@
 3. ✅ Database & Backend APIs
 4. ✅ Authentication & RBAC
 5. ✅ Admin, Moderator & Intern Dashboards
-6. ✅ RAG & Grok LLM Integration (current)
+6. ✅ RAG & LLM Integration (current)
 7. ⬜ Peer Escalation Workflow Engine
 8. ⬜ AI FAQ Suggestion Engine
 9. ⬜ Realtime Notifications & Queue System
@@ -88,7 +94,22 @@
 
 ## Issues & Notes
 - MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
-- Grok API Key: REDACTED_XAI_KEY
+- Gemini API Key: AIzaSyAJH1lbg29Egb4CifLCVVSaPjxz2mZ-lIM
+- Gemini Model: gemini-1.5-flash
 - Test accounts: admin@query.in, mod@query.in, intern1@query.in, intern2@query.in (passwords in testCredentials.md)
 - publicApi.js used for public routes (no auth interceptor)
 - default api.js used for authenticated routes
+
+---
+
+## Ask AI Pipeline Flow
+1. **Phase 0 (Auto-complete):** As user types, debounced search suggests matching FAQs
+2. **Phase 1 (RAG Search):** On submit, keyword matching on search_text/tags/keywords
+   - If match >50%: Return RAG answer with upvote/downvote
+   - If no match: Trigger LLM
+3. **Phase 2 (LLM Fallback):** Gemini synthesizes answer from FAQ context
+   - Sanity check: Reject gibberish
+   - Context synthesis: Inject FAQ knowledge base with temperature 0.1
+   - If upvote: Resolve
+   - If downvote: Escalate to peer queue
+4. **Phase 3 (Peer Escalation):** Query written to Queries collection with status Pending

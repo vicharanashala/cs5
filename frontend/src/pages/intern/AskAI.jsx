@@ -2,12 +2,16 @@
  * =============================================================================
  * QUERY.IN - ASK AI PAGE (Intern)
  * =============================================================================
- * Provides the "Ask AI" experience with three phases:
+ * Provides the "Ask AI" experience with intelligent query resolution:
  *
- * Phase 0: Live auto-complete suggestions as user types
- * Phase 1: RAG database search with upvote/downvote
- * Phase 2: Grok LLM fallback with upvote/downvote
- * Phase 3: Peer escalation if all else fails
+ * PHASE 0 - Auto-complete: Live suggestions as user types (debounced 300ms)
+ * PHASE 1 - RAG Search: Database lookup with >50% keyword match
+ *   - Upvote: Mark resolved
+ *   - Downvote: Trigger Gemini LLM
+ * PHASE 2 - Gemini LLM: Context-aware answer synthesis
+ *   - Upvote: Mark resolved
+ *   - Downvote: Escalate to peer queue
+ * PHASE 3 - Peer Escalation: Query added to pending queue
  *
  * @module pages/intern/AskAI
  */
@@ -81,6 +85,16 @@ const AskAI = () => {
     setResponse(null);
     setError('');
     searchSuggestions(value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      if (showSuggestions && suggestions.length > 0) {
+        e.preventDefault();
+        setShowSuggestions(false);
+        setSuggestions([]);
+      }
+    }
   };
 
   const handleSelectSuggestion = async (faq) => {
@@ -206,6 +220,7 @@ const AskAI = () => {
                 type="text"
                 value={query}
                 onChange={handleQueryChange}
+                onKeyDown={handleKeyDown}
                 placeholder="How do I submit my NOC?"
                 className="w-full px-4 py-3 border-2 border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black rounded-lg text-lg"
                 disabled={loading || response?.resolution === 'escalated' || response?.resolution === 'resolved'}
