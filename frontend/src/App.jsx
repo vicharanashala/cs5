@@ -28,6 +28,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import FAQs from './pages/FAQs';
 
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
@@ -50,6 +51,7 @@ const App = () => {
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/faqs" element={<FAQs />} />
 
         {/* Admin Routes - admin only */}
         <Route
