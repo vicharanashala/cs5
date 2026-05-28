@@ -2,20 +2,47 @@
  * =============================================================================
  * QUERY.IN - LANDING PAGE
  * =============================================================================
- * Public landing page with 50/50 split layout (responsive).
- * - Left: Explore FAQs card
- * - Right: Login form
- *
- * Stack layout on mobile, side-by-side on desktop (lg:).
+ * Public landing page with 50/50 split layout.
+ * Right side contains embedded login form.
  *
  * @module pages/Landing
  */
 
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 
 const Landing = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      const { token, user } = res.data;
+      login(token, user);
+
+      const roleRoute = user.role === 'admin' ? '/admin' : user.role === 'moderator' ? '/moderator' : '/intern';
+      navigate(roleRoute, { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.error || 'Login failed. Check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-5xl">
@@ -29,7 +56,8 @@ const Landing = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="flex flex-col items-center justify-center py-12 text-center border-2 border-black">
+          {/* Left: Explore FAQs */}
+          <Card className="flex flex-col items-center justify-center py-12 text-center border-2 border-black rounded-lg">
             <div className="mb-6">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -44,9 +72,17 @@ const Landing = () => {
             </Link>
           </Card>
 
-          <Card className="py-12 px-8 border-2 border-black">
-            <h2 className="text-2xl font-semibold text-black mb-6 text-center">Account Login</h2>
-            <form className="space-y-4">
+          {/* Right: Login Form */}
+          <Card className="py-12 px-8 border-2 border-black rounded-lg">
+            <h2 className="text-2xl font-semibold text-black mb-6 text-center">Sign In</h2>
+
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-1">
                   Email Address
@@ -54,9 +90,10 @@ const Landing = () => {
                 <input
                   type="email"
                   id="email"
-                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                  className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black rounded-lg"
                   placeholder="you@example.com"
                 />
               </div>
@@ -67,18 +104,25 @@ const Landing = () => {
                 <input
                   type="password"
                   id="password"
-                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                  className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black rounded-lg"
                   placeholder="••••••••"
                 />
               </div>
-              <Link to="/login" className="block">
-                <Button type="submit" variant="outline" className="w-full mt-4">Sign In</Button>
-              </Link>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+                className="w-full mt-4"
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </Button>
             </form>
+
             <p className="text-center text-sm text-text-muted mt-4">
-              Access restricted to authorized personnel only.
+              Test: admin@query.in / Admin@1234
             </p>
           </Card>
         </div>

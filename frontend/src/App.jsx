@@ -9,7 +9,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Landing from './pages/Landing';
-import Login from './pages/Login';
 import FAQs from './pages/FAQs';
 
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -22,7 +21,6 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/faqs" element={<FAQs />} />
 
         {/* Protected Routes */}
