@@ -22,8 +22,13 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
+
+  const storedToken = localStorage.getItem('token');
+  const storedUser = localStorage.getItem('user');
+  const isAuthenticated = !!storedToken;
+  const parsedUser = storedUser ? JSON.parse(storedUser) : user;
 
   if (loading) {
     return (
@@ -37,8 +42,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user?.role)) {
-    const roleRoute = user?.role === 'admin' ? '/admin' : user?.role === 'moderator' ? '/moderator' : '/intern';
+  if (allowedRoles && !allowedRoles.includes(parsedUser?.role)) {
+    const roleRoute = parsedUser?.role === 'admin' ? '/admin' : parsedUser?.role === 'moderator' ? '/moderator' : '/intern';
     return <Navigate to={roleRoute} replace />;
   }
 

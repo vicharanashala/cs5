@@ -41,8 +41,10 @@ const Login = () => {
 
       login(token, user);
 
-      const roleRoute = user.role === 'admin' ? '/admin' : user.role === 'moderator' ? '/moderator' : '/intern';
-      navigate(roleRoute, { replace: true });
+      setTimeout(() => {
+        const roleRoute = user.role === 'admin' ? '/admin' : user.role === 'moderator' ? '/moderator' : '/intern';
+        navigate(roleRoute, { replace: true });
+      }, 50);
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
     } finally {
