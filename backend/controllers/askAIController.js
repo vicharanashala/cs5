@@ -14,7 +14,7 @@
 
 const FAQ = require('../models/FAQ');
 const Query = require('../models/Query');
-const NoFaq = require('../models/NoFaq');
+const { trackNoFaqQuery } = require('./analyticsController');
 const { getGrokResponse } = require('../services/grokService');
 
 /**
@@ -107,7 +107,7 @@ const askAI = async (req, res) => {
       });
     }
 
-    if (action === 'rag_downvote') {
+if (action === 'rag_downvote') {
       const grokResult = await getGrokResponse(query, allFAQs);
 
       if (!grokResult.success) {
@@ -118,15 +118,7 @@ const askAI = async (req, res) => {
         });
         await newQuery.save();
 
-        await NoFaq.findOneAndUpdate(
-          { queryText: query },
-          {
-            $inc: { occurrenceCount: 1 },
-            $addToSet: { impactedInterns: intern_id },
-            lastUpdatedDate: new Date(),
-          },
-{ upsert: true, returnDocument: 'after' }
-        );
+        await trackNoFaqQuery(query, intern_id);
 
         return res.status(201).json({
           success: true,
@@ -153,15 +145,7 @@ const askAI = async (req, res) => {
       });
       await newQuery.save();
 
-      await NoFaq.findOneAndUpdate(
-        { queryText: query },
-        {
-          $inc: { occurrenceCount: 1 },
-          $addToSet: { impactedInterns: intern_id },
-          lastUpdatedDate: new Date(),
-        },
-        { upsert: true, returnDocument: 'after' }
-      );
+      await trackNoFaqQuery(query, intern_id);
 
       return res.status(201).json({
         success: true,

@@ -11,6 +11,24 @@
 
 ---
 
+### Prompt 26: Phase 8 - AI FAQ Suggestion Engine
+**Prompt:** Execute Milestone 8: AI FAQ Suggestion Engine
+
+**Response:**
+Created backend analytics controller and routes:
+- **analyticsController.js:** trackNoFaqQuery (with anti-inflation logic), getFaqSuggestions (>=10 hits), dismissFaqSuggestion, createFaqFromSuggestion, getAllNoFaqQueries, getNoFaqStats
+- **analyticsRoutes.js:** GET /analytics/faq-suggestions, DELETE /analytics/suggestions/:id, POST /analytics/create-faq
+
+Created frontend AdminSuggestions page (Card 7):
+- Yellow border alert when new unread suggestions exist (occurrenceCount >= 10)
+- "Dismiss" action to clear suggestions
+- "Add to FAQs" button that opens modal with pre-populated question
+- Stats display: suggestions ready, total gaps, avg occurrences
+
+Updated askAIController to use trackNoFaqQuery when LLM fails
+
+---
+
 ### Prompt 1: Project Initialization (Milestone 0)
 **Prompt:** Initialize project structure with Git, context.md, and frontend/backend folders.
 
@@ -132,6 +150,7 @@ Created frontend intern pages:
 | 11 | Gemini 404 error | v1beta API | Switched to v1 REST API |
 | 12 | Mongoose new: true deprecation | Deprecated option | Changed to returnDocument: 'after' |
 | 13 | Backend crash | Missing ratingRoutes/adminRoutes | Created missing files |
+| 14 | no_faq tracking broken | No analytics controller | Created analyticsController.js with trackNoFaqQuery |
 
 ---
 
@@ -146,18 +165,19 @@ query.in/
 │   │   ├── faqController.js
 │   │   ├── queryController.js
 │   │   ├── askAIController.js
-│   │   ├── peerController.js (NEW)
-│   │   ├── ratingController.js (NEW)
-│   │   ├── adminController.js (NEW)
-│   │   └── announcementController.js (NEW)
+│   │   ├── peerController.js
+│   │   ├── ratingController.js
+│   │   ├── adminController.js
+│   │   ├── announcementController.js
+│   │   └── analyticsController.js (NEW)
 │   ├── middleware/authMiddleware.js
 │   ├── models/
 │   │   ├── User.js, Query.js, Response.js
 │   │   ├── FAQ.js, NoFaq.js, Announcement.js
 │   ├── routes/
 │   │   ├── authRoutes.js, faqRoutes.js, queryRoutes.js, askAIRoutes.js
-│   │   ├── peerRoutes.js, ratingRoutes.js, adminRoutes.js (NEW)
-│   │   └── announcementRoutes.js (NEW)
+│   │   ├── peerRoutes.js, ratingRoutes.js, adminRoutes.js
+│   │   ├── announcementRoutes.js, analyticsRoutes.js (NEW)
 │   ├── services/grokService.js (Gemini LLM)
 │   ├── server.js
 │   ├── .env, .env.example
@@ -170,7 +190,7 @@ query.in/
 │   ├── context/AuthContext.jsx
 │   ├── pages/
 │   │   ├── Landing.jsx, FAQs.jsx
-│   │   ├── admin/AdminDashboard.jsx
+│   │   ├── admin/AdminDashboard.jsx, AdminSuggestions.jsx (NEW)
 │   │   ├── moderator/ModeratorDashboard.jsx
 │   │   └── intern/
 │   │       ├── InternDashboard.jsx, AskAI.jsx

@@ -8,7 +8,7 @@
 ---
 
 ## Current Phase
-**Phase 7: Peer Escalation Workflow Engine**
+**Phase 8: AI FAQ Suggestion Engine**
 
 ### Status: ✅ Complete
 - Git repository initialized
@@ -43,7 +43,9 @@
 - **Rating Controller** - rateResponse, getResponseRatings with high/low rating lock
 - **Admin Controller** - getEscalatedQueries, approvePeerResponse, overrideWithAdminResponse
 - **Announcement Controller** - getAllAnnouncements, createAnnouncement
+- **Analytics Controller** - trackNoFaqQuery, getFaqSuggestions, getAllNoFaqQueries, getNoFaqStats
 - **Intern Pages:** PeerQueue, MyEscalations, ViewFAQs, Announcements
+- **Admin Pages:** AdminSuggestions (Card 7 with yellow alert, dismiss, add to FAQs modal)
 
 ### Resolved Issues
 1. Fixed: Explore FAQs button redirected to login instead of FAQ page
@@ -59,9 +61,9 @@
 11. Fixed: Mongoose deprecated `new: true` → `returnDocument: 'after'`
 12. Fixed: Frontend handles pending_feedback after rag_downvote
 13. Fixed: Backend missing ratingRoutes.js and adminRoutes.js files
+14. Fixed: Backend missing analytics controller and routes for no_faq tracking
 
 ### Next Actions
-- Build AI FAQ Suggestion Engine (no_faq alert at 10+ hits)
 - Implement Realtime Notifications & Queue System
 - Create documentation files (architecture.md, setup_guide.md, api_docs.md)
 
@@ -74,8 +76,8 @@
 4. ✅ Authentication & RBAC
 5. ✅ Admin, Moderator & Intern Dashboards
 6. ✅ RAG & LLM Integration
-7. ✅ Peer Escalation Workflow Engine (current)
-8. ⬜ AI FAQ Suggestion Engine
+7. ✅ Peer Escalation Workflow Engine
+8. ✅ AI FAQ Suggestion Engine (current)
 9. ⬜ Realtime Notifications & Queue System
 10. ⬜ Automated Testing Suite
 11. ⬜ Documentation Engine
@@ -115,7 +117,7 @@
 - `GET /api/peer/my-escalations` - Get my submitted queries
 - `POST /api/peer/answer` - Submit peer answer
 - `POST /api/peer/skip` - Skip query
-- `POST /peer/ambiguous` - Mark query as ambiguous (3-strike rule)
+- `POST /api/peer/ambiguous` - Mark query as ambiguous (3-strike rule)
 
 ### Ratings
 - `POST /api/ratings/:id` - Rate a peer response (1-5 stars)
@@ -124,6 +126,13 @@
 - `GET /api/admin/escalated` - Get escalated queries
 - `POST /api/admin/approve` - Approve peer response
 - `POST /api/admin/override` - Admin override answer
+
+### Analytics (AI FAQ Suggestion Engine)
+- `GET /api/analytics/faq-suggestions` - Get suggestions (>= 10 occurrences)
+- `GET /api/analytics/no-faq` - Get all no_faq records
+- `GET /api/analytics/stats` - Get analytics summary
+- `DELETE /api/analytics/suggestions/:id` - Dismiss a suggestion
+- `POST /api/analytics/create-faq` - Create FAQ from suggestion
 
 ### Announcements
 - `GET /api/announcements` - Get all announcements

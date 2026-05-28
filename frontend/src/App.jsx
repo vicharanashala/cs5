@@ -12,6 +12,7 @@ import Landing from './pages/Landing';
 import FAQs from './pages/FAQs';
 
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminSuggestions from './pages/admin/AdminSuggestions';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
 import InternDashboard from './pages/intern/InternDashboard';
 import AskAI from './pages/intern/AskAI';
@@ -97,6 +98,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['intern']}>
               <Announcements />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/suggestions"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminSuggestions />
             </ProtectedRoute>
           }
         />
