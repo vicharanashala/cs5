@@ -185,6 +185,16 @@ const AskAI = () => {
           resolution: 'resolved',
           message: 'Thank you for your feedback!',
         });
+      } else if (data.resolution === 'pending_feedback' && data.answer) {
+        setResponse({
+          source: data.source,
+          answer: data.answer,
+          clean_question: data.clean_question,
+          category: data.category,
+          faq_id: data.faq_id,
+          resolution: data.resolution,
+          message: data.message,
+        });
       }
     } catch (err) {
       setError('Failed to submit feedback. Please try again.');

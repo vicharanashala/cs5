@@ -5,6 +5,8 @@
  * Handles all communication with the Gemini API for query synthesis.
  * All calls originate from the backend only - API key never exposed to frontend.
  *
+ * Uses direct REST API calls to ensure correct API version (v1) is used.
+ *
  * PIPELINE STAGES:
  * 1. Sanity Check - Evaluate linguistic coherence, reject gibberish
  * 2. Context Synthesis - Inject FAQ context + query, use low temperature
@@ -16,8 +18,10 @@
 const axios = require('axios');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.0-pro';
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1/models';
+
+const getModelUrl = (modelName) => `${GEMINI_BASE_URL}/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
 
 /**
  * STAGE 1: Sanity Check
@@ -41,15 +45,11 @@ Your response (VALID or INVALID):`;
 
   try {
     const response = await axios.post(
-      `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      getModelUrl(GEMINI_MODEL),
       {
         contents: [
           {
-            parts: [
-              {
-                text: sanityPrompt,
-              },
-            ],
+            parts: [{ text: sanityPrompt }],
           },
         ],
         generationConfig: {
@@ -58,9 +58,7 @@ Your response (VALID or INVALID):`;
         },
       },
       {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         timeout: 15000,
       }
     );
@@ -92,10 +90,7 @@ Your response (VALID or INVALID):`;
  */
 const synthesizeAnswer = async (query, faqContext) => {
   const contextText = faqContext
-    .map(
-      (faq) =>
-        `Q: ${faq.clean_question}\nA: ${faq.answer}\nCategory: ${faq.category}`
-    )
+    .map((faq) => `Q: ${faq.clean_question}\nA: ${faq.answer}\nCategory: ${faq.category}`)
     .join('\n\n');
 
   const synthesisPrompt = `You are an expert FAQ assistant for the Vicharanashala Internship Programme (VINS). Your knowledge comes ONLY from the provided FAQ context below.
@@ -117,15 +112,11 @@ Your Answer (using ONLY the context above):`;
 
   try {
     const response = await axios.post(
-      `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      getModelUrl(GEMINI_MODEL),
       {
         contents: [
           {
-            parts: [
-              {
-                text: synthesisPrompt,
-              },
-            ],
+            parts: [{ text: synthesisPrompt }],
           },
         ],
         generationConfig: {
@@ -134,9 +125,7 @@ Your Answer (using ONLY the context above):`;
         },
       },
       {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         timeout: 30000,
       }
     );
@@ -158,40 +147,20 @@ Your Answer (using ONLY the context above):`;
  */
 const getGrokResponse = async (query, faqContext = []) => {
   if (!GEMINI_API_KEY) {
-    return {
-      success: false,
-      error: 'Gemini API is not configured. Please try again later.',
-      stage: 'config',
-    };
+    return { success: false, error: 'Gemini API is not configured.', stage: 'config' };
   }
 
   const sanity = await sanityCheck(query);
   if (!sanity.isValid) {
-    return {
-      success: false,
-      error: sanity.reason,
-      stage: 'sanity',
-    };
+    return { success: false, error: sanity.reason, stage: 'sanity' };
   }
 
   const answer = await synthesizeAnswer(query, faqContext);
   if (!answer) {
-    return {
-      success: false,
-      error: 'Unable to generate an answer at this time. Please try again.',
-      stage: 'synthesis',
-    };
+    return { success: false, error: 'Unable to generate an answer.', stage: 'synthesis' };
   }
 
-  return {
-    success: true,
-    answer,
-    stage: 'complete',
-  };
+  return { success: true, answer, stage: 'complete' };
 };
 
-module.exports = {
-  getGrokResponse,
-  sanityCheck,
-  synthesizeAnswer,
-};
+module.exports = { getGrokResponse, sanityCheck, synthesizeAnswer };

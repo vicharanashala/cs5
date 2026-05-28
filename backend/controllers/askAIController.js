@@ -125,7 +125,7 @@ const askAI = async (req, res) => {
             $addToSet: { impactedInterns: intern_id },
             lastUpdatedDate: new Date(),
           },
-          { upsert: true, new: true }
+{ upsert: true, returnDocument: 'after' }
         );
 
         return res.status(201).json({
@@ -160,7 +160,7 @@ const askAI = async (req, res) => {
           $addToSet: { impactedInterns: intern_id },
           lastUpdatedDate: new Date(),
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
       );
 
       return res.status(201).json({

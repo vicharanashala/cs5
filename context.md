@@ -46,25 +46,29 @@
 - FAQs display grouped by category with collapsible dropdowns
 - Smooth rounded corners (rounded-lg) applied to cards and buttons
 - AskAI routes and controller (autoComplete, askAI endpoints)
-- LLM service (sanity check, context synthesis with temperature 0.1)
+- Gemini LLM service (sanity check, context synthesis with temperature 0.1)
 - Intern AskAI page (/intern/ask) with live auto-complete dropdown
 - RAG database search (keyword matching on search_text, tags, keywords)
 - LLM fallback pipeline with upvote/downvote flow
 - Peer escalation on downvote (writes to Queries collection)
-- Gemini API key configured in .env
+- Gemini API key configured in .env (model: gemini-2.5-flash)
 - Auto-complete closes on Enter key press
 - RAG downvote triggers LLM fallback before escalation
+- Frontend handles LLM response after rag_downvote (pending_feedback state)
 
 ### Resolved Issues
-- Fixed: Explore FAQs button redirected to login instead of FAQ page
-- Fixed: Auth interceptor redirected to login on 401 for public routes (created publicApi.js)
-- Fixed: FAQs page now shows all 125 FAQs from database in accordion format
-- Fixed: Cards and buttons now have smooth rounded corners
-- Fixed: Login redirect loop - ProtectedRoute now checks localStorage directly to avoid race condition
-- Fixed: Auto-complete dropdown not closing on Enter key
-- Fixed: RAG downvote now triggers LLM before escalation (not direct peer escalation)
-- Fixed: Auto-complete now uses consistent RAG matching across search_text, tags, and keywords
-- Fixed: LLM service updated from Grok to Gemini API
+1. Fixed: Explore FAQs button redirected to login instead of FAQ page
+2. Fixed: Auth interceptor redirected to login on 401 for public routes (created publicApi.js)
+3. Fixed: FAQs page now shows all 125 FAQs from database in accordion format
+4. Fixed: Cards and buttons now have smooth rounded corners
+5. Fixed: Login redirect loop - ProtectedRoute now checks localStorage directly to avoid race condition
+6. Fixed: Auto-complete dropdown not closing on Enter key
+7. Fixed: RAG downvote now triggers LLM before escalation (not direct peer escalation)
+8. Fixed: Auto-complete now uses consistent RAG matching across search_text, tags, and keywords
+9. Fixed: LLM service updated from Grok to Groq to Gemini API
+10. Fixed: Gemini API v1beta 404 error - switched to v1 REST API
+11. Fixed: Mongoose deprecated `new: true` → `returnDocument: 'after'`
+12. Fixed: Frontend not handling pending_feedback after rag_downvote triggers LLM
 
 ### Next Actions
 - Build response routes and controller
@@ -95,7 +99,7 @@
 ## Issues & Notes
 - MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
 - Gemini API Key: AIzaSyAJH1lbg29Egb4CifLCVVSaPjxz2mZ-lIM
-- Gemini Model: gemini-1.5-flash
+- Gemini Model: gemini-2.5-flash (uses REST API v1)
 - Test accounts: admin@query.in, mod@query.in, intern1@query.in, intern2@query.in (passwords in testCredentials.md)
 - publicApi.js used for public routes (no auth interceptor)
 - default api.js used for authenticated routes
