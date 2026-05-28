@@ -15,6 +15,10 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
 import InternDashboard from './pages/intern/InternDashboard';
 import AskAI from './pages/intern/AskAI';
+import PeerQueue from './pages/intern/PeerQueue';
+import MyEscalations from './pages/intern/MyEscalations';
+import ViewFAQs from './pages/intern/ViewFAQs';
+import Announcements from './pages/intern/Announcements';
 
 const App = () => {
   return (
@@ -57,6 +61,42 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['intern']}>
               <AskAI />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/intern/peer-queue"
+          element={
+            <ProtectedRoute allowedRoles={['intern']}>
+              <PeerQueue />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/intern/my-queries"
+          element={
+            <ProtectedRoute allowedRoles={['intern']}>
+              <MyEscalations />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/intern/faqs"
+          element={
+            <ProtectedRoute allowedRoles={['intern']}>
+              <ViewFAQs />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/intern/announcements"
+          element={
+            <ProtectedRoute allowedRoles={['intern']}>
+              <Announcements />
             </ProtectedRoute>
           }
         />

@@ -35,6 +35,10 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/faqs', require('./routes/faqRoutes'));
 app.use('/api/queries', require('./routes/queryRoutes'));
 app.use('/api/ask', require('./routes/askAIRoutes'));
+app.use('/api/peer', require('./routes/peerRoutes'));
+app.use('/api/ratings', require('./routes/ratingRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/announcements', require('./routes/announcementRoutes'));
 
 app.listen(PORT, async () => {
   console.log(`🚀 Query.in server running on port ${PORT}`);
