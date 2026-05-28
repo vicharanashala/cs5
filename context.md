@@ -8,7 +8,7 @@
 ---
 
 ## Current Phase
-**Phase 2: MERN Stack Setup & Foundation**
+**Phase 3: Database & Backend APIs**
 
 ### Status: ✅ Complete
 - Git repository initialized
@@ -19,19 +19,25 @@
 - Foundational components created (Card.jsx, Button.jsx)
 - server.js and config/db.js written with detailed comments
 - Environment configuration (.env, .env.example) established
+- 6 Mongoose schemas created (User, Query, Response, FAQ, NoFaq, Announcement)
+- FAQ routes and controller implemented (getAllFAQs, createFAQ, searchFAQs)
+- Query routes and controller implemented (submitQuery, getAllQueries, getQueryById)
+- server.js updated to mount API routes and connect to MongoDB Atlas
+- MongoDB Atlas URI configured in .env
 
 ### Next Actions
-- Create database schema models (Users, Queries, Responses, FAQs, no_faq, Announcements)
-- Build backend API routes and controllers
 - Set up authentication with JWT and RBAC middleware
+- Build response routes and controller
+- Build no_faq routes for content gap tracking
+- Build announcement routes for admin broadcasts
 - Create documentation files (architecture.md, setup_guide.md, api_docs.md, database_schema.md)
 
 ---
 
 ## Milestones
 1. ✅ Project Architecture & Planning
-2. ✅ MERN Stack Setup & Foundation (current)
-3. ⬜ Database & Backend APIs
+2. ✅ MERN Stack Setup & Foundation
+3. ✅ Database & Backend APIs (current)
 4. ⬜ Authentication & RBAC
 5. ⬜ Admin, Moderator & Intern Dashboards
 6. ⬜ RAG & Grok LLM Integration
@@ -44,4 +50,4 @@
 ---
 
 ## Issues & Notes
-- None yet
+- MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
