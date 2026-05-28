@@ -27,6 +27,13 @@
 const Query = require('../models/Query');
 const Response = require('../models/Response');
 
+let getIO;
+try {
+  getIO = require('../config/socket').getIO;
+} catch (e) {
+  getIO = null;
+}
+
 /**
  * MAX_PEER_RESPONSES: Hard cap on peer responses per query
  * Prevents spam and ensures query lifecycle doesn't grow unbounded
@@ -205,6 +212,17 @@ const submitAnswer = async (req, res) => {
         query_status: updatedQuery.status,
       },
     });
+
+    if (getIO) {
+      const io = getIO();
+      const internRoom = `user:${query.intern_id.toString()}`;
+      io.to(internRoom).emit('new_peer_answer', {
+        query_id: query._id,
+        query_text: query.query_text,
+        response_id: response._id,
+        responder_email: req.user.email,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       success: false,

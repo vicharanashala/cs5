@@ -26,6 +26,13 @@
 const Query = require('../models/Query');
 const Response = require('../models/Response');
 
+let getIO;
+try {
+  getIO = require('../config/socket').getIO;
+} catch (e) {
+  getIO = null;
+}
+
 /**
  * getEscalatedQueries
  * -------------------
@@ -171,6 +178,17 @@ const approvePeerResponse = async (req, res) => {
         resolved_by: admin_id,
       },
     });
+
+    if (getIO) {
+      const io = getIO();
+      const internRoom = `user:${query.intern_id.toString()}`;
+      io.to(internRoom).emit('query_resolved', {
+        query_id: query._id,
+        query_text: query.query_text,
+        resolution_type: 'peer_approved',
+        resolved_by: admin_id,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -259,6 +277,17 @@ const overrideWithAdminResponse = async (req, res) => {
         resolved_by: admin_id,
       },
     });
+
+    if (getIO) {
+      const io = getIO();
+      const internRoom = `user:${query.intern_id.toString()}`;
+      io.to(internRoom).emit('query_resolved', {
+        query_id: query._id,
+        query_text: query.query_text,
+        resolution_type: 'admin_override',
+        resolved_by: admin_id,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       success: false,

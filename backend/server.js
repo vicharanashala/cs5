@@ -2,9 +2,7 @@
  * =============================================================================
  * QUERY.IN - SERVER ENTRY POINT
  * =============================================================================
- * Initializes the Express.js application with essential middleware for CORS,
- * JSON parsing, database connection, and environment configuration.
- * This serves as the single entry point for all backend API routes.
+ * Initializes Express with Socket.IO and background cron jobs.
  *
  * @module server
  */
@@ -12,10 +10,17 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
 const { connectDB } = require('./config/db');
+const { initializeSocket } = require('./config/socket');
+const { startSweeper } = require('./jobs/sweeper');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const server = http.createServer(app);
+
+initializeSocket(server);
 
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
@@ -41,8 +46,9 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/announcements', require('./routes/announcementRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   console.log(`🚀 Query.in server running on port ${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   await connectDB();
+  startSweeper();
 });
