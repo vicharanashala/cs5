@@ -8,7 +8,7 @@
 ---
 
 ## Current Phase
-**Phase 5: Admin, Moderator & Intern Dashboards (UI/UX) + Bug Fixes**
+**Phase 6: RAG & Grok LLM Integration**
 
 ### Status: ✅ Complete
 - Git repository initialized
@@ -34,8 +34,8 @@
 - Axios interceptor utility configured (auto-attaches JWT, handles 401)
 - Badge component (pill-shaped status badges: outline, filled, verified, ambiguous)
 - FormattedAnswer component (bullet points, paragraphs, bold keywords)
-- Landing page (50/50 split, Explore FAQs + Login)
-- Login page (calls /api/auth/login, redirects by role)
+- Landing page (50/50 split, Explore FAQs + Login embedded)
+- Login page removed - login embedded in Landing page
 - DashboardLayout (collapsible sidebar, topbar with search/notifications)
 - Admin dashboard (User Management, Broadcast, Query Monitor, FAQ DB, AI Suggestions)
 - Moderator dashboard (Query Review, FAQs, Announcements)
@@ -45,21 +45,27 @@
 - Public FAQs page (/faqs) with accordion category grouping
 - FAQs display grouped by category with collapsible dropdowns
 - Smooth rounded corners (rounded-lg) applied to cards and buttons
+- AskAI routes and controller (autoComplete, askAI endpoints)
+- Grok service (sanity check, context synthesis with temperature 0.1)
+- Intern AskAI page (/intern/ask) with live auto-complete dropdown
+- RAG database search (keyword matching on search_text, tags, keywords)
+- Grok LLM fallback pipeline with upvote/downvote flow
+- Peer escalation on downvote (writes to Queries collection)
+- Grok API key configured in .env
 
 ### Resolved Issues
 - Fixed: Explore FAQs button redirected to login instead of FAQ page
 - Fixed: Auth interceptor redirected to login on 401 for public routes (created publicApi.js)
 - Fixed: FAQs page now shows all 125 FAQs from database in accordion format
 - Fixed: Cards and buttons now have smooth rounded corners
-- Fixed: Login redirect loop - ProtectedRoute now checks localStorage directly to avoid race condition, added 50ms delay before navigation
+- Fixed: Login redirect loop - ProtectedRoute now checks localStorage directly to avoid race condition
 
 ### Next Actions
 - Build response routes and controller
 - Build no_faq routes for content gap tracking
 - Build announcement routes for admin broadcasts
-- Implement RAG search and Grok LLM fallback
-- Build Peer Escalation Workflow Engine
-- Build AI FAQ Suggestion Engine
+- Build Peer Escalation Workflow Engine (5-peer answer cap, 24hr timeout)
+- Build AI FAQ Suggestion Engine (no_faq alert at 10+ hits)
 - Implement Realtime Notifications & Queue System
 - Create documentation files (architecture.md, setup_guide.md, api_docs.md)
 
@@ -71,7 +77,7 @@
 3. ✅ Database & Backend APIs
 4. ✅ Authentication & RBAC
 5. ✅ Admin, Moderator & Intern Dashboards
-6. ⬜ RAG & Grok LLM Integration
+6. ✅ RAG & Grok LLM Integration (current)
 7. ⬜ Peer Escalation Workflow Engine
 8. ⬜ AI FAQ Suggestion Engine
 9. ⬜ Realtime Notifications & Queue System
@@ -82,6 +88,7 @@
 
 ## Issues & Notes
 - MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
+- Grok API Key: REDACTED_XAI_KEY
 - Test accounts: admin@query.in, mod@query.in, intern1@query.in, intern2@query.in (passwords in testCredentials.md)
 - publicApi.js used for public routes (no auth interceptor)
 - default api.js used for authenticated routes

@@ -14,6 +14,7 @@ import FAQs from './pages/FAQs';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
 import InternDashboard from './pages/intern/InternDashboard';
+import AskAI from './pages/intern/AskAI';
 
 const App = () => {
   return (
@@ -47,6 +48,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['intern']}>
               <InternDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/intern/ask"
+          element={
+            <ProtectedRoute allowedRoles={['intern']}>
+              <AskAI />
             </ProtectedRoute>
           }
         />

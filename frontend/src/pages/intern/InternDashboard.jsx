@@ -106,7 +106,7 @@ const InternDashboard = () => {
               <p className="text-text-muted text-sm">No FAQs available</p>
             ) : (
               faqs.map((faq) => (
-                <div key={faq._id} className="p-3 border border-border-subtle hover:border-black transition-all rounded-sm">
+                <div key={faq._id} className="p-3 border border-border-subtle hover:border-black transition-all rounded-lg">
                   <div className="font-medium text-black text-sm">{faq.clean_question}</div>
                   <div className="text-xs text-text-muted mt-1">{faq.category}</div>
                 </div>
