@@ -33,13 +33,24 @@ const autoComplete = async (req, res) => {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    const faqs = await FAQ.find({
-      keywords: { $regex: q, $options: 'i' },
-    })
-      .select('clean_question answer category keywords')
-      .limit(5);
+    const allFAQs = await FAQ.find({})
+      .select('clean_question answer category keywords search_text tags')
+      .lean();
 
-    res.status(200).json({ success: true, data: faqs });
+    const searchTerms = q.toLowerCase().split(' ').filter(Boolean);
+    const matches = allFAQs
+      .map((faq) => {
+        const searchable = `${faq.clean_question} ${faq.search_text || ''} ${faq.tags?.join(' ') || ''} ${faq.keywords?.join(' ') || ''}`.toLowerCase();
+        const matchCount = searchTerms.filter((term) => searchable.includes(term)).length;
+        const matchScore = matchCount / searchTerms.length;
+        return { faq, matchScore };
+      })
+      .filter((m) => m.matchScore > 0.3)
+      .sort((a, b) => b.matchScore - a.matchScore)
+      .slice(0, 5)
+      .map((m) => m.faq);
+
+    res.status(200).json({ success: true, data: matches });
   } catch (error) {
     res.status(500).json({
       success: false,
