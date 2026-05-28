@@ -2,17 +2,14 @@
  * =============================================================================
  * QUERY.IN - LOGIN PAGE
  * =============================================================================
- * Dedicated login portal that calls /api/auth/login and redirects
- * the user to their dashboard based on their role.
- *
- * Uses window.location for hard redirect to ensure localStorage is read fresh.
- *
  * @module pages/Login
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const Login = () => {
@@ -20,6 +17,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,12 +29,11 @@ const Login = () => {
       const res = await api.post('/auth/login', { email, password });
       const { token, user } = res.data;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      login(token, user);
 
       const roleRoute = user.role === 'admin' ? '/admin' : user.role === 'moderator' ? '/moderator' : '/intern';
 
-      window.location.href = roleRoute;
+      navigate(roleRoute, { replace: true });
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
       setLoading(false);
@@ -68,7 +66,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black"
                 placeholder="you@example.com"
               />
             </div>
@@ -83,7 +81,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                className="w-full px-4 py-3 border border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black"
                 placeholder="••••••••"
               />
             </div>
@@ -94,28 +92,19 @@ const Login = () => {
               disabled={loading}
               className="w-full"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-border-subtle">
             <p className="text-center text-sm text-text-muted">
-              Test accounts: admin@query.in, mod@query.in, intern1@query.in
+              Test: admin@query.in / Admin@1234
             </p>
           </div>
         </Card>
 
         <p className="text-center mt-6">
-          <a href="/" className="text-sm text-text-secondary hover:text-black underline">
-            ← Back to Home
-          </a>
+          <a href="/" className="text-sm text-text-secondary hover:text-black underline">← Back</a>
         </p>
       </div>
     </div>

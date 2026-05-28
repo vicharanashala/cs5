@@ -2,13 +2,12 @@
  * =============================================================================
  * QUERY.IN - AUTH CONTEXT
  * =============================================================================
- * React Context for managing authentication state across the application.
- * State is initialized directly from localStorage to avoid race conditions.
+ * Simplified auth state - initialized synchronously from localStorage.
  *
  * @module context/AuthContext
  */
 
-import { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { createContext, useState, useCallback, useContext } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -28,7 +27,6 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(initialAuth.user);
   const [token, setToken] = useState(initialAuth.token);
-  const [loading, setLoading] = useState(false);
 
   const login = useCallback((newToken, userData) => {
     localStorage.setItem('token', newToken);
@@ -44,22 +42,25 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
-  const isAuthenticated = !!token;
+  const value = {
+    user,
+    token,
+    isAuthenticated: !!token,
+    login,
+    logout,
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        loading,
-        isAuthenticated,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
