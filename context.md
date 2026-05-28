@@ -8,7 +8,7 @@
 ---
 
 ## Current Phase
-**Phase 3: Database & Backend APIs**
+**Phase 4: Authentication & RBAC**
 
 ### Status: ✅ Complete
 - Git repository initialized
@@ -24,21 +24,26 @@
 - Query routes and controller implemented (submitQuery, getAllQueries, getQueryById)
 - server.js updated to mount API routes and connect to MongoDB Atlas
 - MongoDB Atlas URI configured in .env
+- 125 VINS FAQs seeded into database
+- Auth controller implemented (login, register, getMe) with JWT and bcrypt
+- RBAC middleware implemented (protect, authorizeRoles)
+- Auth routes mounted at /api/auth
+- testCredentials.md created with 4 test accounts
 
 ### Next Actions
-- Set up authentication with JWT and RBAC middleware
 - Build response routes and controller
 - Build no_faq routes for content gap tracking
 - Build announcement routes for admin broadcasts
 - Create documentation files (architecture.md, setup_guide.md, api_docs.md, database_schema.md)
+- Build Admin, Moderator & Intern Dashboards (UI/UX)
 
 ---
 
 ## Milestones
 1. ✅ Project Architecture & Planning
 2. ✅ MERN Stack Setup & Foundation
-3. ✅ Database & Backend APIs (current)
-4. ⬜ Authentication & RBAC
+3. ✅ Database & Backend APIs
+4. ✅ Authentication & RBAC (current)
 5. ⬜ Admin, Moderator & Intern Dashboards
 6. ⬜ RAG & Grok LLM Integration
 7. ⬜ Peer Escalation Workflow Engine
@@ -51,3 +56,4 @@
 
 ## Issues & Notes
 - MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
+- Test accounts: admin@query.in, mod@query.in, intern1@query.in, intern2@query.in (passwords in testCredentials.md)

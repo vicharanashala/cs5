@@ -31,6 +31,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/faqs', require('./routes/faqRoutes'));
 app.use('/api/queries', require('./routes/queryRoutes'));
 

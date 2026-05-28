@@ -14,16 +14,11 @@ const mongoose = require('mongoose');
 // Destructure connection string and options from environment variables
 // Fallback to localhost for local development
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/queryin';
-const DB_NAME = process.env.DB_NAME || 'queryin';
 
-// Mongoose connection options tuned for production-grade reliability
 const connectionOptions = {
-  dbName: DB_NAME,
-  maxPoolSize: 10,                    // Maximum number of sockets in the connection pool
-  serverSelectionTimeoutMS: 5000,     // Time to wait before throwing an error on connection attempt
-  socketTimeoutMS: 45000,             // Socket timeout in milliseconds
-  useNewUrlParser: true,              // Deprecated but required for older mongoose versions
-  useUnifiedTopology: true,           // Use the new Server Discovery and Monitoring engine
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
 };
 
 /**
