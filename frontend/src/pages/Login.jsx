@@ -5,18 +5,14 @@
  * Dedicated login portal that calls /api/auth/login and redirects
  * the user to their dashboard based on their role.
  *
- * On success:
- * - Stores JWT in localStorage (handled by AuthContext)
- * - Redirects: admin → /admin, moderator → /moderator, intern → /intern
+ * Uses window.location for hard redirect to ensure localStorage is read fresh.
  *
  * @module pages/Login
  */
 
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const Login = () => {
@@ -24,11 +20,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
-
-  const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,15 +30,14 @@ const Login = () => {
       const res = await api.post('/auth/login', { email, password });
       const { token, user } = res.data;
 
-      login(token, user);
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
 
-      setTimeout(() => {
-        const roleRoute = user.role === 'admin' ? '/admin' : user.role === 'moderator' ? '/moderator' : '/intern';
-        navigate(roleRoute, { replace: true });
-      }, 50);
+      const roleRoute = user.role === 'admin' ? '/admin' : user.role === 'moderator' ? '/moderator' : '/intern';
+
+      window.location.href = roleRoute;
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
-    } finally {
       setLoading(false);
     }
   };

@@ -3,53 +3,46 @@
  * QUERY.IN - AUTH CONTEXT
  * =============================================================================
  * React Context for managing authentication state across the application.
- * Stores the JWT token and user data, provides login/logout functions,
- * and automatically loads auth state from localStorage on mount.
- *
- * Architecture:
- * - Token stored in localStorage for persistence across page refreshes
- * - User object contains: id, email, role (from JWT payload)
- * - login() calls /api/auth/login and stores token + user
- * - logout() clears localStorage and resets state
- * - isAuthenticated boolean computed from !!token
+ * State is initialized directly from localStorage to avoid race conditions.
  *
  * @module context/AuthContext
  */
 
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 
 const AuthContext = createContext(null);
 
+const getStoredAuth = () => {
+  try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+    return { token, user, isAuthenticated: !!token };
+  } catch {
+    return { token: null, user: null, isAuthenticated: false };
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const initialAuth = getStoredAuth();
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+  const [user, setUser] = useState(initialAuth.user);
+  const [token, setToken] = useState(initialAuth.token);
+  const [loading, setLoading] = useState(false);
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-
-    setLoading(false);
+  const login = useCallback((newToken, userData) => {
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(newToken);
+    setUser(userData);
   }, []);
 
-  const login = (token, userData) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setToken(token);
-    setUser(userData);
-  };
-
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
-  };
+  }, []);
 
   const isAuthenticated = !!token;
 
