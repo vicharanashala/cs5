@@ -8,7 +8,7 @@
 ---
 
 ## Current Phase
-**Phase 5: Admin, Moderator & Intern Dashboards (UI/UX)**
+**Phase 5: Admin, Moderator & Intern Dashboards (UI/UX) + Bug Fixes**
 
 ### Status: ✅ Complete
 - Git repository initialized
@@ -41,6 +41,16 @@
 - Moderator dashboard (Query Review, FAQs, Announcements)
 - Intern dashboard (Announcements, FAQs, Ask AI, My Escalations, Peer Queue)
 - React Router configured with protected routes
+- publicApi.js created (separate axios for public routes without 401 redirect)
+- Public FAQs page (/faqs) with accordion category grouping
+- FAQs display grouped by category with collapsible dropdowns
+- Smooth rounded corners (rounded-lg) applied to cards and buttons
+
+### Resolved Issues
+- Fixed: Explore FAQs button redirected to login instead of FAQ page
+- Fixed: Auth interceptor redirected to login on 401 for public routes (created publicApi.js)
+- Fixed: FAQs page now shows all 125 FAQs from database in accordion format
+- Fixed: Cards and buttons now have smooth rounded corners
 
 ### Next Actions
 - Build response routes and controller
@@ -59,7 +69,7 @@
 2. ✅ MERN Stack Setup & Foundation
 3. ✅ Database & Backend APIs
 4. ✅ Authentication & RBAC
-5. ✅ Admin, Moderator & Intern Dashboards (current)
+5. ✅ Admin, Moderator & Intern Dashboards
 6. ⬜ RAG & Grok LLM Integration
 7. ⬜ Peer Escalation Workflow Engine
 8. ⬜ AI FAQ Suggestion Engine
@@ -72,3 +82,5 @@
 ## Issues & Notes
 - MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
 - Test accounts: admin@query.in, mod@query.in, intern1@query.in, intern2@query.in (passwords in testCredentials.md)
+- publicApi.js used for public routes (no auth interceptor)
+- default api.js used for authenticated routes
