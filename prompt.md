@@ -197,6 +197,20 @@
 
 ---
 
+### Prompt 13: Login Redirect Loop Issue
+**Prompt:** When entering credentials and clicking sign in, getting redirected to login page again instead of dashboard.
+
+**Response:**
+**Root Cause:** Race condition - `ProtectedRoute` checked `isAuthenticated` from React context, but when `navigate()` was called immediately after `login()`, React's state hadn't propagated yet. The ProtectedRoute saw no authenticated user and redirected back to /login.
+
+**Fixes Applied:**
+1. `Login.jsx` - Added 50ms setTimeout delay before navigation to allow state to propagate
+2. `ProtectedRoute.jsx` - Changed to check localStorage directly (`localStorage.getItem('token')`) instead of relying solely on React context state
+3. **Commit:** `d787634` - "fix: resolve login redirect race condition by checking localStorage directly in ProtectedRoute and adding delay before navigation"
+4. **Commit:** `ec8f3ca` - "docs: update context.md with login redirect fix"
+
+---
+
 ## Issues Encountered & Fixed
 
 | # | Issue | Root Cause | Fix |
@@ -206,6 +220,7 @@
 | 3 | FAQs page blank data | Axios interceptor redirected to login on 401 for public routes | Created `publicApi.js` without interceptor |
 | 4 | FAQs not grouped | Flat list layout | Accordion with category dropdowns |
 | 5 | Sharp card edges | `rounded-sm` on cards/buttons | Changed to `rounded-lg` |
+| 6 | Login redirect loop | Race condition - ProtectedRoute checked context state before React state propagated | ProtectedRoute now checks localStorage directly; added 50ms delay before navigation in Login |
 
 ---
 
@@ -251,6 +266,8 @@ query.in/
 
 | Commit | Description |
 |--------|-------------|
+| `ec8f3ca` | docs: update context.md with login redirect fix |
+| `d787634` | fix: resolve login redirect race condition by checking localStorage directly... |
 | `32b011b` | docs: update context.md with resolved issues and current status |
 | `2fb4e4e` | feat: improve FAQs page with accordion categories, smooth rounded corners... |
 | `28ece33` | feat: add public FAQs page with search/filter and fix auth interceptor... |
