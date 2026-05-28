@@ -1,0 +1,33 @@
+/**
+ * =============================================================================
+ * QUERY.IN - GLOBAL STYLESHEET
+ * =============================================================================
+ * Implements the strict Black & White design system using Tailwind CSS.
+ * Enforces a light background (#FAFAFA) and high-contrast black/white components.
+ *
+ * @file index.css
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  #root {
+    @apply min-h-screen flex flex-col;
+  }
+}
