@@ -25,6 +25,8 @@ const {
   getQueryDetails,
   createFAQFromQuery,
   clearAllData,
+  warnUser,
+  getSpoiledUsers,
 } = require('../controllers/adminController');
 
 router.use(protect);
@@ -32,9 +34,11 @@ router.use(authorizeRoles('admin', 'moderator'));
 
 router.get('/escalated', getEscalatedQueries);
 router.get('/query/:id', getQueryDetails);
+router.get('/spoiled-users', getSpoiledUsers);
 router.post('/approve', approvePeerResponse);
 router.post('/override', overrideWithAdminResponse);
 router.post('/create-faq', createFAQFromQuery);
 router.post('/clear-all-data', clearAllData);
+router.post('/warn-user', warnUser);
 
 module.exports = router;

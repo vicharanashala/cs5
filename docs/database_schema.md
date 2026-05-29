@@ -28,6 +28,8 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
   email: String,           // Unique, lowercase, validated
   password: String,        // bcrypt hashed (min 6 chars)
   role: String,            // enum: 'admin' | 'moderator' | 'intern'
+  warning_count: Number,   // Default: 0, max: 5
+  is_disabled: Boolean,    // Default: false, auto-set at warning_count >= 5
   createdAt: Date,
   updatedAt: Date
 }
@@ -35,6 +37,11 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 
 **Indexes:**
 - `email`: unique
+
+**Warning System:**
+- `warning_count`: Tracks number of warnings (0-5)
+- `is_disabled`: Auto-enables when warning_count >= 5
+- Disabled users cannot log in (403 error)
 
 **Relationships:**
 - Queries created → `queries.intern_id`
@@ -184,7 +191,7 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 {
   _id: ObjectId,           // Primary key
   recipient_id: ObjectId,  // Ref: User (required)
-  type: String,            // enum: 'peer_answer' | 'query_resolved' | 'admin_alert' | 'announcement'
+  type: String,            // enum: 'peer_answer' | 'query_resolved' | 'admin_alert' | 'announcement' | 'faq_added' | 'intern_warning'
   title: String,           // Required, max 200 chars
   message: String,         // Required, max 1000 chars
   link_id: ObjectId,        // Ref: Query/FAQ/Announcement (optional)
@@ -208,6 +215,7 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 | `admin_alert` | NoFaq hits 10 occurrences | All admins |
 | `announcement` | Admin creates announcement | All interns |
 | `faq_added` | Admin adds new FAQ to knowledge base | All interns |
+| `intern_warning` | Admin sends warning to intern for misuse | Targeted intern |
 
 ---
 

@@ -148,6 +148,26 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 
 ---
 
+### 10. Warning & Credibility System
+
+**Warning Count:** Each user has `warning_count` (default: 0, max: 5)
+
+**Auto-Disable:** Account automatically disabled when warning_count >= 5
+
+**Warning Types:** `intern_warning` notification sent to misbehaving interns
+
+**Admin Tool:** Send warning button in query details modal on all admin/moderator resolve pages (AdminQueries, AdminResolveHub, AdminAmbiguous, ModeratorResolveHub, ModeratorAmbiguous)
+
+**Spoiled Users Page:** Admin dashboard page (`/admin/spoiled-users`) listing all users with warnings
+
+**Login Block:** Disabled users cannot log in (403 error)
+
+**Frontend Alert:** Warning banner shown on MyEscalations page if user has warnings
+
+**Warning Badge:** Query detail panels show warning count next to intern email
+
+---
+
 ## Full Feature List
 
 ### Authentication & Authorization

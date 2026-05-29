@@ -244,6 +244,9 @@ STEP 7: RESOLVED (Terminal State)
 | 43 | Approve/Override doesn't remove query from admin view | No page refresh after action | Added `window.location.reload()` after approve/override |
 | 44 | MyEscalations shows "Resolved" instead of "Approved" | No distinction between resolution types | Shows "Approved" badge when `resolution_type === 'peer_approved'` |
 | 45 | High Rated card shown separately in Admin dashboard | Redundant with Resolve Hub | Removed separate High Rated card from Admin/Moderator Overview |
+| 46 | No warning system for intern misuse | No way to warn or disable misbehaving users | Added warning_count and is_disabled to User model, warnIntern endpoint, intern_warning notification, Spoiled Users page |
+| 47 | Failed to send warning (500 error) | Notification model enum missing 'intern_warning' type | Added 'intern_warning' to Notification type enum |
+| 48 | MyEscalations shows "Resolved" instead of "Approved" | Only peer_approved showed "Approved", admin_override showed "Resolved" | Changed to show "Approved" for ALL resolved queries regardless of resolution_type |
 
 ---
 
@@ -264,10 +267,11 @@ STEP 7: RESOLVED (Terminal State)
 
 ### Notification System
 - **Hybrid Model:** Socket.IO for real-time + MongoDB for persistence
-- **Types:** peer_answer, query_resolved, admin_alert, announcement, faq_added
+- **Types:** peer_answer, query_resolved, admin_alert, announcement, faq_added, intern_warning
 - **Components:** NotificationBell, Toast, NotificationContext
 - **Yellow Alert:** Admin notified when NoFaq hits 10 occurrences
 - **FAQ Added:** All interns notified when admin creates new FAQ
+- **Intern Warning:** Interns notified when they receive a warning for misuse
 
 ### Query Input Sanity Check
 - **Frontend + Backend validation** before RAG/LLM processing
@@ -281,6 +285,17 @@ STEP 7: RESOLVED (Terminal State)
   - Repeated pattern ratio < 40%
 - **Error code:** `INVALID_QUERY`
 - **Both frontend and backend validation for defense in depth**
+
+### Warning & Credibility System
+- **Warning Count:** Each user has `warning_count` (default: 0, max: 5)
+- **Auto-Disable:** Account automatically disabled when warning_count >= 5
+- **Warning Types:** intern_warning notification sent to misbehaving interns
+- **Admin Tool:** Send warning button in query details modal
+- **Spoiled Users Page:** Admin dashboard page listing all users with warnings
+- **Login Block:** Disabled users cannot log in (403 error)
+- **Frontend Alert:** Warning banner shown on MyEscalations page if user has warnings
+
+---
 
 ---
 
@@ -364,10 +379,12 @@ query.in/
 ### Admin
 - `GET /api/admin/escalated` - Get escalated queries
 - `GET /api/admin/query/:id` - Get query details
+- `GET /api/admin/spoiled-users` - Get users with warnings
 - `POST /api/admin/approve` - Approve peer response
 - `POST /api/admin/override` - Admin override
 - `POST /api/admin/create-faq` - Create FAQ from query
 - `POST /api/admin/clear-all-data` - Clear all Query/Response/NoFaq/Notification data (preserves users/FAQs)
+- `POST /api/admin/warn-user` - Send warning to intern
 
 ### Peer (Intern)
 - `GET /api/peer/queue` - Get pending queries
@@ -435,6 +452,7 @@ query.in/
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
 | Resolve Hub | /admin/resolve | Resolution queue (Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
+| Spoiled Users | /admin/spoiled-users | Users with warnings and credibility tracking |
 
 ## Moderator Dashboard Pages
 

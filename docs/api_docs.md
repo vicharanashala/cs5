@@ -785,6 +785,79 @@ Clear all escalation data (queries, responses, no_faqs, notifications) while pre
 
 ---
 
+### POST /admin/warn-user
+
+Send a warning to an intern for system misuse. If warning_count reaches 5, the intern's account is automatically disabled.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "intern_id": "64abc123...",
+  "query_id": "64xyz789...",
+  "warning_message": "Please do not submit spam queries. Repeated misuse will result in account disablement."
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Warning 3 of 5 sent to intern2@query.in",
+  "data": {
+    "warning_count": 3,
+    "is_disabled": false
+  }
+}
+```
+
+**Response (200) - Auto-disable at 5 warnings:**
+```json
+{
+  "success": true,
+  "message": "Warning 5 of 5 sent to intern2@query.in",
+  "data": {
+    "warning_count": 5,
+    "is_disabled": true
+  }
+}
+```
+
+---
+
+### GET /admin/spoiled-users
+
+Get all interns with warnings (warning_count > 0). Used for the Admin Spoiled Users page.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "_id": "64abc123...",
+      "email": "intern1@query.in",
+      "warning_count": 3,
+      "is_disabled": false,
+      "createdAt": "2026-05-01T..."
+    },
+    {
+      "_id": "64abc456...",
+      "email": "intern2@query.in",
+      "warning_count": 5,
+      "is_disabled": true,
+      "createdAt": "2026-05-10T..."
+    }
+  ]
+}
+```
+
+---
+
 ## Analytics
 
 ### GET /analytics/faq-suggestions

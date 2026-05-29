@@ -73,7 +73,7 @@ const getPeerQueue = async (req, res) => {
       _id: { $nin: myAnsweredQueryIds },
       ambiguous_marked_by: { $ne: currentUserId },
     })
-      .populate('intern_id', 'email role')
+      .populate('intern_id', '_id email role warning_count')
       .sort({ createdAt: 1 })
       .limit(20);
 

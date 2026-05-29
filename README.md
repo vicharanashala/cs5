@@ -219,6 +219,9 @@ All query resolutions are tracked with ResolutionType:
 | 39 | 4-star rating locks query immediately | Changed MIN_HIGH_RATING to 5; 4 stars = Highly-Rated Queue (not locked) |
 | 40 | Ambiguous marked query still visible in peer queue | Added ambiguous_marked_by filter to exclude queries user marked ambiguous |
 | 41 | 3-strike ambiguous query shows "Pending" status on MyEscalations | Added `query_resolved` socket emit when query becomes Ambiguous |
+| 46 | No warning system for intern misuse | Added warning_count and is_disabled to User model, warnIntern endpoint, Spoiled Users page |
+| 47 | Failed to send warning (500 error) | Added 'intern_warning' to Notification type enum |
+| 48 | MyEscalations shows "Resolved" instead of "Approved" | Both peer_approved and admin_override show "Approved" badge |
 
 ---
 
@@ -259,10 +262,9 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 | User Management | /admin/users | User directory |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Highly Rated | /admin/high-rated | Queries with 4-5 star ratings |
-| Ambiguous | /admin/ambiguous | 3-strike rule queries |
-| Resolve Hub | /admin/resolve | Resolution queue |
+| Resolve Hub | /admin/resolve | Resolution queue (includes Stagnant, Unanswered, Low-Rated) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
+| Spoiled Users | /admin/spoiled-users | Users with warnings and credibility tracking |
 
 ## Moderator Dashboard Pages
 

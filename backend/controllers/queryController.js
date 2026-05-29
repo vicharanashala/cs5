@@ -132,7 +132,7 @@ const getAllQueries = async (req, res) => {
     }
 
     const queries = await Query.find(filter)
-      .populate('intern_id', 'email role')
+      .populate('intern_id', '_id email role warning_count')
       .populate('responses')
       .populate('resolved_by', 'email role')
       .sort({ createdAt: -1 })
@@ -168,7 +168,7 @@ const getAllQueries = async (req, res) => {
 const getQueryById = async (req, res) => {
   try {
     const query = await Query.findById(req.params.id)
-      .populate('intern_id', 'email role')
+      .populate('intern_id', '_id email role warning_count')
       .populate('responses')
       .populate('resolved_by', 'email role');
 

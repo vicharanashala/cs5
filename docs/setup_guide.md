@@ -274,6 +274,7 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 | /admin/faqs | FAQ editor |
 | /admin/resolve | Resolve hub (includes Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | /admin/suggestions | AI suggestions |
+| /admin/spoiled-users | Users with warnings and credibility tracking |
 
 **Moderator Pages:**
 | Route | Purpose |

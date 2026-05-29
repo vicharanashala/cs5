@@ -43,6 +43,15 @@ const userSchema = new mongoose.Schema(
         message: 'Role must be one of: admin, moderator, intern',
       },
     },
+    warning_count: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    is_disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

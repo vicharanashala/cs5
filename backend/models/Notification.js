@@ -36,8 +36,8 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Notification type is required'],
       enum: {
-        values: ['peer_answer', 'query_resolved', 'admin_alert', 'announcement', 'faq_added'],
-        message: 'Type must be one of: peer_answer, query_resolved, admin_alert, announcement, faq_added',
+        values: ['peer_answer', 'query_resolved', 'admin_alert', 'announcement', 'faq_added', 'intern_warning'],
+        message: 'Type must be one of: peer_answer, query_resolved, admin_alert, announcement, faq_added, intern_warning',
       },
     },
     title: {

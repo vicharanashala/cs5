@@ -18,7 +18,8 @@
 
 const Query = require('../models/Query');
 const Response = require('../models/Response');
-const { createNotification } = require('./notificationController');
+const User = require('../models/User');
+const { createNotification, warnIntern } = require('./notificationController');
 
 let getIO;
 try {
@@ -56,7 +57,7 @@ const getEscalatedQueries = async (req, res) => {
     }
 
     const queries = await Query.find(statusFilter)
-      .populate('intern_id', 'email role')
+      .populate('intern_id', '_id email role warning_count')
       .populate('responses')
       .sort({ updatedAt: -1 });
 
@@ -326,7 +327,7 @@ const getQueryDetails = async (req, res) => {
     const { id: query_id } = req.params;
 
     const query = await Query.findById(query_id)
-      .populate('intern_id', 'email role')
+      .populate('intern_id', '_id email role warning_count')
       .populate('resolved_by', 'email role');
 
     if (!query) {
@@ -492,6 +493,91 @@ const clearAllData = async (req, res) => {
   }
 };
 
+const warnUser = async (req, res) => {
+  try {
+    const { intern_id, query_id, warning_message } = req.body;
+    const admin_id = req.user.userId;
+
+    if (!intern_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'intern_id is required',
+      });
+    }
+
+    const intern = await User.findById(intern_id);
+    if (!intern) {
+      return res.status(404).json({
+        success: false,
+        error: 'Intern not found',
+      });
+    }
+
+    if (intern.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot warn an admin',
+      });
+    }
+
+    const nextWarning = await warnIntern(intern_id, warning_message, admin_id, query_id);
+
+    intern.warning_count = nextWarning;
+    await intern.save();
+
+    if (nextWarning >= 5) {
+      intern.is_disabled = true;
+      await intern.save();
+
+      await createNotification({
+        recipient_id: intern_id,
+        type: 'query_resolved',
+        title: 'Account Disabled',
+        message: 'Your account has been disabled due to repeated misuse of the system.',
+        created_by: admin_id,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Warning ${nextWarning} of 5 sent to ${intern.email}`,
+      data: {
+        warning_count: nextWarning,
+        is_disabled: nextWarning >= 5,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send warning',
+      message: error.message,
+    });
+  }
+};
+
+const getSpoiledUsers = async (req, res) => {
+  try {
+    const spoiledUsers = await User.find({
+      warning_count: { $gt: 0 },
+      role: 'intern',
+    })
+      .select('email warning_count is_disabled createdAt')
+      .sort({ warning_count: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: spoiledUsers.length,
+      data: spoiledUsers,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch spoiled users',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getEscalatedQueries,
   approvePeerResponse,
@@ -499,4 +585,6 @@ module.exports = {
   getQueryDetails,
   createFAQFromQuery,
   clearAllData,
+  warnUser,
+  getSpoiledUsers,
 };

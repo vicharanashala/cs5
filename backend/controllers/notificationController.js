@@ -9,6 +9,8 @@
  * - query_resolved: Your query was resolved by admin/moderator
  * - admin_alert: Yellow alert - 10-occurrence threshold reached
  * - announcement: New admin announcement broadcast
+ * - faq_added: New FAQ added to knowledge base
+ * - intern_warning: Warning sent to intern about misuse
  *
  * @module controllers/notificationController
  */
@@ -395,6 +397,23 @@ const broadcastFAQAdded = async (faq, adminId) => {
   }
 };
 
+const warnIntern = async (internId, warningMessage, adminId, queryId) => {
+  const warningNumber = await User.findById(internId).select('warning_count');
+  const nextWarning = (warningNumber?.warning_count || 0) + 1;
+
+  await createNotification({
+    recipient_id: internId,
+    type: 'intern_warning',
+    title: 'Warning: System Misuse Alert',
+    message: warningMessage || `You have received a warning for misuse of the system. This is warning ${nextWarning} of 5. If you reach 5 warnings, your account will be disabled.`,
+    link_id: queryId,
+    link_type: 'query',
+    created_by: adminId,
+  });
+
+  return nextWarning;
+};
+
 module.exports = {
   createNotification,
   getNotifications,
@@ -405,4 +424,5 @@ module.exports = {
   emitAdminYellowAlert,
   broadcastAnnouncement,
   broadcastFAQAdded,
+  warnIntern,
 };

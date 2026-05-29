@@ -22,6 +22,7 @@ import AdminFaqEditor from './pages/admin/AdminFaqEditor';
 import AdminHighRated from './pages/admin/AdminHighRated';
 import AdminAmbiguous from './pages/admin/AdminAmbiguous';
 import AdminResolveHub from './pages/admin/AdminResolveHub';
+import AdminSpoiledUsers from './pages/admin/AdminSpoiledUsers';
 import ModeratorOverview from './pages/moderator/ModeratorOverview';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
 import ModeratorQueries from './pages/moderator/ModeratorQueries';
@@ -247,6 +248,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminSuggestions />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/spoiled-users"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminSpoiledUsers />
             </ProtectedRoute>
           }
         />

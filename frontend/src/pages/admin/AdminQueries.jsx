@@ -110,6 +110,8 @@ const AdminQueries = () => {
 const QueryDrawer = ({ query, onClose }) => {
   const [overrideText, setOverrideText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showWarnModal, setShowWarnModal] = useState(false);
+  const [warnMessage, setWarnMessage] = useState('');
 
   const handleApprove = async (responseId) => {
     setLoading(true);
@@ -131,6 +133,25 @@ const QueryDrawer = ({ query, onClose }) => {
       onClose();
     } catch (err) {
       console.error('Failed to override', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWarnUser = async () => {
+    setLoading(true);
+    try {
+      await api.post('/admin/warn-user', {
+        intern_id: query.intern_id._id || query.intern_id,
+        query_id: query._id,
+        warning_message: warnMessage || 'You are misusing our system. If you continue, your account will be disabled after 5 warnings.',
+      });
+      setShowWarnModal(false);
+      setWarnMessage('');
+      alert('Warning sent successfully');
+    } catch (err) {
+      console.error('Failed to send warning', err);
+      alert(err.response?.data?.error || 'Failed to send warning');
     } finally {
       setLoading(false);
     }
@@ -158,6 +179,13 @@ const QueryDrawer = ({ query, onClose }) => {
             <div className="text-sm text-text-muted mt-2">
               From: {query.intern_id?.email} • {new Date(query.createdAt).toLocaleString()}
             </div>
+            {query.intern_id?.warning_count > 0 && (
+              <div className="mt-2">
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                  ⚠️ {query.intern_id.warning_count} warning{query.intern_id.warning_count > 1 ? 's' : ''}
+                </span>
+              </div>
+            )}
           </div>
 
           <div>
@@ -200,8 +228,8 @@ const QueryDrawer = ({ query, onClose }) => {
             )}
           </div>
 
-          <div className="border-t border-border-subtle pt-4">
-            <label className="block text-sm font-medium text-black mb-2">
+          <div className="border-t border-border-subtle pt-4 space-y-4">
+            <label className="block text-sm font-medium text-black">
               Admin Intervention / Override Box
             </label>
             <textarea
@@ -210,15 +238,70 @@ const QueryDrawer = ({ query, onClose }) => {
               className="w-full px-4 py-3 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black min-h-[100px]"
               placeholder="Type an official admin/moderator response if existing answers are incorrect or lacking context."
             />
-            <button
-              onClick={handleOverride}
-              disabled={loading || !overrideText.trim()}
-              className="mt-3 w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-400"
-            >
-              Submit Official Response & Resolve
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleOverride}
+                disabled={loading || !overrideText.trim()}
+                className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-400"
+              >
+                Submit Official Response & Resolve
+              </button>
+              <button
+                onClick={() => setShowWarnModal(true)}
+                disabled={loading}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+              >
+                ⚠️ Send Warning
+              </button>
+            </div>
           </div>
         </div>
+
+        {showWarnModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full border-2 border-black">
+              <div className="p-6 border-b border-black">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-black">Send Warning to Intern</h3>
+                  <button onClick={() => setShowWarnModal(false)} className="text-black hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-text-muted">
+                  Sending warning to: <strong>{query.intern_id?.email}</strong>
+                </p>
+                <p className="text-sm text-text-muted">
+                  This will notify the intern that they are misusing the system. If they receive 5 warnings, their account will be automatically disabled.
+                </p>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Custom Warning Message (optional)</label>
+                  <textarea
+                    value={warnMessage}
+                    onChange={(e) => setWarnMessage(e.target.value)}
+                    placeholder="You are misusing our system. If you continue, your account will be disabled after 5 warnings."
+                    className="w-full px-4 py-3 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black min-h-[100px]"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleWarnUser}
+                    disabled={loading}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+                  >
+                    {loading ? 'Sending...' : 'Send Warning'}
+                  </button>
+                  <button
+                    onClick={() => setShowWarnModal(false)}
+                    disabled={loading}
+                    className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 disabled:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -92,6 +92,13 @@ const login = async (req, res) => {
       });
     }
 
+    if (user.is_disabled) {
+      return res.status(403).json({
+        success: false,
+        error: 'Your account has been disabled. Contact an administrator.',
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({

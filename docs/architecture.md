@@ -436,15 +436,30 @@ Approve peer OR admin override → RESOLVED
 
 ---
 
-## FAQ Creation Bridge
+## Warning & Credibility System
 
-When admin resolves a query, they have the option to create a permanent FAQ entry:
+Admin/Moderator can send warnings to interns from any query detail panel. This system includes:
 
-1. Admin views resolved query in Resolution Hub
-2. Clicks "+ Add to FAQ Database" button
-3. System extracts:
-   - `clean_question` = query.query_text
-   - `answer` = approved response text
-   - `search_text` = combined question + answer
-4. New FAQ is created and indexed for RAG
-5. Next time intern asks similar question → AI resolves instantly
+**User Model Fields:**
+- `warning_count`: Number (default: 0, max: 5)
+- `is_disabled`: Boolean (auto-enabled at warning_count >= 5)
+
+**Admin Endpoints:**
+- `POST /api/admin/warn-user` - Send warning to intern
+- `GET /api/admin/spoiled-users` - Get all users with warnings
+
+**Warning Flow:**
+1. Admin clicks "Send Warning" button in query detail panel
+2. Modal appears with optional warning message
+3. On submit: `warnIntern()` is called, increments `warning_count`
+4. If `warning_count >= 5`: `is_disabled = true`, user cannot log in
+5. `intern_warning` notification sent to intern
+
+**Pages with Warning Functionality:**
+- AdminQueries (QueryDrawer)
+- AdminResolveHub (QueryDetailPanel)
+- AdminAmbiguous (QueryDetailPanel)
+- ModeratorResolveHub (QueryDetailPanel)
+- ModeratorAmbiguous (QueryDetailPanel)
+
+**Resolved Badge:** All resolved queries (both `peer_approved` and `admin_override`) show "Approved" badge in MyEscalations page.
