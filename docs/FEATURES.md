@@ -239,7 +239,7 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
   - Input fields: clean_question, answer, category, tags, keywords, intent, priority, escalate_if_uncertain
   - Active index list with Edit/Delete per row
 - **Card 6: Resolve Query Hub**
-  - 5-section queue: Master, Unanswered, Low-Rated, Highly-Rated, Archive
+  - 6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive
   - Real-time notification badges
   - Focused query inspection panel
   - Footer action group (Approve, Override)
@@ -261,7 +261,7 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
   - Approve/Override actions (labeled "Moderator Intervention")
 - **Card 3: Resolve Query Hub**
   - Inherits full functionality from Admin Card 6
-  - 5-section queue: Master, Unanswered, Low-Rated, Highly-Rated, Archive
+  - 6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive
   - Moderator can approve high-rated responses
   - Moderator can submit official responses to override
 

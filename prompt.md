@@ -218,6 +218,8 @@ Created frontend intern pages:
 | 22 | Ambiguous 3-strike doesn't notify intern | No notification sent when query becomes Ambiguous | Added createNotification call in peerController when status changes to Ambiguous |
 | 23 | createFAQFromQuery does nothing | Stub function only returned query_text | Implemented actual FAQ creation from approved response |
 | 24 | Missing Stagnant Queue in Admin Dashboard | Only 5 sections instead of 6 | Added "Stagnant (0 answers)" as 6th section + Add to FAQ button |
+| 25 | AskAI error message too generic | catch block showed "Failed to submit feedback" | Now shows actual backend error message |
+| 26 | No way to clear escalation data | Accumulated queries clutter database | Added POST /api/admin/clear-all-data endpoint |
 
 ---
 
@@ -358,7 +360,7 @@ Updated context.md with:
 - Notification System integration details
 - Updated milestone progress (Phase 12 complete)
 
-All issues from #1 to #19 documented:
+All issues from #1 to #24 documented:
 | # | Issue | Fix |
 |---|-------|-----|
 | 1 | MongoDB connection failed | Removed useNewUrlParser/useUnifiedTopology |
@@ -381,6 +383,12 @@ All issues from #1 to #19 documented:
 | 18 | Garbage input passed to RAG/LLM | Added query sanity check |
 | 19 | Peer answer submission failed (500) | Changed req.user.id to req.user.userId |
 | 20 | MyEscalations socket connection failed | Added VITE_API_URL fallback before .replace() |
+| 21 | Sweeper edge case: 5 responses all low not locked | Changed condition to use MAX_PEER_RESPONSES=5 |
+| 22 | Ambiguous 3-strike doesn't notify intern | Added createNotification call in peerController |
+| 23 | createFAQFromQuery does nothing | Implemented actual FAQ creation |
+| 24 | Missing Stagnant Queue in Admin Dashboard | Added 6th section |
+| 25 | AskAI error message too generic | Shows actual backend error message |
+| 26 | No way to clear test escalation data | Added POST /api/admin/clear-all-data |
 
 Updated docs/database_schema.md with:
 - Notification collection schema
@@ -463,3 +471,40 @@ This caused `author_id` to be `undefined` when creating notifications, which fai
 - `backend/controllers/announcementController.js` (1 instance)
 
 **Committed as:** `fix: resolve req.user.userId mismatch causing 500 on peer answer submission`
+
+---
+
+### Prompt 37: Add Clear All Data Endpoint & Fix AskAI Error Display
+**Prompt:** Add endpoint to clear all escalation data for testing, fix AskAI to show actual backend error message
+
+**Response:**
+Added `POST /api/admin/clear-all-data` endpoint that:
+- Deletes all Query, Response, NoFaq, Notification documents
+- Preserves User and FAQ collections
+- Returns count of cleared items
+
+Fixed `AskAI.jsx` catch block to show actual error:
+```javascript
+const errorMsg = err.response?.data?.error || 'Failed to submit feedback. Please try again.';
+setError(errorMsg);
+```
+
+**Files modified:**
+- `backend/controllers/adminController.js` - Added clearAllData function
+- `backend/routes/adminRoutes.js` - Added /clear-all-data route
+- `frontend/src/pages/intern/AskAI.jsx` - Fixed error message display
+
+**Commit:** `d66a88b`
+
+### Prompt 38: Add More Test Users
+**Prompt:** Create more intern test users and add them to database
+
+**Response:**
+Added 10 new test users:
+- mod2@query.in / Mod2!1234 (moderator)
+- intern3@query.in / Intern3@1234
+- intern4-10@query.in / Intern{N}!234
+
+Updated `testCredentials.md`, `README.md`, `context.md` with new credentials.
+
+**Commit:** `d66a88b`

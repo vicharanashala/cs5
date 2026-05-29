@@ -728,6 +728,33 @@ Create a permanent FAQ entry from a resolved query. Uses the approved peer respo
 
 ---
 
+### POST /admin/clear-all-data
+
+Clear all escalation data (queries, responses, no_faqs, notifications) while preserving users and FAQs. Use for testing reset.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:** None required
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "All data cleared (users and FAQs preserved)",
+  "data": {
+    "cleared": {
+      "queries": 5,
+      "responses": 12,
+      "no_faqs": 3,
+      "notifications": 8
+    },
+    "preserved": ["users", "faqs"]
+  }
+}
+```
+
+---
+
 ## Analytics
 
 ### GET /analytics/faq-suggestions

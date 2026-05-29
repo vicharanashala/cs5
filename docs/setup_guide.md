@@ -136,10 +136,15 @@ Open browser to: `http://localhost:5173`
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@query.in | Admin@123 |
-| Moderator | mod@query.in | Mod@123 |
-| Intern 1 | intern1@query.in | Intern1@123 |
-| Intern 2 | intern2@query.in | Intern2@123 |
+| Admin | admin@query.in | Admin@1234 |
+| Moderator | mod@query.in | Mod@1234 |
+| Moderator | mod2@query.in | Mod2!1234 |
+| Intern 1 | intern1@query.in | Intern1@1234 |
+| Intern 2 | intern2@query.in | Intern2@1234 |
+| Intern 3 | intern3@query.in | Intern3@1234 |
+| Intern 4-10 | intern{N}@query.in | Intern{N}!234 |
+
+**Password Requirements:** 8+ characters, 1 uppercase, 1 lowercase, 1 number, 1 special character (`!@#$%^&*`, etc.)
 
 ---
 
