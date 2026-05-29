@@ -63,7 +63,8 @@ frontend/src/
 │   ├── FormattedAnswer.jsx
 │   └── ProtectedRoute.jsx
 ├── context/              # React Context for state management
-│   └── AuthContext.jsx   # JWT token & user state
+│   ├── AuthContext.jsx   # JWT token & user state
+│   └── NotificationContext.jsx # Real-time notifications + Socket.IO
 ├── pages/                # Page components by role
 │   ├── Landing.jsx
 │   ├── FAQs.jsx
@@ -162,7 +163,8 @@ backend/
 │   ├── ratingController.js# 1-5 star rating logic
 │   ├── adminController.js # Escalation resolution
 │   ├── announcementController.js
-│   └── analyticsController.js
+│   ├── analyticsController.js
+│   └── notificationController.js # Real-time + persistent notifications
 ├── jobs/
 │   └── sweeper.js         # 24-hour cron job
 ├── middleware/

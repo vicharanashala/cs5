@@ -59,6 +59,11 @@ const responseSchema = new mongoose.Schema(
       max: [5, 'Rating cannot exceed 5'],
       default: null,
     },
+    rater_note: {
+      type: String,
+      default: '',
+      maxlength: [500, 'Note cannot exceed 500 characters'],
+    },
   },
   { timestamps: true }
 );

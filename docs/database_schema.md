@@ -2,7 +2,7 @@
 
 ## Overview
 
-MongoDB Atlas cluster with 6 collections. Mongoose ODM used for schema validation and relationships.
+MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validation and relationships.
 
 ---
 
@@ -88,10 +88,11 @@ MongoDB Atlas cluster with 6 collections. Mongoose ODM used for schema validatio
   query_id: ObjectId,      // Ref: Query (required)
   author_id: ObjectId,     // Ref: User (required)
   response_text: String,   // Required
-  peer_note: String,        // Optional, admin/mod only
-  response_type: String,    // enum: 'peer' | 'moderator' | 'admin'
-  approval: Boolean,        // Default: false
-  rating: Number,           // 1-5, nullable until rated
+  peer_note: String,       // Optional, admin/mod only
+  response_type: String,   // enum: 'peer' | 'moderator' | 'admin'
+  approval: Boolean,       // Default: false
+  rating: Number,          // 1-5, nullable until rated
+  rater_note: String,     // Optional, intern note for admins (max 500 chars)
   createdAt: Date,
   updatedAt: Date
 }
@@ -275,19 +276,24 @@ AMBIGUOUS ◄──────────────────────�
   │                                         │
   │                              ┌──────────┴──────────┐
   │                              │                     │
-  │                        rating >= 4            5 responses
-  │                              │             all rating < 4
+  │                        rating >= 4            rating = 5
+  │                              │             (immediate lock)
   │                              │                   │
   │                              ▼                   ▼
-  │                     HIGHLY-RATED           LOW-RATED
-  │                         QUEUE                 QUEUE
+  │                        HIGHLY-RATED         LOCKED
+  │                         QUEUE             (no more responses)
+  │                         (4 stars)              │
   │                              │                   │
   │                              └─────────┬─────────┘
   │                                        │
   │                              ┌─────────┴─────────┐
   │                              │                   │
-  │                         STAGNANT              stale
-  │                       (0 answers)         (1-4 low rated)
+  │                         5 responses        5 responses
+  │                        all rating < 4     all rating 1-4
+  │                              │                   │
+  │                              ▼                   ▼
+  │                         LOW-RATED           LOW-RATED
+  │                             QUEUE              QUEUE
   │                              │                   │
   │                              └─────────┬─────────┘
   │                                        │
@@ -338,6 +344,7 @@ AMBIGUOUS ◄──────────────────────�
 | Response.query_id | ObjectId | Yes | Ref: Query |
 | Response.author_id | ObjectId | Yes | Ref: User |
 | Response.rating | Number | No | 1-5 |
+| Response.rater_note | String | No | Max 500 chars |
 | NoFaq.queryText | String | Yes | Unique |
 | NoFaq.occurrenceCount | Number | No | Min 1 |
 | Announcement.admin_id | ObjectId | Yes | Ref: User |

@@ -1,21 +1,20 @@
 /**
- * =============================================================================
- * QUERY.IN - RATING CONTROLLER
- * =============================================================================
- * Handles intern rating of peer answers and automatic locking logic.
- *
  * RATING → LOCK TRIGGERS:
  *
- * HIGH-RATING LOCK (4-5 stars):
- * ┌─────────────────┐    rating = 4-5    ┌──────────────┐
+ * HIGH-RATING QUEUE (4-5 stars):
+ * ┌─────────────────┐    rating = 4-5    ┌─────────────────────────┐
+ * │ PEER_ANSWERED   │ ─────────────────> │ Highly-Rated Queue      │
+ * └─────────────────┘                    │ (NOT locked - can still │
+ *                                          │ receive more responses) │
+ *                                          └─────────────────────────┘
+ *
+ * IMMEDIATE LOCK (5 stars only):
+ * ┌─────────────────┐    rating = 5      ┌──────────────┐
  * │ PEER_ANSWERED   │ ─────────────────> │ is_locked=true │
  * └─────────────────┘                    └──────────────┘
- *                                                    │
- *                                          No more peer answers accepted
- *                                          Escalates to Admin "Highly-Rated Queue"
  *
- * LOW-RATING CHECK (1-3 stars):
- * ┌─────────────────┐    rating = 1-3    ┌──────────────┐
+ * LOW-RATING LOCK (1-4 stars):
+ * ┌─────────────────┐    rating = 1-4    ┌──────────────┐
  * │ PEER_ANSWERED   │ ─────────────────> │ Check responses count │
  * └─────────────────┘                    └──────────────┘
  *                                                  │
@@ -29,7 +28,7 @@
  *                        peer answers)                      "Low-Rated Queue"
  *
  * CONCURRENCY PROTECTION:
- * - Rating is idempotent - can be updated but first rating determines lock
+ * - Each user can only rate a response once (checked before saving)
  * - Uses findOneAndUpdate for atomicity
  *
  * @module controllers/ratingController
@@ -39,8 +38,8 @@ const Response = require('../models/Response');
 const Query = require('../models/Query');
 
 /**
- * MIN_HIGH_RATING: Threshold for "high rating" lock
- * Ratings of 4 or 5 stars trigger immediate lock
+ * MIN_HIGH_RATING: Threshold for "high rating" queue
+ * Ratings of 4 or 5 stars mark query as highly-rated
  */
 const MIN_HIGH_RATING = 4;
 
@@ -72,13 +71,20 @@ const MAX_PEER_RESPONSES = 5;
 const rateResponse = async (req, res) => {
   try {
     const { id: response_id } = req.params;
-    const { rating } = req.body;
+    const { rating, rater_note } = req.body;
     const rater_id = req.user.userId;
 
     if (!rating || !Number.isInteger(rating) || rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
         error: 'Rating must be an integer between 1 and 5',
+      });
+    }
+
+    if (rater_note && rater_note.length > 500) {
+      return res.status(400).json({
+        success: false,
+        error: 'Note cannot exceed 500 characters',
       });
     }
 
@@ -114,16 +120,26 @@ const rateResponse = async (req, res) => {
       });
     }
 
+    if (response.rating !== null) {
+      return res.status(400).json({
+        success: false,
+        error: 'You have already rated this response',
+      });
+    }
+
     response.rating = rating;
+    if (rater_note) {
+      response.rater_note = rater_note;
+    }
     await response.save();
 
     let queryUpdate = {};
     let shouldLock = false;
     let lockReason = '';
 
-    if (rating >= MIN_HIGH_RATING) {
+    if (rating === 5) {
       shouldLock = true;
-      lockReason = `High rating (${rating} stars)`;
+      lockReason = '5-star rating';
     } else if (query.responses.length >= MAX_PEER_RESPONSES) {
       const allLowRatings = await checkAllLowRatings(query._id);
       if (allLowRatings) {
@@ -151,6 +167,7 @@ const rateResponse = async (req, res) => {
       data: {
         response_id: response._id,
         rating: response.rating,
+        rater_note: response.rater_note || null,
         query_locked: shouldLock,
         lock_reason: shouldLock ? lockReason : null,
       },

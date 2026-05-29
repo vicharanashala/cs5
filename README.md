@@ -52,28 +52,35 @@
                          │                   │  QUEUE      │
                          │                   └────────────┘
                          ▼                         │
-                   RESOLVED                       ▼
-                                       ┌────────────────────┐
-                                       │  Intern rates 1-5  │
-                                       │  stars (intern)    │
-                                       └────────────────────┘
-                                               │
-                               ┌───────────────┴───────────────┐
-                               │                               │
-                          4-5 Stars                      1-3 Stars
-                          (HIGH LOCK)                   (LOW LOCK @ 5)
-                               │                               │
-                               ▼                               ▼
-                      ADMIN HIGHLY-RATED           ADMIN LOW-RATED
-                          QUEUE                        QUEUE
-                               │                               │
-                               ▼                               ▼
-                     Admin approves              Admin overrides
-                     peer answer                  or disconnects
-                               │                               │
-                               └───────────────┬───────────────┘
-                                               ▼
-                                          RESOLVED
+RESOLVED                       ▼
+                                        ┌────────────────────┐
+                                        │  Intern rates 1-5  │
+                                        │  stars (intern)    │
+                                        └────────────────────┘
+                                                │
+                                ┌───────────────┴───────────────┐
+                                │                               │
+                           4 Stars                         5 Stars
+                    (HIGHLY-RATED QUEUE)              (IMMEDIATE LOCK)
+                           NOT locked                         │
+                                │                               │
+                                │         ┌────────────────────┘
+                                │         │
+                                │         ▼
+                                │   ADMIN HIGHLY-RATED
+                                │       QUEUE
+                                │                               │
+                                ▼                               ▼
+                       ADMIN HIGHLY-RATED           Admin approves
+                           QUEUE                   peer answer
+                                │                               │
+                                ▼                               ▼
+                      Admin approves              Admin overrides
+                      peer answer                  or disconnects
+                                │                               │
+                                └───────────────┬───────────────┘
+                                                ▼
+                                           RESOLVED
 ```
 
 ---
@@ -208,6 +215,8 @@ All query resolutions are tracked with ResolutionType:
 | 35 | Intern who answered sees own response in queue | Added exclusion for queries user already answered |
 | 36 | Submit answer rejected for Peer Answered status | Atomic update now matches both 'Pending' and 'Peer Answered' status |
 | 37 | Notifications not stored before client response | Moved await createNotification before res.json() in all controllers |
+| 38 | MyEscalations rating UI - can rate multiple times | "Rate this response" button only shows if rating === null, added rater_note field |
+| 39 | 4-star rating locks query immediately | Changed MIN_HIGH_RATING to 5; 4 stars = Highly-Rated Queue (not locked) |
 
 ---
 

@@ -165,7 +165,8 @@ faq project/
 │   │   ├── ratingController.js
 │   │   ├── adminController.js
 │   │   ├── announcementController.js
-│   │   └── analyticsController.js
+│   │   ├── analyticsController.js
+│   │   └── notificationController.js
 │   ├── jobs/
 │   │   └── sweeper.js         # 24-hour cron job
 │   ├── middleware/
@@ -176,7 +177,8 @@ faq project/
 │   │   ├── Response.js
 │   │   ├── FAQ.js
 │   │   ├── NoFaq.js
-│   │   └── Announcement.js
+│   │   ├── Announcement.js
+│   │   └── Notification.js
 │   ├── routes/
 │   ├── services/
 │   │   └── grokService.js     # LLM service (Gemini + Groq)

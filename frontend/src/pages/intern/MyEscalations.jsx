@@ -58,6 +58,7 @@ const MyEscalations = () => {
   const [expandedQuery, setExpandedQuery] = useState(null);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [rating, setRating] = useState(0);
+  const [raterNote, setRaterNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const { token } = useAuth();
@@ -116,10 +117,11 @@ const MyEscalations = () => {
   const handleRate = async (responseId, ratingValue) => {
     try {
       setSubmitting(true);
-      await api.post(`/ratings/${responseId}`, { rating: ratingValue });
+      await api.post(`/ratings/${responseId}`, { rating: ratingValue, rater_note: raterNote });
       await fetchMyQueries();
       setSelectedResponse(null);
       setRating(0);
+      setRaterNote('');
     } catch (err) {
       console.error('Failed to rate', err);
     } finally {
@@ -203,16 +205,12 @@ const MyEscalations = () => {
                               </div>
                               <div className="flex items-center gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                  <button
+                                  <span
                                     key={star}
-                                    onClick={() => {
-                                      setSelectedResponse(response._id);
-                                      setRating(star);
-                                    }}
                                     className={`text-xl ${star <= (response.rating || 0) ? 'text-yellow-500' : 'text-gray-300'}`}
                                   >
                                     ★
-                                  </button>
+                                  </span>
                                 ))}
                                 {response.approval && (
                                   <Badge variant="verified" className="ml-2">Approved</Badge>
@@ -220,14 +218,26 @@ const MyEscalations = () => {
                               </div>
                             </div>
                             <FormattedAnswer text={response.response_text} />
-                            {selectedResponse === response._id && !query.is_locked && (
+                            {response.rating === null && !query.is_locked && selectedResponse !== response._id && (
+                              <button
+                                onClick={() => {
+                                  setSelectedResponse(response._id);
+                                  setRating(0);
+                                  setRaterNote('');
+                                }}
+                                className="mt-2 text-sm text-black underline hover:text-gray-700"
+                              >
+                                Rate this response
+                              </button>
+                            )}
+                            {selectedResponse === response._id && (
                               <div className="mt-3 pt-3 border-t border-gray-200">
                                 <p className="text-sm text-text-muted mb-2">Rate this response:</p>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 mb-3">
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <button
                                       key={star}
-                                      onClick={() => handleRate(response._id, star)}
+                                      onClick={() => setRating(star)}
                                       disabled={submitting}
                                       className={`text-2xl ${star <= rating ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-500`}
                                     >
@@ -238,6 +248,46 @@ const MyEscalations = () => {
                                     {rating <= 3 ? 'Low rating' : rating >= 4 ? 'High rating' : ''}
                                   </span>
                                 </div>
+                                <div className="mb-3">
+                                  <label className="text-sm text-text-muted block mb-1">Add a note (optional):</label>
+                                  <textarea
+                                    value={raterNote}
+                                    onChange={(e) => setRaterNote(e.target.value)}
+                                    placeholder="Provide additional feedback for admins..."
+                                    maxLength={500}
+                                    disabled={submitting}
+                                    className="w-full p-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:border-black disabled:bg-gray-100"
+                                    rows={2}
+                                  />
+                                  <p className="text-xs text-text-muted mt-1">{raterNote.length}/500</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    onClick={() => handleRate(response._id, rating)}
+                                    disabled={rating === 0 || submitting}
+                                    size="sm"
+                                  >
+                                    {submitting ? 'Submitting...' : 'Submit Rating'}
+                                  </Button>
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedResponse(null);
+                                      setRating(0);
+                                      setRaterNote('');
+                                    }}
+                                    disabled={submitting}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                            {response.rater_note && (
+                              <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                                <p className="text-text-muted text-xs mb-1">Your note:</p>
+                                <p className="text-black">{response.rater_note}</p>
                               </div>
                             )}
                           </div>

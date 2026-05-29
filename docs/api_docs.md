@@ -531,31 +531,49 @@ Mark a query as ambiguous (3 peers = auto-escalate). When 3rd strike is reached,
 
 ### POST /ratings/:id
 
-Rate a peer response (1-5 stars). Triggers locking logic:
+Rate a peer response (1-5 stars). Each intern can only rate a response once.
+Triggers locking logic:
 
-- **4-5 stars (HIGH):** Query immediately locked, escalates to Highly-Rated Queue
-- **1-3 stars (LOW):** Query stays open for more peer answers
-- **1-3 stars + 5 responses:** Query locked, escalates to Low-Rated Queue
+- **4 stars (HIGH):** Query escalates to Highly-Rated Queue (NOT locked, can still receive responses)
+- **5 stars:** Query immediately locked, escalates to Highly-Rated Queue
+- **1-3 stars:** Query stays open for more peer answers
+- **1-3 stars + 5 responses all low:** Query locked, escalates to Low-Rated Queue
 
 **Headers:** `Authorization: Bearer <token>`
 
 **Request Body:**
 ```json
 {
-  "rating": 4
+  "rating": 4,
+  "rater_note": "Optional note for admins (max 500 chars)"
 }
 ```
 
-**Response (200) - High Rating (locks query):**
+**Response (200) - High Rating (4 stars - highly-rated queue):**
 ```json
 {
   "success": true,
-  "message": "Rating recorded. Query locked due to: High rating (4 stars)",
+  "message": "Rating recorded successfully",
   "data": {
     "response_id": "64def456...",
     "rating": 4,
+    "rater_note": "Helpful answer!",
+    "query_locked": false,
+    "lock_reason": null
+  }
+}
+```
+
+**Response (200) - 5 stars (locks query):**
+```json
+{
+  "success": true,
+  "message": "Rating recorded. Query locked due to: 5-star rating",
+  "data": {
+    "response_id": "64def456...",
+    "rating": 5,
     "query_locked": true,
-    "lock_reason": "High rating (4 stars)"
+    "lock_reason": "5-star rating"
   }
 }
 ```
