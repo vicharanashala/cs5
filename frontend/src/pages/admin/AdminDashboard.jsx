@@ -7,8 +7,10 @@
  * Card 3: User Management Directory
  * Card 4: Master Query Monitor & Integrated Review Suite
  * Card 5: FAQ Knowledge Base Editor
- * Card 6: Resolve Query (5-section queue)
- * Card 7: AI-Assisted FAQ Suggestions
+ * Card 6: Highly Rated Queries (first priority)
+ * Card 7: Ambiguous Queries (3-strike rule)
+ * Card 8: Resolve Query (remaining: Master, Stagnant, Unanswered, Low-Rated, Archive)
+ * Card 9: AI-Assisted FAQ Suggestions
  *
  * @module pages/admin/AdminDashboard
  */
@@ -76,12 +78,22 @@ const AdminDashboard = () => {
           <FAQEditor />
         </Card>
 
-        {/* Card 6: Resolve Query */}
+        {/* Card 6: Highly Rated Queries (First Priority) */}
+        <Card title="Highly Rated Queries" subtitle="Queries with 4-5 star ratings requiring urgent admin attention">
+          <HighlyRatedQueries />
+        </Card>
+
+        {/* Card 7: Ambiguous Queries (3-Strike Rule) */}
+        <Card title="Ambiguous Queries" subtitle="Queries marked unclear by 3 different peers">
+          <AmbiguousQueries />
+        </Card>
+
+        {/* Card 8: Resolve Query */}
         <Card title="System Query Resolution Hub" subtitle="Central command terminal for reviewing, approving, or overriding escalated queries">
           <ResolveQueryHub />
         </Card>
 
-        {/* Card 7: AI FAQ Suggestions */}
+        {/* Card 9: AI FAQ Suggestions */}
         <AISuggestions />
       </div>
     </DashboardLayout>
@@ -861,7 +873,130 @@ const FAQEditor = () => {
 };
 
 /* ============================================================================
- * Card 6: Resolve Query Hub (5-Section Queue)
+ * Card 6: Highly Rated Queries (Standalone Card)
+ * ============================================================================ */
+const HighlyRatedQueries = () => {
+  const [queries, setQueries] = useState([]);
+  const [selectedQuery, setSelectedQuery] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchQueries = async () => {
+      try {
+        const res = await api.get('/admin/escalated?type=high');
+        setQueries(res.data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch highly rated queries', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQueries();
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      {loading ? (
+        <div className="text-center py-8 text-text-muted">Loading...</div>
+      ) : queries.length === 0 ? (
+        <div className="text-center py-8 text-text-muted border border-dashed border-black rounded-lg">
+          No highly rated queries at this time
+        </div>
+      ) : (
+        queries.map(query => (
+          <div
+            key={query._id}
+            onClick={() => setSelectedQuery(query)}
+            className="border border-black rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <div className="font-medium text-black">{query.query_text}</div>
+                <div className="text-sm text-text-muted mt-1">
+                  From: {query.intern_id?.email || 'Unknown'}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-yellow-600 font-bold">
+                  {query.responses?.find(r => r.rating >= 4)?.rating || '★'}/5
+                </div>
+                <div className="text-xs text-text-muted">
+                  {query.responses?.length || 0} responses
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      )}
+      {selectedQuery && (
+        <QueryDetailPanel query={selectedQuery} onClose={() => setSelectedQuery(null)} />
+      )}
+    </div>
+  );
+};
+
+/* ============================================================================
+ * Card 7: Ambiguous Queries (Standalone Card)
+ * ============================================================================ */
+const AmbiguousQueries = () => {
+  const [queries, setQueries] = useState([]);
+  const [selectedQuery, setSelectedQuery] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchQueries = async () => {
+      try {
+        const res = await api.get('/admin/escalated?type=ambiguous');
+        setQueries(res.data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch ambiguous queries', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQueries();
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      {loading ? (
+        <div className="text-center py-8 text-text-muted">Loading...</div>
+      ) : queries.length === 0 ? (
+        <div className="text-center py-8 text-text-muted border border-dashed border-black rounded-lg">
+          No ambiguous queries at this time
+        </div>
+      ) : (
+        queries.map(query => (
+          <div
+            key={query._id}
+            onClick={() => setSelectedQuery(query)}
+            className="border border-black rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <div className="font-medium text-black">{query.query_text}</div>
+                <div className="text-sm text-text-muted mt-1">
+                  From: {query.intern_id?.email || 'Unknown'}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-orange-600 font-bold">
+                  {query.ambiguous_count || 0}/3 strikes
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      )}
+      {selectedQuery && (
+        <QueryDetailPanel query={selectedQuery} onClose={() => setSelectedQuery(null)} />
+      )}
+    </div>
+  );
+};
+
+/* ============================================================================
+ * Card 8: Resolve Query Hub (remaining sections)
  * ============================================================================ */
 const ResolveQueryHub = () => {
   const [activeSection, setActiveSection] = useState('master');
@@ -1120,7 +1255,7 @@ const QueryDetailPanel = ({ query, onClose }) => {
 };
 
 /* ============================================================================
- * Card 7: AI-Assisted FAQ Suggestions
+ * Card 9: AI-Assisted FAQ Suggestions
  * ============================================================================ */
 const AISuggestions = () => {
   const [suggestions, setSuggestions] = useState([]);
