@@ -10,7 +10,6 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
-import Badge from '../../components/Badge';
 import api from '../../utils/api';
 
 const navItems = [
@@ -90,15 +89,15 @@ const Announcements = () => {
         ) : (
           <div className="space-y-4">
             {announcements.map((ann) => (
-              <Card key={ann._id} className="border-2 border-black rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <Badge variant="filled">Admin</Badge>
+              <Card key={ann._id} className="border-2 border-black rounded-lg p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs text-text-muted uppercase tracking-wider">Admin</span>
                   <span className="text-sm text-text-muted">
                     {new Date(ann.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <h3 className="font-semibold text-black mb-2">{ann.title}</h3>
-                <p className="text-text-secondary whitespace-pre-wrap">{ann.message}</p>
+                <h3 className="text-lg font-bold text-black mb-3">{ann.heading}</h3>
+                <p className="text-sm text-text-secondary whitespace-pre-wrap">{ann.content}</p>
               </Card>
             ))}
           </div>
