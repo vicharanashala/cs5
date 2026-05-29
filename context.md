@@ -54,6 +54,13 @@
   - Card 6: Resolve Query Hub (5-section queue: Master/Unanswered/Low-Rated/High-Rated/Archive)
   - Card 7: AI-Assisted FAQ Suggestions (yellow alert when unread, dismiss action)
 - **Socket.IO** integration in peerController and adminController (new_peer_answer, query_resolved events)
+- **Notification System** - Hybrid real-time + persistence model:
+  - Notification Model: recipient_id, type, title, message, link_id, link_type, is_read, created_by
+  - NotificationController: createNotification, getNotifications, markAsRead, markAllAsRead, deleteNotification, getUnreadCount
+  - NotificationBell component with unread count badge and dropdown list
+  - Toast component for slide-in pop-up notifications
+  - Yellow alert for admin when NoFaq hits 10 occurrences (real-time socket event)
+  - Announcement broadcast to all interns with notification persistence
 - **Groq API** integration as LLM fallback (llama-3.3-70b, llama-3.1-8b, llama-4-scout, qwen3-32b, gpt-oss)
 - **Multi-model fallback** - Gemini (3.5-flash -> 3.1-pro -> 3.1-flash-lite -> 2.5-flash -> 2.5-pro), Groq (llama-3.3-70b -> llama-3.1-8b -> llama-4-scout -> qwen3-32b -> gpt-oss)
 - **Active query cap** - Max 5 unresolved queries per intern, prevents spam escalation
@@ -168,6 +175,13 @@
 ### Announcements
 - `GET /api/announcements` - Get all announcements
 - `POST /api/announcements` - Create announcement (admin)
+
+### Notifications
+- `GET /api/notifications` - Get user notifications (paginated)
+- `GET /api/notifications/unread-count` - Get unread count
+- `PATCH /api/notifications/:id/read` - Mark notification as read
+- `PATCH /api/notifications/read-all` - Mark all as read
+- `DELETE /api/notifications/:id` - Delete notification
 
 ---
 

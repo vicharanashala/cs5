@@ -45,6 +45,7 @@ app.use('/api/ratings', require('./routes/ratingRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/announcements', require('./routes/announcementRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 server.listen(PORT, async () => {
   console.log(`🚀 Query.in server running on port ${PORT}`);

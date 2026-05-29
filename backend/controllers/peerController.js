@@ -26,6 +26,7 @@
 
 const Query = require('../models/Query');
 const Response = require('../models/Response');
+const { createNotification } = require('./notificationController');
 
 let getIO;
 try {
@@ -211,6 +212,16 @@ const submitAnswer = async (req, res) => {
         response,
         query_status: updatedQuery.status,
       },
+    });
+
+    createNotification({
+      recipient_id: query.intern_id,
+      type: 'peer_answer',
+      title: 'New Peer Answer',
+      message: `${req.user.email} answered your query: "${query.query_text.substring(0, 100)}${query.query_text.length > 100 ? '...' : ''}"`,
+      link_id: query._id,
+      link_type: 'query',
+      created_by: author_id,
     });
 
     if (getIO) {

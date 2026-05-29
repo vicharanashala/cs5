@@ -16,6 +16,7 @@ MongoDB Atlas cluster with 6 collections. Mongoose ODM used for schema validatio
 | [faqs](#faqs) | Knowledge base entries |
 | [nofags](#nofags) | Content gap tracking |
 | [announcements](#announcements) | Admin broadcasts |
+| [notifications](#notifications) | Real-time + persistent notifications |
 
 ---
 
@@ -173,6 +174,38 @@ MongoDB Atlas cluster with 6 collections. Mongoose ODM used for schema validatio
 
 **Indexes:**
 - `createdAt`: -1 (newest first)
+
+---
+
+## Notifications (Hybrid Real-Time + Persistence)
+
+```javascript
+{
+  _id: ObjectId,           // Primary key
+  recipient_id: ObjectId,  // Ref: User (required)
+  type: String,            // enum: 'peer_answer' | 'query_resolved' | 'admin_alert' | 'announcement'
+  title: String,           // Required, max 200 chars
+  message: String,         // Required, max 1000 chars
+  link_id: ObjectId,        // Ref: Query/FAQ/Announcement (optional)
+  link_type: String,       // enum: 'query' | 'faq' | 'announcement' (optional)
+  is_read: Boolean,         // Default: false
+  created_by: ObjectId,    // Ref: User (optional)
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+**Indexes:**
+- `recipient_id`: 1, `is_read`: 1, `createdAt`: -1
+- `type`: 1, `createdAt`: -1
+
+**Notification Types:**
+| Type | Trigger | Recipient |
+|------|---------|-----------|
+| `peer_answer` | Peer submits answer | Query author (intern) |
+| `query_resolved` | Admin/mod resolves query | Query author (intern) |
+| `admin_alert` | NoFaq hits 10 occurrences | All admins |
+| `announcement` | Admin creates announcement | All interns |
 
 ---
 

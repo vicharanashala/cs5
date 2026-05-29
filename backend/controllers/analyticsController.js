@@ -37,6 +37,13 @@ const FAQ = require('../models/FAQ');
 
 const PROMOTION_THRESHOLD = 10;
 
+let emitAdminYellowAlert;
+try {
+  emitAdminYellowAlert = require('./notificationController').emitAdminYellowAlert;
+} catch (e) {
+  emitAdminYellowAlert = null;
+}
+
 const ResolutionType = {
   AUTO_COMPLETE: 'auto_complete',
   RAG_RESOLVED: 'rag_resolved',
@@ -54,13 +61,16 @@ const trackNoFaqQuery = async (queryText, intern_id) => {
   const existing = await NoFaq.findOne({ queryText });
 
   if (!existing) {
-    await NoFaq.create({
+    const newNoFaq = await NoFaq.create({
       queryText,
       occurrenceCount: 1,
       impactedInterns: [intern_id],
       firstLoggedDate: new Date(),
       lastUpdatedDate: new Date(),
     });
+    if (emitAdminYellowAlert && newNoFaq.occurrenceCount >= PROMOTION_THRESHOLD) {
+      emitAdminYellowAlert(newNoFaq);
+    }
   } else {
     const alreadyImpacted = existing.impactedInterns.some(
       (id) => id.toString() === intern_id
@@ -71,6 +81,9 @@ const trackNoFaqQuery = async (queryText, intern_id) => {
       existing.occurrenceCount += 1;
       existing.lastUpdatedDate = new Date();
       await existing.save();
+      if (emitAdminYellowAlert && existing.occurrenceCount === PROMOTION_THRESHOLD) {
+        emitAdminYellowAlert(existing);
+      }
     }
   }
 };

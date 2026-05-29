@@ -307,6 +307,36 @@ query.in/
 
 ## Recent Changes
 
+### Prompt 32: Notification System Implementation
+**Prompt:** Create a complete notification system for Query.in with:
+1. Three notification types: Intern alerts (peer answer, query resolved), Admin alerts (10-occurrence threshold), Announcements (broadcast)
+2. Hybrid approach: Socket.IO for real-time + MongoDB for persistence
+3. NotificationBell component with unread count badge and dropdown
+4. Toast pop-up component for slide-in notifications
+5. Yellow alert for admin when NoFaq hits 10 occurrences
+6. Update all relevant controllers to emit notifications
+7. Update documentation
+
+**Response:**
+Created complete notification system:
+- **Backend:**
+  - `models/Notification.js` - Schema with recipient_id, type, title, message, link_id, link_type, is_read
+  - `controllers/notificationController.js` - createNotification, getNotifications, markAsRead, markAllAsRead, deleteNotification, getUnreadCount, emitAdminYellowAlert, broadcastAnnouncement
+  - `routes/notificationRoutes.js` - CRUD API endpoints
+  - Updated `peerController.js` - creates notification when peer submits answer
+  - Updated `adminController.js` - creates notification when query resolved (peer_approved or admin_override)
+  - Updated `analyticsController.js` - emits yellow alert via emitAdminYellowAlert when NoFaq hits 10
+- **Frontend:**
+  - `context/NotificationContext.jsx` - Socket.IO client + state management
+  - `components/NotificationBell.jsx` - Bell icon with badge, dropdown list, click handling
+  - `components/Toast.jsx` - Slide-in pop-up with auto-dismiss
+  - Updated `main.jsx` - Wrapped with NotificationProvider
+  - Updated `DashboardLayout.jsx` - Replaced static bell with NotificationBell
+  - Updated `AdminSuggestions.jsx` - Listens for yellow_alert socket event
+  - Updated `MyEscalations.jsx` - Real-time updates on new_peer_answer and query_resolved
+
+Updated docs: context.md, prompt.md
+
 ### Prompt 31: Moderator Dashboard 3-Card Layout Implementation
 **Prompt:** Create complete Moderator Dashboard with all 3 cards as per specification
 

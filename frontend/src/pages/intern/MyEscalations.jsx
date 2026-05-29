@@ -4,17 +4,20 @@
  * =============================================================================
  * Shows the intern's own submitted queries and their resolution status.
  * Allows rating peer responses on their queries.
+ * Real-time updates: Listens for new_peer_answer and query_resolved socket events.
  *
  * @module pages/intern/MyEscalations
  */
 
 import { useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import FormattedAnswer from '../../components/FormattedAnswer';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   {
@@ -57,9 +60,44 @@ const MyEscalations = () => {
   const [rating, setRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     fetchMyQueries();
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const socket = io(import.meta.env.VITE_API_URL.replace('/api', ''), {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('new_peer_answer', (data) => {
+      setQueries((prev) => {
+        const exists = prev.some((q) => q._id === data.query_id);
+        if (exists) {
+          fetchMyQueries();
+        }
+        return prev;
+      });
+    });
+
+    socket.on('query_resolved', (data) => {
+      setQueries((prev) => {
+        const exists = prev.some((q) => q._id === data.query_id);
+        if (exists) {
+          fetchMyQueries();
+        }
+        return prev;
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token]);
 
   const fetchMyQueries = async () => {
     try {

@@ -7,24 +7,18 @@
  * RESOLUTION PATHS:
  *
  * PATH 1: APPROVE PEER RESPONSE
- * ┌─────────────────┐   approve response   ┌──────────────┐
- * │   PEER_ANSWERED │ ───────────────────> │   RESOLVED   │
- * │   (is_locked)   │                      │ (peer_approved)
- * └─────────────────┘                      └──────────────┘
- *                                             resolved_by = admin
+ * Query is locked after peer answers with high rating.
+ * Admin approves peer response as official answer.
  *
  * PATH 2: ADMIN OVERRIDE
- * ┌─────────────────┐   override answer    ┌──────────────┐
- * │   ANY STATE     │ ───────────────────> │   RESOLVED   │
- * │ (lock bypassed) │                      │(admin_override)
- * └─────────────────┘                      └──────────────┘
- *                                             No response cap
+ * Admin/Mod provides own official answer, bypassing peer answers.
  *
  * @module controllers/adminController
  */
 
 const Query = require('../models/Query');
 const Response = require('../models/Response');
+const { createNotification } = require('./notificationController');
 
 let getIO;
 try {
@@ -179,6 +173,16 @@ const approvePeerResponse = async (req, res) => {
       },
     });
 
+    createNotification({
+      recipient_id: query.intern_id,
+      type: 'query_resolved',
+      title: 'Query Resolved',
+      message: 'Your query has been resolved. A peer response was approved.',
+      link_id: query._id,
+      link_type: 'query',
+      created_by: admin_id,
+    });
+
     if (getIO) {
       const io = getIO();
       const internRoom = `user:${query.intern_id.toString()}`;
@@ -276,6 +280,16 @@ const overrideWithAdminResponse = async (req, res) => {
         resolution_type: 'admin_override',
         resolved_by: admin_id,
       },
+    });
+
+    createNotification({
+      recipient_id: query.intern_id,
+      type: 'query_resolved',
+      title: 'Query Resolved',
+      message: 'Your query has been resolved with an official response.',
+      link_id: query._id,
+      link_type: 'query',
+      created_by: admin_id,
     });
 
     if (getIO) {
