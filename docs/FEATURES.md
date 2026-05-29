@@ -214,56 +214,24 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **Create Announcement** - Admin broadcast
 - **View Announcements** - Intern dashboard
 
-### Admin Dashboard (7-Card Layout)
-- **Card 1: User Registration**
-  - Single User Form (email, password, role)
-  - Bulk JSON Upload with drag & drop
-  - Role assignment dropdown
-  - Confirmation modal before processing
-- **Card 2: Broadcast Announcement**
-  - Heading and content inputs
-  - Posts to Announcements collection
-- **Card 3: User Management Directory**
-  - Sortable/filterable user table
-  - Role filter (All, Interns, Moderators, Admins)
-  - Date sort (Newest/Oldest first)
-  - Email search functionality
-- **Card 4: Master Query Monitor**
-  - Status filter (All, Pending, Peer Answered, Ambiguous, Resolved)
-  - Date sort (Ascending/Descending)
-  - Thread drawer with query details
-  - Peer response carousel with ratings
-  - Approve/Override actions
-- **Card 5: FAQ Knowledge Base Editor**
-  - Full CRUD operations on FAQ collection
-  - Input fields: clean_question, answer, category, tags, keywords, intent, priority, escalate_if_uncertain
-  - Active index list with Edit/Delete per row
-- **Card 6: Resolve Query Hub**
-  - 6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive
-  - Real-time notification badges
-  - Focused query inspection panel
-  - Footer action group (Approve, Override)
-- **Card 7: AI-Assisted FAQ Suggestions**
-  - Yellow alert state when unread suggestions exist
-  - 10-occurrence threshold
-  - Dismiss action for admin review
+### Admin Dashboard (Page-Based Layout)
+- **Dashboard Overview** - Navigation cards to all sections
+- **User Registration** - Single & bulk JSON upload
+- **Announcements** - Broadcast global notices
+- **User Management** - Sortable/filterable user table
+- **Query Monitor** - Status filter, date sort, thread drawer
+- **FAQ Editor** - Full CRUD on FAQ collection
+- **Highly Rated** - Queries with 4-5 star ratings (first priority)
+- **Ambiguous** - 3-strike rule queries
+- **Resolve Hub** - 6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive
+- **AI Suggestions** - Yellow alert at 10-occurrence threshold
 
-### Moderator Dashboard (3-Card Layout)
-- **Card 1: Announcements**
-  - View-only announcements (cannot create)
-  - Yellow alert state when new announcements exist (< 24 hours)
-  - "NEW" badge with pulsing animation
-  - State returns to normal upon opening
-- **Card 2: Master Query Monitor**
-  - Inherits full functionality from Admin Card 4
-  - Filter by status and date sort
-  - Thread drawer with peer response carousel
-  - Approve/Override actions (labeled "Moderator Intervention")
-- **Card 3: Resolve Query Hub**
-  - Inherits full functionality from Admin Card 6
-  - 6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive
-  - Moderator can approve high-rated responses
-  - Moderator can submit official responses to override
+### Moderator Dashboard (Page-Based Layout)
+- **Dashboard Overview** - Navigation cards to all sections
+- **Query Monitor** - Status filter, thread drawer
+- **Highly Rated** - Queries with 4-5 star ratings (first priority)
+- **Ambiguous** - 3-strike rule queries
+- **Resolve Hub** - Remaining sections: Master, Unanswered, Low-Rated, Archive
 
 ### UI/UX Features
 - **Black & White Theme** - #FAFAFA background

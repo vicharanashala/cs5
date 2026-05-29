@@ -102,19 +102,37 @@ frontend/src/
 ### Routing (App.jsx)
 
 ```
-/                  → Landing (public, embedded login)
-/faqs              → FAQs (public, accordion view)
-/login             → Login page
-/dashboard         → Role-based dashboard redirect
-/admin             → AdminDashboard (protected, admin only)
-/admin/suggestions → AdminSuggestions (protected, admin only)
-/moderator         → ModeratorDashboard (protected, moderator+)
-/intern            → InternDashboard (protected, intern only)
-/intern/ask        → AskAI (protected, intern only)
-/intern/queue      → PeerQueue (protected, intern only)
-/intern/escalations→ MyEscalations (protected, intern only)
-/intern/faqs       → ViewFAQs (protected, intern only)
-/intern/announcements→ Announcements (protected, intern only)
+/                        → Landing (public, embedded login)
+/faqs                    → FAQs (public, accordion view)
+/login                   → Login page
+/dashboard               → Role-based dashboard redirect
+
+# Admin Pages
+/admin                    → AdminOverview (protected, admin only)
+/admin/registration      → AdminUserRegistration (admin only)
+/admin/announcement     → AdminAnnouncement (admin only)
+/admin/users             → AdminUsers (admin only)
+/admin/queries           → AdminQueries (admin only)
+/admin/faqs              → AdminFaqEditor (admin only)
+/admin/high-rated         → AdminHighRated (admin only)
+/admin/ambiguous         → AdminAmbiguous (admin only)
+/admin/resolve          → AdminResolveHub (admin only)
+/admin/suggestions       → AdminSuggestions (admin only)
+
+# Moderator Pages
+/moderator               → ModeratorOverview (protected, moderator+)
+/moderator/queries        → ModeratorQueries (moderator only)
+/moderator/high-rated     → ModeratorHighRated (moderator only)
+/moderator/ambiguous      → ModeratorAmbiguous (moderator only)
+/moderator/resolve       → ModeratorResolveHub (moderator only)
+
+# Intern Pages
+/intern                   → InternDashboard (protected, intern only)
+/intern/ask              → AskAI (protected, intern only)
+/intern/peer-queue       → PeerQueue (protected, intern only)
+/intern/my-queries       → MyEscalations (protected, intern only)
+/intern/faqs             → ViewFAQs (protected, intern only)
+/intern/announcements    → Announcements (protected, intern only)
 ```
 
 ### Protected Routes

@@ -247,6 +247,35 @@ Hybrid real-time + MongoDB persistence model for instant and offline alerts.
 
 ---
 
+## Admin Dashboard Pages
+
+The Admin Dashboard now uses a page-based structure with sidebar navigation:
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| Dashboard | /admin | Overview with navigation cards |
+| User Registration | /admin/registration | Single & bulk user registration |
+| Announcements | /admin/announcement | Publish announcements |
+| User Management | /admin/users | User directory |
+| Query Monitor | /admin/queries | Master query feed |
+| FAQ Editor | /admin/faqs | FAQ CRUD operations |
+| Highly Rated | /admin/high-rated | Queries with 4-5 star ratings |
+| Ambiguous | /admin/ambiguous | 3-strike rule queries |
+| Resolve Hub | /admin/resolve | Resolution queue |
+| AI Suggestions | /admin/suggestions | FAQ gap suggestions |
+
+## Moderator Dashboard Pages
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| Dashboard | /moderator | Overview with navigation cards |
+| Query Monitor | /moderator/queries | Master query feed |
+| Highly Rated | /moderator/high-rated | Queries with 4-5 star ratings |
+| Ambiguous | /moderator/ambiguous | 3-strike rule queries |
+| Resolve Hub | /moderator/resolve | Resolution queue |
+
+---
+
 ## 6-Section Admin Resolution Hub
 
 The Admin Dashboard presents 6 sections for managing escalated queries:

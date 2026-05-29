@@ -259,7 +259,36 @@ The sweeper runs every 15 minutes to enforce SLA timeouts:
 
 ---
 
-## 9. 6-Section Admin Resolution Hub
+## 9. Admin & Moderator Page Structure
+
+Admin and Moderator dashboards use a page-based structure with sidebar navigation:
+
+**Admin Pages:**
+| Route | Purpose |
+|-------|---------|
+| /admin | Dashboard overview with navigation cards |
+| /admin/registration | User registration |
+| /admin/announcement | Publish announcements |
+| /admin/users | User management |
+| /admin/queries | Query monitor |
+| /admin/faqs | FAQ editor |
+| /admin/high-rated | Highly rated queries (priority) |
+| /admin/ambiguous | Ambiguous queries (3-strike) |
+| /admin/resolve | Resolve hub |
+| /admin/suggestions | AI suggestions |
+
+**Moderator Pages:**
+| Route | Purpose |
+|-------|---------|
+| /moderator | Dashboard overview |
+| /moderator/queries | Query monitor |
+| /moderator/high-rated | Highly rated queries |
+| /moderator/ambiguous | Ambiguous queries |
+| /moderator/resolve | Resolve hub |
+
+---
+
+## 10. Common Issues & Solutions
 
 The Admin Dashboard presents a 6-section queue for query resolution:
 
