@@ -220,6 +220,9 @@ Created frontend intern pages:
 | 24 | Missing Stagnant Queue in Admin Dashboard | Only 5 sections instead of 6 | Added "Stagnant (0 answers)" as 6th section + Add to FAQ button |
 | 25 | AskAI error message too generic | catch block showed "Failed to submit feedback" | Now shows actual backend error message |
 | 26 | No way to clear escalation data | Accumulated queries clutter database | Added POST /api/admin/clear-all-data endpoint |
+| 27 | Race condition in submitAnswer | Pre-check query.responses.length then update allows bypass | Atomic `findOneAndUpdate` with `$expr: { $lt: [{ $size: "$responses" }, 5] }` |
+| 28 | N+1 query performance in sweeper | for-loop with Response.find() + Query.findByIdAndUpdate() per query | Aggregation pipeline + updateMany for bulk locking |
+| 29 | Incorrect telemetry in LLM pipeline | `synthesizeWithGemini/Grok` returned just answer, `getGrokResponse` hardcoded model[0] | Now returns `{ answer, model }` for accurate model tracking |
 
 ---
 

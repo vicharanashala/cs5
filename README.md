@@ -197,6 +197,9 @@ All query resolutions are tracked with ResolutionType:
 | 24 | Missing Stagnant Queue | Added 6th section in Admin Resolution Hub |
 | 25 | AskAI generic error message | Now shows actual backend error (e.g., "Escalation blocked: You have 5 unresolved queries.") |
 | 26 | No way to clear test escalation data | Added POST /api/admin/clear-all-data endpoint |
+| 27 | Race condition in submitAnswer | Atomic `findOneAndUpdate` with `$expr` checks responses.length < 5 DURING update |
+| 28 | N+1 query in sweeper | Aggregation pipeline + `updateMany` instead of for-loop with sequential queries |
+| 29 | Incorrect telemetry logging | `synthesizeWithGemini/Grok` now return `{ answer, model }` instead of just answer |
 
 ---
 

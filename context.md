@@ -8,9 +8,12 @@
 ---
 
 ## Current Phase
-**Phase 12: Notification System & Workflow Documentation**
+**Phase 13: Backend Performance & Correctness Fixes**
 
 ### Status: ✅ Complete
+- Fixed race condition in peer answer submission (atomic `$expr` check)
+- Eliminated N+1 query problem in sweeper (aggregation pipeline + bulk updateMany)
+- Corrected LLM telemetry logging (returns actual model that succeeded, not hardcoded first model)
 - Complete notification system with hybrid real-time + MongoDB persistence
 - Notification Model, Controller, Routes, and Frontend components
 - Toast pop-ups, NotificationBell with unread badge, Yellow alert for admins
@@ -170,7 +173,8 @@ STEP 7: RESOLVED (Terminal State)
 9. ✅ Realtime Notifications & Queue System
 10. ⬜ Automated Testing Suite (Pending)
 11. ✅ Documentation Engine
-12. ✅ Notification System (Current)
+12. ✅ Notification System
+13. ✅ Backend Performance & Correctness Fixes (Current)
 
 ---
 
@@ -204,6 +208,9 @@ STEP 7: RESOLVED (Terminal State)
 | 24 | Missing Stagnant Queue in Admin Dashboard | Only 5 sections shown instead of 6 | Added "Stagnant (0 answers)" as 6th section + Add to FAQ button |
 | 25 | AskAI error message too generic | catch block showed "Failed to submit feedback" | Now shows actual backend error message (e.g., "Escalation blocked: You have 5 unresolved queries.") |
 | 26 | No way to clear test escalation data | Accumulated queries clutter database | Added POST /api/admin/clear-all-data endpoint |
+| 27 | Race condition in submitAnswer | Pre-check query.responses.length then update allows bypass | Atomic `findOneAndUpdate` with `$expr: { $lt: [{ $size: "$responses" }, 5] }` |
+| 28 | N+1 query performance in sweeper | for-loop with Response.find() + Query.findByIdAndUpdate() per query | Aggregation pipeline + updateMany for bulk locking |
+| 29 | Incorrect telemetry in LLM pipeline | `synthesizeWithGemini/Grok` returned just answer, `getGrokResponse` hardcoded model[0] | Now returns `{ answer, model }` for accurate model tracking |
 
 ---
 

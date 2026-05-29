@@ -129,8 +129,12 @@ const getMyEscalations = async (req, res) => {
  * 4. Query responses array must have room (< 5)
  *
  * ATOMIC OPERATIONS:
- * - Uses findOneAndUpdate with $push to atomically add response
- * - Prevents race condition where 2 interns submit simultaneously
+ * - Uses findOneAndUpdate with $expr condition to atomically check
+ *   responses array length DURING the update, preventing race conditions
+ *   where 2 interns submit simultaneously and bypass the capacity cap
+ * - The condition `{ $expr: { $lt: [{ $size: "$responses" }, 5] } }` ensures
+ *   that the update ONLY succeeds if responses.length < 5 at the moment
+ *   the atomic update occurs in MongoDB
  *
  * @async
  * @function submitAnswer
@@ -179,14 +183,6 @@ const submitAnswer = async (req, res) => {
       });
     }
 
-    if (query.responses.length >= MAX_PEER_RESPONSES) {
-      return res.status(400).json({
-        success: false,
-        error: `Maximum capacity reached (${MAX_PEER_RESPONSES} responses). This query cannot accept more peer answers.`,
-        code: 'CAPACITY_CAP',
-      });
-    }
-
     const response = new Response({
       query_id,
       author_id,
@@ -196,14 +192,35 @@ const submitAnswer = async (req, res) => {
     });
     await response.save();
 
-    const updatedQuery = await Query.findByIdAndUpdate(
-      query_id,
+    const updatedQuery = await Query.findOneAndUpdate(
+      {
+        _id: query_id,
+        status: 'Pending',
+        is_locked: false,
+        $expr: { $lt: [{ $size: '$responses' }, MAX_PEER_RESPONSES] },
+      },
       {
         $push: { responses: response._id },
         $set: { status: 'Peer Answered' },
       },
       { new: true, runValidators: true }
     );
+
+    if (!updatedQuery) {
+      await Response.findByIdAndDelete(response._id);
+      const currentQuery = await Query.findById(query_id);
+      if (currentQuery && currentQuery.responses.length >= MAX_PEER_RESPONSES) {
+        return res.status(400).json({
+          success: false,
+          error: `Maximum capacity reached (${MAX_PEER_RESPONSES} responses). This query cannot accept more peer answers.`,
+          code: 'CAPACITY_CAP',
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        error: 'Query is no longer accepting responses.',
+      });
+    }
 
     res.status(201).json({
       success: true,

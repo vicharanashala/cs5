@@ -116,6 +116,7 @@ Your response (VALID or INVALID):`;
 
 /**
  * Gemini Context Synthesis
+ * Returns both the answer AND the model name that succeeded for accurate telemetry.
  */
 const synthesizeWithGemini = async (query, faqContext) => {
   if (!GEMINI_API_KEY) return null;
@@ -157,7 +158,7 @@ Your Answer (plain text only):`;
       const answer = response.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
       if (answer) {
         console.log(`📤 [GEMINI] Model: ${model} | Response length: ${answer.length} chars`);
-        return answer;
+        return { answer, model };
       }
     } catch (error) {
       const errorMsg = error.response?.data?.error?.message || error.message;
@@ -183,6 +184,7 @@ Your Answer (plain text only):`;
 
 /**
  * Groq Context Synthesis (Fallback)
+ * Returns both the answer AND the model name that succeeded for accurate telemetry.
  */
 const synthesizeWithGroq = async (query, faqContext) => {
   if (!GROQ_API_KEY) return null;
@@ -229,7 +231,7 @@ Your Answer (using ONLY the context above):`;
       const answer = response.data?.choices?.[0]?.message?.content?.trim();
       if (answer) {
         console.log(`📤 [GROQ] Model: ${model} | Response length: ${answer.length} chars`);
-        return answer;
+        return { answer, model };
       }
     } catch (error) {
       const errorMsg = error.response?.data?.error?.message || error.message;
@@ -256,6 +258,8 @@ Your Answer (using ONLY the context above):`;
 /**
  * Main LLM Service Entry Point
  * Pipeline: Sanity Check -> Gemini (with model fallback) -> Groq (with model fallback) -> Peer Escalation
+ *
+ * TELEMETRY: Returns the actual model that succeeded (not hardcoded [0]) for accurate logging.
  */
 const getGrokResponse = async (query, faqContext = []) => {
   const sanity = await sanityCheck(query);
@@ -263,23 +267,22 @@ const getGrokResponse = async (query, faqContext = []) => {
     return { success: false, error: sanity.reason, stage: 'sanity', model: sanity.model };
   }
 
-  let answer = null;
   let lastError = null;
   let lastModel = null;
 
   if (GEMINI_API_KEY) {
-    answer = await synthesizeWithGemini(query, faqContext);
-    if (answer) {
-      return { success: true, answer, stage: 'gemini', model: GEMINI_MODELS[0] };
+    const result = await synthesizeWithGemini(query, faqContext);
+    if (result) {
+      return { success: true, answer: result.answer, stage: 'gemini', model: result.model };
     }
     lastError = 'All Gemini models failed';
   }
 
   if (GROQ_API_KEY) {
     console.log('🔄 All Gemini models failed, trying Groq...');
-    answer = await synthesizeWithGroq(query, faqContext);
-    if (answer) {
-      return { success: true, answer, stage: 'groq', model: GROQ_MODELS[0] };
+    const result = await synthesizeWithGroq(query, faqContext);
+    if (result) {
+      return { success: true, answer: result.answer, stage: 'groq', model: result.model };
     }
     lastError = 'All Groq models failed';
   }

@@ -36,6 +36,21 @@ const isQueryStale = (query) => {
   return hoursSinceCreation >= SLA_TIMEOUT_HOURS;
 };
 
+/**
+ * runSweeper
+ * ----------
+ * Eliminates N+1 query problem by using MongoDB aggregation pipeline
+ * to identify stagnant (0 responses) and low-rated (1-4 responses, all 1-3 stars)
+ * queries in bulk, then uses updateMany to lock them simultaneously.
+ *
+ * PERFORMANCE:
+ * - No for-loop with sequential queries
+ * - Uses aggregation to JOIN responses and filter in a single pass
+ * - Uses updateMany for O(1) bulk updates instead of O(N) individual updates
+ *
+ * @async
+ * @function runSweeper
+ */
 const runSweeper = async () => {
   try {
     const staleThreshold = new Date(Date.now() - SLA_TIMEOUT_HOURS * 60 * 60 * 1000);
@@ -50,21 +65,94 @@ const runSweeper = async () => {
       return;
     }
 
-    for (const query of staleQueries) {
-      const responses = await Response.find({ query_id: query._id });
-      const responseCount = responses.length;
+    const queryIds = staleQueries.map((q) => q._id);
 
-      if (responseCount === 0) {
-        await Query.findByIdAndUpdate(query._id, { is_locked: true });
-        console.log(`[Sweeper] Query ${query._id} escalated: stagnant (0 responses)`);
-      } else {
-        const allLowRated = responses.every((r) => r.rating !== null && r.rating <= 3);
+    const aggregationPipeline = [
+      {
+        $match: {
+          query_id: { $in: queryIds },
+        },
+      },
+      {
+        $group: {
+          _id: '$query_id',
+          count: { $sum: 1 },
+          ratings: { $push: '$rating' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'queries',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'query',
+        },
+      },
+      {
+        $unwind: '$query',
+      },
+      {
+        $match: {
+          $expr: { $lt: ['$count', MAX_PEER_RESPONSES] },
+        },
+      },
+      {
+        $project: {
+          query_id: '$_id',
+          responseCount: '$count',
+          allLowRated: {
+            $and: [
+              { $gte: ['$count', 1] },
+              {
+                $allElementsTrue: {
+                  $map: {
+                    input: '$ratings',
+                    as: 'r',
+                    in: {
+                      $and: [
+                        { $ne: ['$$r', null] },
+                        { $lte: ['$$r', 3] },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    ];
 
-        if (allLowRated && responseCount >= 1 && responseCount < MAX_PEER_RESPONSES) {
-          await Query.findByIdAndUpdate(query._id, { is_locked: true });
-          console.log(`[Sweeper] Query ${query._id} escalated: low-rated (${responseCount} responses, all 1-3 stars)`);
-        }
-      }
+    const aggregatedResults = await Response.aggregate(aggregationPipeline);
+
+    const stagnantQueryIds = staleQueries
+      .filter((sq) => sq.responses.length === 0)
+      .map((sq) => sq._id);
+
+    const lowRatedQueryIds = aggregatedResults
+      .filter((r) => r.responseCount >= 1 && r.responseCount < MAX_PEER_RESPONSES && r.allLowRated)
+      .map((r) => r.query_id);
+
+    const allIdsToLock = [...new Set([...stagnantQueryIds, ...lowRatedQueryIds])];
+
+    if (stagnantQueryIds.length > 0) {
+      const stagnantResult = await Query.updateMany(
+        { _id: { $in: stagnantQueryIds } },
+        { $set: { is_locked: true } }
+      );
+      console.log(`[Sweeper] Stagnant queries locked: ${stagnantResult.modifiedCount}`);
+    }
+
+    if (lowRatedQueryIds.length > 0) {
+      const lowRatedResult = await Query.updateMany(
+        { _id: { $in: lowRatedQueryIds } },
+        { $set: { is_locked: true } }
+      );
+      console.log(`[Sweeper] Low-rated queries locked: ${lowRatedResult.modifiedCount}`);
+    }
+
+    if (allIdsToLock.length > 0) {
+      console.log(`[Sweeper] Total queries escalated: ${allIdsToLock.length}`);
     }
   } catch (error) {
     console.error('[Sweeper] Error running sweep:', error.message);
