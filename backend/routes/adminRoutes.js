@@ -24,6 +24,7 @@ const {
   overrideWithAdminResponse,
   getQueryDetails,
   createFAQFromQuery,
+  clearAllData,
 } = require('../controllers/adminController');
 
 router.use(protect);
@@ -34,5 +35,6 @@ router.get('/query/:id', getQueryDetails);
 router.post('/approve', approvePeerResponse);
 router.post('/override', overrideWithAdminResponse);
 router.post('/create-faq', createFAQFromQuery);
+router.post('/clear-all-data', clearAllData);
 
 module.exports = router;

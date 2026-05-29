@@ -441,10 +441,62 @@ const createFAQFromQuery = async (req, res) => {
   }
 };
 
+/**
+ * clearAllData
+ * ------------
+ * Admin clears all data except users and FAQs.
+ * Clears: Query, Response, NoFaq, Notification collections.
+ * Use for testing/reset purposes.
+ *
+ * @async
+ * @function clearAllData
+ * @param {Object} req - Express request
+ * @param {Object} res - Express response
+ */
+const clearAllData = async (req, res) => {
+  try {
+    const Query = require('../models/Query');
+    const Response = require('../models/Response');
+    const NoFaq = require('../models/NoFaq');
+    const Notification = require('../models/Notification');
+
+    const queryCount = await Query.countDocuments();
+    const responseCount = await Response.countDocuments();
+    const noFaqCount = await NoFaq.countDocuments();
+    const notificationCount = await Notification.countDocuments();
+
+    await Response.deleteMany({});
+    await Query.deleteMany({});
+    await NoFaq.deleteMany({});
+    await Notification.deleteMany({});
+
+    res.status(200).json({
+      success: true,
+      message: 'All data cleared (users and FAQs preserved)',
+      data: {
+        cleared: {
+          queries: queryCount,
+          responses: responseCount,
+          no_faqs: noFaqCount,
+          notifications: notificationCount,
+        },
+        preserved: ['users', 'faqs'],
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to clear data',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getEscalatedQueries,
   approvePeerResponse,
   overrideWithAdminResponse,
   getQueryDetails,
   createFAQFromQuery,
+  clearAllData,
 };

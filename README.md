@@ -160,10 +160,13 @@ VITE_API_URL=http://localhost:5000/api
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@query.in | Admin@123 |
-| Moderator | mod@query.in | Mod@123 |
-| Intern 1 | intern1@query.in | Intern1@123 |
-| Intern 2 | intern2@query.in | Intern2@123 |
+| Admin | admin@query.in | Admin@1234 |
+| Moderator | mod@query.in | Mod@1234 |
+| Moderator | mod2@query.in | Mod2!1234 |
+| Intern 1 | intern1@query.in | Intern1@1234 |
+| Intern 2 | intern2@query.in | Intern2@1234 |
+| Intern 3 | intern3@query.in | Intern3@1234 |
+| Intern 4-10 | intern{N}@query.in | Intern{N}!234 |
 
 ---
 
@@ -192,6 +195,8 @@ All query resolutions are tracked with ResolutionType:
 | 22 | Ambiguous 3-strike notification | Intern now notified when query marked ambiguous |
 | 23 | createFAQFromQuery stub | Now actually creates FAQ from approved response |
 | 24 | Missing Stagnant Queue | Added 6th section in Admin Resolution Hub |
+| 25 | AskAI generic error message | Now shows actual backend error (e.g., "Escalation blocked: You have 5 unresolved queries.") |
+| 26 | No way to clear test escalation data | Added POST /api/admin/clear-all-data endpoint |
 
 ---
 

@@ -202,6 +202,8 @@ STEP 7: RESOLVED (Terminal State)
 | 22 | Ambiguous 3-strike doesn't notify intern | No notification sent when query becomes Ambiguous | Added createNotification call in peerController when status changes to Ambiguous |
 | 23 | createFAQFromQuery does nothing | Stub function only returned query_text | Implemented actual FAQ creation from approved response |
 | 24 | Missing Stagnant Queue in Admin Dashboard | Only 5 sections shown instead of 6 | Added "Stagnant (0 answers)" as 6th section + Add to FAQ button |
+| 25 | AskAI error message too generic | catch block showed "Failed to submit feedback" | Now shows actual backend error message (e.g., "Escalation blocked: You have 5 unresolved queries.") |
+| 26 | No way to clear test escalation data | Accumulated queries clutter database | Added POST /api/admin/clear-all-data endpoint |
 
 ---
 
@@ -318,6 +320,14 @@ query.in/
 - `GET /api/ask/autocomplete` - Auto-complete suggestions
 - `POST /api/ask` - Full AI pipeline (RAG → LLM → Escalation)
 
+### Admin
+- `GET /api/admin/escalated` - Get escalated queries
+- `GET /api/admin/query/:id` - Get query details
+- `POST /api/admin/approve` - Approve peer response
+- `POST /api/admin/override` - Admin override
+- `POST /api/admin/create-faq` - Create FAQ from query
+- `POST /api/admin/clear-all-data` - Clear all Query/Response/NoFaq/Notification data (preserves users/FAQs)
+
 ### Peer (Intern)
 - `GET /api/peer/queue` - Get pending queries
 - `GET /api/peer/my-escalations` - Get my queries
@@ -327,12 +337,6 @@ query.in/
 
 ### Ratings
 - `POST /api/ratings/:id` - Rate response (1-5 stars)
-
-### Admin
-- `GET /api/admin/escalated` - Get escalated queries
-- `GET /api/admin/query/:id` - Get query details
-- `POST /api/admin/approve` - Approve peer response
-- `POST /api/admin/override` - Admin override
 
 ### Analytics
 - `GET /api/analytics/faq-suggestions` - Get suggestions (>= 10 hits)
@@ -411,10 +415,13 @@ query.in/
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@query.in | Admin@123 |
-| Moderator | mod@query.in | Mod@123 |
-| Intern 1 | intern1@query.in | Intern1@123 |
-| Intern 2 | intern2@query.in | Intern2@123 |
+| Admin | admin@query.in | Admin@1234 |
+| Moderator | mod@query.in | Mod@1234 |
+| Moderator | mod2@query.in | Mod2!1234 |
+| Intern 1 | intern1@query.in | Intern1@1234 |
+| Intern 2 | intern2@query.in | Intern2@1234 |
+| Intern 3 | intern3@query.in | Intern3@1234 |
+| Intern 4-10 | intern{N}@query.in | Intern{N}!234 |
 
 ---
 

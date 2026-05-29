@@ -253,7 +253,8 @@ const AskAI = () => {
         });
       }
     } catch (err) {
-      setError('Failed to submit feedback. Please try again.');
+      const errorMsg = err.response?.data?.error || 'Failed to submit feedback. Please try again.';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
