@@ -62,7 +62,7 @@ const MAX_AMBIGUOUS_STRIKES = 3;
  */
 const getPeerQueue = async (req, res) => {
   try {
-    const currentUserId = req.user.id;
+    const currentUserId = req.user.userId;
 
     const queries = await Query.find({
       status: 'Pending',
@@ -99,7 +99,7 @@ const getPeerQueue = async (req, res) => {
  */
 const getMyEscalations = async (req, res) => {
   try {
-    const queries = await Query.find({ intern_id: req.user.id })
+    const queries = await Query.find({ intern_id: req.user.userId })
       .populate('responses')
       .sort({ createdAt: -1 });
 
@@ -140,7 +140,7 @@ const getMyEscalations = async (req, res) => {
 const submitAnswer = async (req, res) => {
   try {
     const { query_id, response_text, peer_note = '' } = req.body;
-    const author_id = req.user.id;
+    const author_id = req.user.userId;
 
     if (!query_id || !response_text) {
       return res.status(400).json({
@@ -307,7 +307,7 @@ const skipQuery = async (req, res) => {
 const markAmbiguous = async (req, res) => {
   try {
     const { query_id } = req.body;
-    const user_id = req.user.id;
+    const user_id = req.user.userId;
 
     if (!query_id) {
       return res.status(400).json({

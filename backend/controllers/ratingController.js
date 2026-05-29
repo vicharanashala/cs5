@@ -73,7 +73,7 @@ const rateResponse = async (req, res) => {
   try {
     const { id: response_id } = req.params;
     const { rating } = req.body;
-    const rater_id = req.user.id;
+    const rater_id = req.user.userId;
 
     if (!rating || !Number.isInteger(rating) || rating < 1 || rating > 5) {
       return res.status(400).json({
@@ -199,7 +199,7 @@ const checkAllLowRatings = async (query_id) => {
 const getResponseRatings = async (req, res) => {
   try {
     const { id: query_id } = req.params;
-    const user_id = req.user.id;
+    const user_id = req.user.userId;
 
     const query = await Query.findById(query_id);
 

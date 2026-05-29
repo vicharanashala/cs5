@@ -210,8 +210,9 @@ Created frontend intern pages:
 | 14 | no_faq tracking broken | No analytics controller | Created analyticsController.js with trackNoFaqQuery |
 | 15 | Frontend api.js import error | Named export instead of default | Changed `import { api }` to `import api` |
 | 16 | VITE_API_URL undefined crash | env variable not set | Added fallback default `http://localhost:5000` |
-| 16 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
-| 17 | Garbage input passed to RAG/LLM | No input validation | Added query sanity check with lenient validation rules |
+| 17 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
+| 18 | Garbage input passed to RAG/LLM | No input validation | Added query sanity check with lenient validation rules |
+| 19 | Peer answer submission failed (500 error) | authMiddleware sets req.user.userId but controllers use req.user.id | Changed all req.user.id to req.user.userId in all controllers |
 
 ---
 
@@ -348,11 +349,11 @@ Updated context.md with:
 - Complete Query Lifecycle flowchart (Steps 0-7)
 - State Machine Transitions diagram
 - Resolution Types table (AUTO_COMPLETE, RAG_RESOLVED, LLM_RESOLVED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED)
-- All 17 resolved issues documented with root cause and fix
+- All 19 resolved issues documented with root cause and fix
 - Notification System integration details
 - Updated milestone progress (Phase 12 complete)
 
-All issues from #1 to #17 documented:
+All issues from #1 to #19 documented:
 | # | Issue | Fix |
 |---|-------|-----|
 | 1 | MongoDB connection failed | Removed useNewUrlParser/useUnifiedTopology |
@@ -372,6 +373,8 @@ All issues from #1 to #17 documented:
 | 15 | Auto-complete only searched keywords | Search search_text, tags, clean_question |
 | 16 | RAG downvote logic flaw | rag_downvote triggers LLM first |
 | 17 | LLM upvote shows RAG answer | Added grok_upvote handler returning resolved state |
+| 18 | Garbage input passed to RAG/LLM | Added query sanity check |
+| 19 | Peer answer submission failed (500) | Changed req.user.id to req.user.userId |
 
 Updated docs/database_schema.md with:
 - Notification collection schema
@@ -435,3 +438,22 @@ Created complete ModeratorDashboard.jsx with all 3 cards:
 - **Card 3: Resolve Query Hub** (Inherited from Admin Card 6 - 5-section queue, moderator can resolve)
 
 Updated docs: context.md, prompt.md
+
+### Prompt 36: Fix Peer Answer Submission 500 Error
+**Prompt:** When I submit an answer for a query using peer answer queue it shows "Failed to submit answer" and in console this error "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+
+**Response:**
+Fixed the issue in backend controllers. The problem was a property name mismatch:
+- `authMiddleware.js` sets `req.user.userId` (capital I in userId)
+- All controllers were using `req.user.id` (lowercase i)
+
+This caused `author_id` to be `undefined` when creating notifications, which failed Mongoose validation.
+
+**Files fixed (changed `req.user.id` to `req.user.userId`):**
+- `backend/controllers/peerController.js` (4 instances: getMyEscalations, submitAnswer, markAmbiguous)
+- `backend/controllers/adminController.js` (2 instances: approvePeerResponse, overrideWithAdminResponse)
+- `backend/controllers/notificationController.js` (5 instances)
+- `backend/controllers/ratingController.js` (2 instances: rateResponse, getResponseRatings)
+- `backend/controllers/announcementController.js` (1 instance)
+
+**Committed as:** `fix: resolve req.user.userId mismatch causing 500 on peer answer submission`

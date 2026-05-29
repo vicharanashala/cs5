@@ -87,7 +87,7 @@ const createNotification = async ({
  */
 const getNotifications = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { page = 1, limit = 20, unread_only = 'false' } = req.query;
 
     const query = { recipient_id: userId };
@@ -140,7 +140,7 @@ const getNotifications = async (req, res) => {
 const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const notification = await Notification.findOne({ _id: id, recipient_id: userId });
 
@@ -179,7 +179,7 @@ const markAsRead = async (req, res) => {
  */
 const markAllAsRead = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     await Notification.updateMany(
       { recipient_id: userId, is_read: false },
@@ -212,7 +212,7 @@ const markAllAsRead = async (req, res) => {
 const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const notification = await Notification.findOneAndDelete({
       _id: id,
@@ -251,7 +251,7 @@ const deleteNotification = async (req, res) => {
  */
 const getUnreadCount = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const count = await Notification.countDocuments({
       recipient_id: userId,

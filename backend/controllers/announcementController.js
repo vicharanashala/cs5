@@ -32,7 +32,7 @@ const getAllAnnouncements = async (req, res) => {
 const createAnnouncement = async (req, res) => {
   try {
     const { heading, content } = req.body;
-    const admin_id = req.user.id;
+    const admin_id = req.user.userId;
 
     if (!heading || !content) {
       return res.status(400).json({

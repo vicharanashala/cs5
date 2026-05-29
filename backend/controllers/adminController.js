@@ -108,7 +108,7 @@ const getEscalatedQueries = async (req, res) => {
 const approvePeerResponse = async (req, res) => {
   try {
     const { query_id, response_id } = req.body;
-    const admin_id = req.user.id;
+    const admin_id = req.user.userId;
 
     if (!query_id || !response_id) {
       return res.status(400).json({
@@ -225,7 +225,7 @@ const approvePeerResponse = async (req, res) => {
 const overrideWithAdminResponse = async (req, res) => {
   try {
     const { query_id, response_text, peer_note = '' } = req.body;
-    const admin_id = req.user.id;
+    const admin_id = req.user.userId;
 
     if (!query_id || !response_text) {
       return res.status(400).json({
