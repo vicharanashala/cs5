@@ -120,10 +120,7 @@ const PeerQueue = () => {
       const res = await api.post('/peer/ambiguous', { query_id: query._id });
       setMessage(res.data.message);
       setTimeout(() => {
-        if (currentIndex < queries.length - 1) {
-          setCurrentIndex((prev) => prev + 1);
-        }
-        setMessage('');
+        fetchQueue();
       }, 1500);
     } catch (err) {
       setMessage(err.response?.data?.error || 'Failed to mark as ambiguous');
