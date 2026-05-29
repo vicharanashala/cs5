@@ -42,16 +42,16 @@ PORT=5000
 NODE_ENV=development
 
 # MongoDB Connection
-# Replace <user>, <pass>, <cluster> with your Atlas credentials
 MONGO_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/faq_escalation
 
 # JWT Configuration
-# Use a strong, random string for production
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 
-# Gemini AI Configuration
-# Get your API key from: https://makersuite.google.com/app/apikey
-GEMINI_API_KEY=your-gemini-api-key-here
+# Gemini AI Configuration (tries in order: 3.5-flash -> 3.1-pro -> 3.1-flash-lite -> 2.5-flash -> 2.5-pro)
+GEMINI_API_KEY=your-gemini-api-key
+
+# Groq API Configuration (fallback when Gemini fails, tries: llama-3.3-70b -> llama-3.1-8b -> llama-4-scout -> qwen3-32b -> gpt-oss-120b -> gpt-oss-20b)
+GROQ_API_KEY=your-groq-api-key
 
 # Frontend URL (for CORS)
 CLIENT_URL=http://localhost:5173
@@ -60,10 +60,10 @@ CLIENT_URL=http://localhost:5173
 ### 2.4 Start the Backend Server
 
 ```bash
-# Development mode (with auto-restart on file changes)
+# Development mode (with nodemon auto-restart)
 npm run dev
 
-# OR Production mode
+# Production mode
 npm start
 ```
 
@@ -71,6 +71,8 @@ npm start
 ```
 🚀 Query.in server running on port 5000
 📡 Environment: development
+✅ MongoDB Connected: ac-xxx.mongodb.net
+[Sweeper] 24-hour SLA sweeper started
 ```
 
 ---
@@ -96,7 +98,6 @@ npm install
 Create a `.env` file in the `frontend/` directory:
 
 ```env
-# Backend API URL
 VITE_API_URL=http://localhost:5000/api
 ```
 
@@ -148,8 +149,8 @@ Open browser to: `http://localhost:5173`
 faq project/
 ├── backend/
 │   ├── config/
-│   │   ├── db.js          # MongoDB connection
-│   │   └── socket.js      # Socket.IO configuration
+│   │   ├── db.js              # MongoDB connection
+│   │   └── socket.js          # Socket.IO configuration
 │   ├── controllers/
 │   │   ├── authController.js
 │   │   ├── faqController.js
@@ -161,7 +162,7 @@ faq project/
 │   │   ├── announcementController.js
 │   │   └── analyticsController.js
 │   ├── jobs/
-│   │   └── sweeper.js     # 24-hour cron job
+│   │   └── sweeper.js         # 24-hour cron job
 │   ├── middleware/
 │   │   └── authMiddleware.js
 │   ├── models/
@@ -172,20 +173,10 @@ faq project/
 │   │   ├── NoFaq.js
 │   │   └── Announcement.js
 │   ├── routes/
-│   │   ├── authRoutes.js
-│   │   ├── faqRoutes.js
-│   │   ├── queryRoutes.js
-│   │   ├── askAIRoutes.js
-│   │   ├── peerRoutes.js
-│   │   ├── ratingRoutes.js
-│   │   ├── adminRoutes.js
-│   │   ├── announcementRoutes.js
-│   │   └── analyticsRoutes.js
 │   ├── services/
-│   │   └── geminiService.js
+│   │   └── grokService.js     # LLM service (Gemini + Groq)
 │   ├── server.js
-│   ├── .env
-│   └── package.json
+│   └── .env
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
@@ -194,8 +185,7 @@ faq project/
 │   │   ├── utils/
 │   │   ├── App.jsx
 │   │   └── main.jsx
-│   ├── .env
-│   └── package.json
+│   └── .env
 ├── docs/
 ├── README.md
 ├── context.md
@@ -204,40 +194,77 @@ faq project/
 
 ---
 
-## 7. Common Issues & Solutions
+## 7. LLM Configuration Details
+
+### Gemini Models (Primary)
+
+| Model | Priority | Use Case |
+|-------|----------|----------|
+| gemini-3.5-flash | 1 | Default, text, multimodal |
+| gemini-3.1-pro-preview | 2 | Complex reasoning |
+| gemini-3.1-flash-lite | 3 | Cost-efficient |
+| gemini-2.5-flash | 4 | Legacy stable |
+| gemini-2.5-pro | 5 | Legacy heavy |
+
+### Groq Models (Fallback - Free Tier)
+
+| Model | Priority | Use Case |
+|-------|----------|----------|
+| llama-3.3-70b-versatile | 1 | Deep reasoning |
+| llama-3.1-8b-instant | 2 | Quick chat |
+| llama-4-scout-17b | 3 | **Multimodal (images)** |
+| qwen3-32b | 4 | Coding |
+| gpt-oss-120b | 5 | Step-by-step reasoning |
+| gpt-oss-20b | 6 | Lighter tasks |
+
+### LLM Settings
+
+| Setting | Value |
+|---------|-------|
+| Max Output Tokens | 2000 |
+| Temperature | 0.1 |
+| Timeout | 60 seconds |
+| Response Format | Plain text only (no emojis, no formatting) |
+
+---
+
+## 8. Active Query Cap
+
+- Each intern can have **max 5 unresolved queries** in the peer queue
+- When cap is reached, new escalations are blocked with `QUERY_CAP_REACHED` error
+- Resolving (rating) existing queries frees up slots
+
+---
+
+## 9. Common Issues & Solutions
 
 ### MongoDB Connection Failed
 
 **Error:** `MongoNetworkError` or `MongoTimeoutError`
 
 **Solution:**
-1. Check your Atlas network whitelist (allow IP 0.0.0.0/0 for testing)
-2. Verify username/password in MONGO_URI
-3. Ensure your cluster name is correct in the connection string
+1. Add your IP to Atlas whitelist (0.0.0.0/0 for testing)
+2. Verify credentials in MONGO_URI
+3. Check cluster name in connection string
 
-### Gemini API Errors
+### LLM API Errors
 
 **Error:** `Resource has been exhausted` or `API_KEY_INVALID`
 
 **Solution:**
-1. Verify your Gemini API key is correct
-2. Check your quota at https://makersuite.google.com/app/apikey
-3. Ensure you have available credits
+1. Check Gemini key at https://makersuite.google.com/app/apikey
+2. Check Groq key at https://console.groq.com/keys
+3. System auto-switches to fallback model
 
 ### CORS Errors
 
-**Error:** `Access-Control-Allow-Origin` blocked
-
 **Solution:**
-1. Verify CLIENT_URL in backend .env matches frontend URL exactly
-2. Include `http://` or `https://` in the URL
+1. Verify CLIENT_URL in backend .env
+2. Include `http://` or `https://`
 3. No trailing slash
 
 ### Port Already in Use
 
-**Error:** `EADDRINUSE` on port 5000 or 5173
-
-**Solution:**
 ```bash
 # Find process on port
 netstat -ano | findstr :5000
@@ -248,10 +275,10 @@ taskkill /PID <process_id> /F
 
 ---
 
-## 8. Development Workflow
+## 10. Development Workflow
 
 ```bash
-# 1. Always work on a feature branch
+# 1. Create feature branch
 git checkout -b feature/my-feature
 
 # 2. Make changes and commit
@@ -261,47 +288,42 @@ git commit -m "feat: description"
 # 3. Push to remote
 git push origin feature/my-feature
 
-# 4. Merge to main when ready
+# 4. Merge when ready
 git checkout main
 git merge feature/my-feature
 ```
 
 ---
 
-## 9. Production Deployment
+## 11. Production Deployment
 
 ### Backend
 ```bash
-# Set environment variables
 export NODE_ENV=production
 export MONGO_URI=your-production-mongo-uri
 export JWT_SECRET=your-production-secret
-export GEMINI_API_KEY=your-production-key
-
-# Build and start
-npm run build  # if using TypeScript or bundler
+export GEMINI_API_KEY=your-gemini-key
+export GROQ_API_KEY=your-groq-key
 npm start
 ```
 
 ### Frontend
 ```bash
-# Set VITE_API_URL to production backend
 VITE_API_URL=https://api.query.in npm run build
-
-# Serve the dist/ folder with nginx or similar
+# Serve dist/ with nginx
 ```
 
 ---
 
-## 10. Useful Commands
+## 12. Backend Logs
 
-```bash
-# Backend logs
-npm run dev 2>&1 | Tee-Object -FilePath logs.txt
-
-# Check MongoDB connection
-mongosh "your-connection-string"
-
-# Clear all data (development only)
-db.dropDatabase()  # in mongo shell
+LLM calls are logged with format:
+```
+✅ [GEMINI] Model: gemini-3.5-flash | Stage: synthesis
+📤 [GEMINI] Model: gemini-3.5-flash | Response length: 1250 chars
+⚠️ [GEMINI] Model: gemini-2.5-flash | Synthesis failed: timeout
+🚫 [GEMINI] Model: gemini-1.5-pro | ERROR: Cannot read "image.png" (this model does not support image input)
+🔄 All Gemini models failed, trying Groq...
+📊 [ANALYTICS] intern:xxx | llm_resolved | {"model":"gemini-3.5-flash","stage":"gemini"}
+⚠️ [ANALYTICS] intern:xxx | cap_blocked | {"cap":5}
 ```

@@ -29,7 +29,7 @@
 │                       │                                       │
 │  ┌────────────────────┴───────────────────────────┐         │
 │  │              Services Layer                       │         │
-│  │  geminiService.js (Gemini LLM integration)        │         │
+│  │  grokService.js (Gemini + Groq LLM integration)  │         │
 │  └──────────────────────────────────────────────────┘         │
 └─────────────────────────────────────────────────────────────────┘
                                     │
@@ -170,7 +170,7 @@ backend/
 ├── models/                # Mongoose schemas
 ├── routes/                # Express routers
 ├── services/
-│   └── geminiService.js   # Gemini API wrapper
+│   └── grokService.js   # LLM service (Gemini + Groq)
 ├── server.js              # Entry point
 └── package.json
 ```
@@ -263,7 +263,7 @@ Invalid? → Reject connection
 
 ---
 
-## RAG + LLM Pipeline
+## RAG + LLM Pipeline (Multi-Provider)
 
 ```
 User Question (intern)
@@ -274,25 +274,35 @@ Full question submitted
         ↓
 RAG Search (MongoDB text index)
         ↓
-Match found? ──NO──→ Gemini LLM Fallback
+Match found? ──NO──→ LLM Pipeline
         │                    │
        YES                   ↓
-        │              Confidence High?
+        │              ┌─────┴─────┐
+        │              │           │
+        │         Gemini API   Groq API
+        │         (5 models)   (6 models)
+        │              │           │
+        │              └─────┬─────┘
+        │                    ↓
+        │              Return Answer?
         │                    │
-        ↓                   ├─YES─→ Return Answer
-Return FAQ Answer            │
-                              ├─NO──→ Escalate to Peer Queue
-                              │            │
-                              └────────────┘
+        │              ┌─────┴─────┐
+        │              │           │
+        │             YES          NO
+        │              │           │
+        │              ↓      Escalate to Peer Queue
+ Return FAQ Answer
 ```
 
-### Gemini Service Configuration
+### LLM Service Configuration
 
 ```javascript
-// Model: gemini-2.5-flash
+// Gemini Models (in order): 3.5-flash -> 3.1-pro -> 3.1-flash-lite -> 2.5-flash -> 2.5-pro
+// Groq Models (in order): llama-3.3-70b -> llama-3.1-8b -> llama-4-scout -> qwen3-32b -> gpt-oss-120b -> gpt-oss-20b
+// Max Output Tokens: 2000
 // Temperature: 0.1 (focused, deterministic)
-// API Version: v1 REST API
-// Safety settings: default
+// Timeout: 60 seconds
+// Response: Plain text only (no emojis, no formatting)
 ```
 
 ---
