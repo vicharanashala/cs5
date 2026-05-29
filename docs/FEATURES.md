@@ -268,9 +268,12 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 ### UI/UX Features
 - **Black & White Theme** - #FAFAFA background
 - **Rounded Corners** - rounded-lg
-- **Landing Page** - Embedded login
+- **Landing Page** - Embedded login (login form on `/`, not `/login`)
 - **Role-Based Dashboards** - Admin, Moderator, Intern
 - **Public FAQs Page** - Accordion view
+- **ProtectedRoute Redirect** - Redirects to `/` (Landing) instead of `/login`
+- **Markdown Rendering** - FAQ answers render markdown (bold, lists, highlights) via react-markdown
+- **Status Badges** - FAQ cards show "AI Generated", "Peer Answered", or "Verified by Admin" based on priority
 
 ---
 

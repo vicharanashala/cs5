@@ -200,6 +200,10 @@ All query resolutions are tracked with ResolutionType:
 | 27 | Race condition in submitAnswer | Atomic `findOneAndUpdate` with `$expr` checks responses.length < 5 DURING update |
 | 28 | N+1 query in sweeper | Aggregation pipeline + `updateMany` instead of for-loop with sequential queries |
 | 29 | Incorrect telemetry logging | `synthesizeWithGemini/Grok` now return `{ answer, model }` instead of just answer |
+| 30 | ProtectedRoute redirected to /login | Login form embedded on Landing page at `/`, redirect now to `/` |
+| 31 | ViewFAQs markdown not rendering | Added react-markdown for proper rendering |
+| 32 | ViewFAQs missing status badges | Added "AI Generated", "Peer Answered", "Verified by Admin" badges |
+| 33 | ViewFAQs auto-expand on load | Removed auto-expand, categories start collapsed |
 
 ---
 

@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
@@ -85,9 +86,6 @@ const ViewFAQs = () => {
 
       const cats = [...new Set(data.map((faq) => faq.category))].sort();
       setCategories(cats);
-      if (cats.length > 0) {
-        setExpandedCategory(cats[0]);
-      }
     } catch (err) {
       console.error('Failed to fetch FAQs', err);
     } finally {
@@ -97,6 +95,15 @@ const ViewFAQs = () => {
 
   const getFaqsByCategory = (category) => {
     return filteredFaqs.filter((faq) => faq.category === category);
+  };
+
+  const getStatusBadge = (faq) => {
+    if (faq.priority >= 8) {
+      return <Badge variant="verified">Verified by Admin</Badge>;
+    } else if (faq.priority >= 5) {
+      return <Badge variant="filled">Peer Answered</Badge>;
+    }
+    return <Badge variant="outline">AI Generated</Badge>;
   };
 
   return (
@@ -151,7 +158,12 @@ const ViewFAQs = () => {
                   </div>
                   {expandedFaq === faq._id && (
                     <div className="p-4 pt-0 border-t border-gray-200">
-                      <p className="text-text-secondary whitespace-pre-wrap">{faq.answer}</p>
+                      <div className="flex items-center gap-2 mb-3">
+                        {getStatusBadge(faq)}
+                      </div>
+                      <div className="text-text-secondary text-sm">
+                        <ReactMarkdown>{faq.answer}</ReactMarkdown>
+                      </div>
                       {faq.tags?.length > 0 && (
                         <div className="flex gap-2 mt-3 flex-wrap">
                           {faq.tags.map((tag, idx) => (
@@ -211,7 +223,14 @@ const ViewFAQs = () => {
                               </svg>
                             </div>
                             {expandedFaq === faq._id && (
-                              <p className="mt-2 text-sm text-text-secondary whitespace-pre-wrap">{faq.answer}</p>
+                              <div className="mt-3 pt-3 border-t border-gray-200">
+                                <div className="flex items-center gap-2 mb-3">
+                                  {getStatusBadge(faq)}
+                                </div>
+                                <div className="text-sm text-text-secondary">
+                                  <ReactMarkdown>{faq.answer}</ReactMarkdown>
+                                </div>
+                              </div>
                             )}
                           </div>
                         ))}
