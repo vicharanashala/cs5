@@ -16,7 +16,7 @@
 import { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { api } from '../utils/api';
+import api from '../utils/api';
 
 const NotificationContext = createContext(null);
 
