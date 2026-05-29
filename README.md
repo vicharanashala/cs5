@@ -29,58 +29,137 @@
 ## Core Workflow
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           QUERY LIFECYCLE                               │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           QUERY LIFECYCLE                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
 
-  INTERN ASKS ──▶ RAG SEARCH ──▶ FAQ Found? ──▶ YES ──▶ Return Answer
-                                         │
-                                         NO
-                                         ▼
-                              ┌──────────┴──────────┐
-                              │                     │
-                         LLM FALLBACK           LLM DOWNVOTE
-                         (Gemini → Groq)              │
-                              │                     │
-                         Return Answer         Track in no_faq
-                              │                     │
-                         ┌────┴────┐               │
-                         │         │               ▼
-                    UPVOTE     DOWNVOTE      ┌────────────┐
-                         │         │         │  PEER       │
-                         │         └────────▶│  ESCALATION │
-                         │                   │  QUEUE      │
-                         │                   └────────────┘
-                         ▼                         │
-RESOLVED                       ▼
-                                        ┌────────────────────┐
-                                        │  Intern rates 1-5  │
-                                        │  stars (intern)    │
-                                        └────────────────────┘
-                                                │
-                                ┌───────────────┴───────────────┐
-                                │                               │
-                           4 Stars                         5 Stars
-                    (HIGHLY-RATED QUEUE)              (IMMEDIATE LOCK)
-                           NOT locked                         │
-                                │                               │
-                                │         ┌────────────────────┘
-                                │         │
-                                │         ▼
-                                │   ADMIN HIGHLY-RATED
-                                │       QUEUE
-                                │                               │
-                                ▼                               ▼
-                       ADMIN HIGHLY-RATED           Admin approves
-                           QUEUE                   peer answer
-                                │                               │
-                                ▼                               ▼
-                      Admin approves              Admin overrides
-                      peer answer                  or disconnects
-                                │                               │
-                                └───────────────┬───────────────┘
-                                                ▼
-                                           RESOLVED
+  STEP 0: AUTO-COMPLETE (as user types)
+  │
+  ├─ User types in AskAI input
+  ├─ debounce 300ms → GET /api/ask/autocomplete?q=...
+  ├─ RAG keyword search on FAQ keywords, tags, search_text
+  ├─ Returns up to 5 matching FAQs
+  └─ User selects → instant resolution (source: 'autocomplete')
+
+  STEP 1: RAG SEARCH (on submit)
+  │
+  ├─ User submits full question → POST /api/ask
+  ├─ RAG keyword matching (search_text, tags, keywords)
+  ├─ Match confidence > 50%?
+  │   ├─ YES → Return FAQ answer for upvote/downvote
+  │   │       ├─ UPVOTE → Resolution logged (RAG_RESOLVED), query ends
+  │   │       └─ DOWNVOTE → Go to STEP 2 (LLM Fallback)
+  │   └─ NO → Go to STEP 2 (LLM Fallback)
+
+  STEP 2: LLM FALLBACK (Gemini → Groq)
+  │
+  ├─ Gemini 3.5-flash → synthesize context from matching FAQs
+  ├─ If fails → try next model (3.1-pro, 3.1-flash-lite, 2.5-flash, 2.5-pro)
+  ├─ All Gemini models fail → try Groq (llama-3.3-70b → llama-3.1-8b → ...)
+  ├─ LLM returns answer → user sees answer with upvote/downvote buttons
+  │   ├─ UPVOTE → Resolution logged (LLM_RESOLVED), query ends
+  │   └─ DOWNVOTE → Go to STEP 3 (Peer Escalation)
+
+  STEP 3: PEER ESCALATION (if LLM fails or downvoted)
+  │
+  ├─ Check active query cap (max 5 unresolved per intern)
+  ├─ Check for similar query spam
+  ├─ Create Query document (status: 'Pending')
+  ├─ Track in NoFaq collection (for FAQ suggestions)
+  └─ Query enters Peer Queue
+
+  STEP 4: PEER ANSWERS (max 5 peers)
+  │
+  ├─ Other interns see query in Peer Queue
+  ├─ Intern submits answer → POST /api/peer/answer
+  ├─ Query status changes: 'Pending' → 'Peer Answered'
+  ├─ Notification sent to query author (peer_answer)
+  └─ Query author rates the response (1-5 stars)
+
+  STEP 5: RATING & LOCKING
+  │
+  ├─ 4 stars (HIGH) → Query escalates to Highly-Rated Queue (NOT locked)
+  ├─ 5 stars → Query immediately locked, escalates to Highly-Rated Queue
+  ├─ 1-3 stars (LOW) + 5 responses filled → Query locked, escalates to Low-Rated Queue
+  └─ Ambiguous: 3 different peers mark query as ambiguous
+      └─ Query status → 'Ambiguous', is_locked: true
+      └─ Intern notified: "Your query was unclear. Please rephrase."
+
+  STEP 6: ADMIN RESOLUTION
+  │
+  ├─ Admin views escalated queries (Resolve Hub)
+  ├─ Options:
+  │   ├─ APPROVE PEER RESPONSE → Query resolved (peer_approved)
+  │   ├─ ADMIN OVERRIDE → Query resolved (admin_override)
+  │   ├─ SEND WARNING → Warning sent to intern (warning_count++)
+  │   └─ ADD TO FAQ → Creates permanent FAQ entry
+  └─ Notification sent to intern (query_resolved)
+
+  STEP 7: RESOLVED (Terminal State)
+  │
+  └─ Query marked as 'Resolved', is_locked: true
+  └─ "Add to FAQ" button available for knowledge base expansion
+  └─ Intern sees "Approved" badge for both peer_approved and admin_override
+```
+
+---
+
+## Resolution Flow (Admin/Moderator)
+
+```
+                    ┌─────────────┐
+                    │   PENDING   │ ← Initial state after LLM downvote
+                    └──────┬──────┘
+                           │
+               ┌───────────┴───────────┐
+               │                       │
+               ▼                       ▼
+        ┌───────────┐          ┌─────────────┐
+        │  3-STRIKE  │          │  PEER        │
+        │  AMBIGUOUS │          │  ANSWERED    │
+        └─────┬─────┘          └──────┬──────┘
+              │                      │
+              ▼                      ▼
+       ┌──────────┐         ┌──────────────┐
+       │ AMBIGUOUS│         │    RATING    │
+       │ (locked) │         └───────┬──────┘
+       └──────────┘                 │
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+                    ▼                                 ▼
+           ┌───────────────┐                  ┌───────────────┐
+           │  rating = 4   │                  │  rating = 5   │
+           │  (HIGH RATED │                  │  (IMMEDIATE    │
+           │   NOT locked)│                  │    LOCK)      │
+           └───────┬───────┘                  └───────┬───────┘
+                   │                                │
+                   │         ┌─────────────────────┘
+                   │         │
+                   │         ▼              5 responses
+                   │  ┌───────────────┐   all < 4 stars
+                   │  │ is_locked=true│──────────┐
+                   │  └───────┬───────┘          │
+                   │          │                  ▼
+                   │          │          ┌───────────────┐
+                   │          │          │  LOW-RATED    │
+                   │          │          │    QUEUE      │
+                   │          │          └───────┬───────┘
+                   │          │                │
+                   └──────────┴────────────────┘
+                            │
+               ┌────────────┴────────────┐
+               │                         │
+               ▼                         ▼
+        ┌─────────────────────────────┐
+        │     ADMIN RESOLUTION        │
+        │  (approve, override, warn)  │
+        └─────────────┬───────────────┘
+                      │
+                      ▼
+                ┌──────────┐
+                │ APPROVED │ ← Both peer_approved and admin_override
+                └──────────┘   show "Approved" badge to intern
 ```
 
 ---
@@ -236,6 +315,7 @@ Hybrid real-time + MongoDB persistence model for instant and offline alerts.
 | `admin_alert` | NoFaq hits 10 occurrences | All admins |
 | `announcement` | Admin creates broadcast | All interns |
 | `faq_added` | Admin adds new FAQ | All interns |
+| `intern_warning` | Admin sends warning to intern for misuse | Targeted intern |
 
 **Components:**
 - `NotificationBell` - Top bar bell icon with unread badge and dropdown
@@ -247,6 +327,28 @@ Hybrid real-time + MongoDB persistence model for instant and offline alerts.
 - `yellow_alert` - Broadcast to admin room when NoFaq hits threshold
 - `query_resolved` - Intern notified when their query is resolved
 - `new_peer_answer` - Intern notified when peer answers their query
+
+---
+
+## Warning & Credibility System
+
+Admins/Moderators can send warnings to interns from any query detail panel.
+
+| Feature | Description |
+|---------|-------------|
+| `warning_count` | User field (default: 0, max: 5) |
+| `is_disabled` | Auto-enabled when warning_count >= 5 |
+| Login Block | Disabled users cannot log in (403 error) |
+| Spoiled Users Page | `/admin/spoiled-users` lists all users with warnings |
+| Warning Badge | Query detail panels show warning count next to intern email |
+| Warning Banner | MyEscalations page shows warning count if user has warnings |
+
+**Warning Flow:**
+1. Admin clicks "Send Warning" in query detail panel
+2. Modal appears with optional warning message
+3. On submit: `warnIntern()` increments `warning_count`
+4. If `warning_count >= 5`: `is_disabled = true`, user cannot log in
+5. `intern_warning` notification sent to intern
 
 ---
 
