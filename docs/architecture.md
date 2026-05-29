@@ -311,12 +311,21 @@ Match found? ──NO──→ LLM Pipeline
 
 ```javascript
 // Jobs/sweeper.js
-// Runs every 24 hours
+// Runs every 15 minutes
 // Tasks:
-// 1. Find stale queries (no activity > X days)
-// 2. Mark as ambiguous or escalate
-// 3. Cleanup old no_faq entries
-// 4. Generate analytics reports
+const SWEEP_INTERVAL_MINUTES = 15;
+const SLA_TIMEOUT_HOURS = 24;
+const MAX_PEER_RESPONSES = 5;
+
+// SCENARIO A - STAGNANT (0 answers, 24+ hours):
+// Query has 0 responses after 24 hours
+// -> is_locked = true
+// -> Escalates to "Stagnant Queue"
+
+// SCENARIO B - LOW-RATED (1-4 answers, 24+ hours, all < 4 stars):
+// Query has 1-4 responses, all rated 1-3 stars, after 24 hours
+// -> is_locked = true
+// -> Escalates to "Low-Rated Queue"
 ```
 
 ---
@@ -324,43 +333,60 @@ Match found? ──NO──→ LLM Pipeline
 ## Query State Machine
 
 ```
-                    ┌─────────────┐
-                    │   PENDING   │ ← Initial state after LLM downvote
-                    └──────┬──────┘
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-              ▼            ▼            ▼
+                     ┌─────────────┐
+                     │   PENDING   │ ← Initial state after LLM downvote
+                     └──────┬──────┘
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+              ▼             ▼             ▼
        ┌───────────┐ ┌───────────┐ ┌───────────┐
-       │  3-STRIKE  │ │  PEER     │ │  TIMEOUT  │
-       │  AMBIGUOUS │ │  ANSWERED │ │  ESCALATE │
+       │  3-STRIKE  │ │  PEER     │ │  24HR     │
+       │  AMBIGUOUS │ │  ANSWERED │ │  SWEEPER  │
        └─────┬─────┘ └─────┬─────┘ └─────┬─────┘
              │            │            │
-             ▼            ▼            ▼
-      ┌──────────┐  ┌─────────────┐ ┌──────────┐
-      │ AMBIGUOUS │  │LOCK or RATE │ │ AUTO     │
-      │ (terminal)│  └──────┬──────┘ │ ESCALATE │
-      └──────────┘         │         └──────────┘
-                           │
-              ┌───────────┴───────────┐
-              │                       │
-              ▼                       ▼
-      ┌───────────────┐     ┌───────────────┐
-      │ is_locked=true │     │  5 responses  │
-      │ (HIGH RATED)   │     │  all < 4 stars │
-      └───────┬───────┘     └───────┬───────┘
-              │                     │
-              ▼                     ▼
-      ┌─────────────────────────────┐
-      │     ADMIN RESOLUTION       │
-      │  (approve or override)      │
-      └─────────────┬───────────────┘
-                    │
-                    ▼
-              ┌──────────┐
-              │ RESOLVED │ ← Terminal state
-              └──────────┘
+             │            │            │
+             │            ▼            ▼
+             │     ┌───────────┐  ┌────────────┐
+             │     │LOCK or    │  │ STAGNANT   │
+             │     │RATE       │  │ (0 answers)│
+             │     └─────┬─────┘  └──────┬─────┘
+             │           │               │
+             │           ▼               │
+             │    ┌──────┴──────┐        │
+             │    │             │        │
+             │    ▼             ▼        ▼
+             │ HIGH-RATED   LOW-RATED  is_locked
+             │   QUEUE        QUEUE    true
+             │    │             │        │
+             │    └─────────┬───┴────────┘
+             │              │
+             │              ▼
+             │     ┌─────────────────┐
+             │     │ ADMIN RESOLUTION│
+             │     │ (approve/override)
+             │     └────────┬────────┘
+             │              │
+             ▼             ▼
+       ┌──────────┐  ┌──────────┐
+       │RESOLVED* │  │ RESOLVED │
+       └──────────┘  └──────────┘
+       *notification
+       sent to intern
 ```
+
+---
+
+## 6-Section Admin Resolution Hub
+
+| Section | Filter Condition |
+|---------|------------------|
+| Master Queue | `status != 'Resolved'` |
+| Stagnant (0 answers) | `is_locked: true, responses.length: 0` |
+| Unanswered | `status != 'Resolved', responses.length: 0` |
+| Low-Rated | `responses.length >= 5, all ratings < 4` |
+| Highly-Rated | `responses has rating >= 4` |
+| Archive | `status == 'Resolved'` |
 
 ---
 
@@ -378,12 +404,28 @@ Peers answer (max 5)
 Intern rates responses (1-5 stars)
         ↓
 Lock triggers:
-  - 4-5 stars → immediate lock
-  - 1-3 stars with 5 responses → lock
+  - 4-5 stars → immediate lock → Highly-Rated Queue
+  - 1-3 stars with 5 responses → lock → Low-Rated Queue
+  - 0 answers for 24hrs → sweeper locks → Stagnant Queue
         ↓
 Admin reviews locked query
         ↓
-Approve peer OR admin override
+Approve peer OR admin override → RESOLVED
         ↓
-Query = RESOLVED
+"Add to FAQ" button → Creates permanent FAQ entry
 ```
+
+---
+
+## FAQ Creation Bridge
+
+When admin resolves a query, they have the option to create a permanent FAQ entry:
+
+1. Admin views resolved query in Resolution Hub
+2. Clicks "+ Add to FAQ Database" button
+3. System extracts:
+   - `clean_question` = query.query_text
+   - `answer` = approved response text
+   - `search_text` = combined question + answer
+4. New FAQ is created and indexed for RAG
+5. Next time intern asks similar question → AI resolves instantly

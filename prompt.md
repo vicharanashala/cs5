@@ -213,6 +213,11 @@ Created frontend intern pages:
 | 17 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
 | 18 | Garbage input passed to RAG/LLM | No input validation | Added query sanity check with lenient validation rules |
 | 19 | Peer answer submission failed (500 error) | authMiddleware sets req.user.userId but controllers use req.user.id | Changed all req.user.id to req.user.userId in all controllers |
+| 20 | MyEscalations socket connection failed | VITE_API_URL undefined caused .replace() to fail | Added VITE_API_URL fallback before .replace() |
+| 21 | Sweeper edge case: 5 responses with all low ratings not locked | responseCount <= 4 should be < MAX_PEER_RESPONSES | Changed condition to use MAX_PEER_RESPONSES=5 constant |
+| 22 | Ambiguous 3-strike doesn't notify intern | No notification sent when query becomes Ambiguous | Added createNotification call in peerController when status changes to Ambiguous |
+| 23 | createFAQFromQuery does nothing | Stub function only returned query_text | Implemented actual FAQ creation from approved response |
+| 24 | Missing Stagnant Queue in Admin Dashboard | Only 5 sections instead of 6 | Added "Stagnant (0 answers)" as 6th section + Add to FAQ button |
 
 ---
 

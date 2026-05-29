@@ -871,6 +871,7 @@ const ResolveQueryHub = () => {
 
   const sections = [
     { id: 'master', label: 'Master Queue', count: 0 },
+    { id: 'stagnant', label: 'Stagnant (0 answers)', count: 0 },
     { id: 'unanswered', label: 'Unanswered', count: 0 },
     { id: 'low_rated', label: 'Low-Rated', count: 0 },
     { id: 'high_rated', label: 'Highly-Rated', count: 0 },
@@ -893,6 +894,7 @@ const ResolveQueryHub = () => {
 
   const categorized = {
     master: queries.filter(q => q.status !== 'Resolved'),
+    stagnant: queries.filter(q => q.status !== 'Resolved' && q.is_locked && (!q.responses || q.responses.length === 0)),
     unanswered: queries.filter(q => q.status !== 'Resolved' && (!q.responses || q.responses.length === 0)),
     low_rated: queries.filter(q => {
       if (q.status !== 'Peer Answered' || !q.responses?.length) return false;
@@ -1001,6 +1003,25 @@ const QueryDetailPanel = ({ query, onClose }) => {
     }
   };
 
+  const handleAddToFAQ = async () => {
+    if (!confirm('Create an FAQ from this resolved query?')) return;
+    setLoading(true);
+    try {
+      await api.post('/admin/create-faq', {
+        query_id: query._id,
+        category: 'General',
+        tags: [],
+        priority: 0,
+      });
+      alert('FAQ created successfully!');
+    } catch (err) {
+      console.error('Failed to create FAQ', err);
+      alert('Failed to create FAQ');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const statusColors = { peer: 'bg-gray-100', admin: 'bg-black text-white', moderator: 'bg-gray-600 text-white' };
 
   return (
@@ -1081,6 +1102,14 @@ const QueryDetailPanel = ({ query, onClose }) => {
               />
               <Button onClick={handleOverride} disabled={loading || !overrideText.trim()} className="mt-3 w-full">
                 Submit Official Response & Resolve
+              </Button>
+            </div>
+          )}
+
+          {query.status === 'Resolved' && (
+            <div className="border-t border-border-subtle pt-4">
+              <Button onClick={handleAddToFAQ} disabled={loading} className="w-full bg-green-600 hover:bg-green-700">
+                + Add to FAQ Database
               </Button>
             </div>
           )}

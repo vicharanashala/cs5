@@ -478,7 +478,7 @@ Skip a query (no penalty).
 
 ### POST /peer/ambiguous
 
-Mark a query as ambiguous (3 peers = auto-escalate).
+Mark a query as ambiguous (3 peers = auto-escalate). When 3rd strike is reached, the query author (intern) is notified that their query was marked unclear and they should rephrase and resubmit.
 
 **Headers:** `Authorization: Bearer <token>`
 
@@ -489,17 +489,29 @@ Mark a query as ambiguous (3 peers = auto-escalate).
 }
 ```
 
-**Response (200):**
+**Response (200) - Strike 1 or 2:**
 ```json
 {
   "success": true,
-  "message": "Query marked as ambiguous",
+  "message": "Marked as ambiguous. Strike 2/3",
   "data": {
-    "ambiguous_count": 1,
+    "ambiguous_count": 2,
     "max_ambiguous": 3
   }
 }
 ```
+
+**Response (200) - Strike 3 (Query becomes Ambiguous):**
+```json
+{
+  "success": true,
+  "message": "Query marked as ambiguous (3 strikes). Query is now locked and escalated to admins.",
+  "query_status": "Ambiguous",
+  "is_locked": true
+}
+```
+
+**Note:** When a query becomes `Ambiguous`, a notification is sent to the intern who submitted the query.
 
 ---
 
@@ -507,7 +519,11 @@ Mark a query as ambiguous (3 peers = auto-escalate).
 
 ### POST /ratings/:id
 
-Rate a peer response (1-5 stars).
+Rate a peer response (1-5 stars). Triggers locking logic:
+
+- **4-5 stars (HIGH):** Query immediately locked, escalates to Highly-Rated Queue
+- **1-3 stars (LOW):** Query stays open for more peer answers
+- **1-3 stars + 5 responses:** Query locked, escalates to Low-Rated Queue
 
 **Headers:** `Authorization: Bearer <token>`
 
@@ -518,7 +534,7 @@ Rate a peer response (1-5 stars).
 }
 ```
 
-**Response (200):**
+**Response (200) - High Rating (locks query):**
 ```json
 {
   "success": true,
@@ -528,6 +544,20 @@ Rate a peer response (1-5 stars).
     "rating": 4,
     "query_locked": true,
     "lock_reason": "High rating (4 stars)"
+  }
+}
+```
+
+**Response (200) - Low Rating (query stays open):**
+```json
+{
+  "success": true,
+  "message": "Rating recorded successfully",
+  "data": {
+    "response_id": "64def456...",
+    "rating": 3,
+    "query_locked": false,
+    "lock_reason": null
   }
 }
 ```
@@ -562,14 +592,20 @@ Get all ratings for a query (query author only).
 
 ### GET /admin/escalated?type=<type>
 
-Get escalated queries for admin review.
+Get escalated queries for admin review. Returns 6-section queue structure:
+- **master**: All non-resolved queries
+- **stagnant**: Locked queries with 0 responses (sweeper-triggered)
+- **unanswered**: Non-resolved queries with 0 responses
+- **low**: Queries with 5 responses all rated < 4 stars
+- **high**: Queries with responses rated >= 4 stars
+- **all**: All escalated queries
 
 **Headers:** `Authorization: Bearer <token>`
 
 **Query Parameters:**
 | Param | Type | Description |
 |-------|------|-------------|
-| `type` | string | `high`, `low`, `ambiguous`, or `all` (default) |
+| `type` | string | `high`, `low`, `stagnant`, `ambiguous`, or `all` (default) |
 
 **Response (200):**
 ```json
@@ -648,6 +684,45 @@ Admin provides own answer (bypasses peer responses).
     "resolution_type": "admin_override",
     "resolved_by": "64xyz789..."
   }
+}
+```
+
+---
+
+### POST /admin/create-faq
+
+Create a permanent FAQ entry from a resolved query. Uses the approved peer response or admin override as the answer.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "query_id": "64abc123...",
+  "category": "General",
+  "tags": ["tag1", "tag2"],
+  "priority": 5
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "FAQ created successfully from query",
+  "data": {
+    "faq_id": "64new123...",
+    "clean_question": "How do I export my data?",
+    "category": "General"
+  }
+}
+```
+
+**Error (400):**
+```json
+{
+  "success": false,
+  "error": "No approved response found to create FAQ from"
 }
 ```
 

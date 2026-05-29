@@ -188,6 +188,10 @@ All query resolutions are tracked with ResolutionType:
 | # | Issue | Fix |
 |---|-------|-----|
 | 20 | MyEscalations socket connection failed | Added VITE_API_URL fallback before .replace() |
+| 21 | Sweeper edge case | Fixed responseCount <= 4 to use MAX_PEER_RESPONSES constant |
+| 22 | Ambiguous 3-strike notification | Intern now notified when query marked ambiguous |
+| 23 | createFAQFromQuery stub | Now actually creates FAQ from approved response |
+| 24 | Missing Stagnant Queue | Added 6th section in Admin Resolution Hub |
 
 ---
 
@@ -198,7 +202,7 @@ Hybrid real-time + MongoDB persistence model for instant and offline alerts.
 | Type | Trigger | Recipient |
 |------|---------|-----------|
 | `peer_answer` | Peer submits answer | Query author (intern) |
-| `query_resolved` | Admin/moderator resolves query | Query author (intern) |
+| `query_resolved` | Admin resolves OR query marked ambiguous | Query author (intern) |
 | `admin_alert` | NoFaq hits 10 occurrences | All admins |
 | `announcement` | Admin creates broadcast | All interns |
 
@@ -211,6 +215,24 @@ Hybrid real-time + MongoDB persistence model for instant and offline alerts.
 - `new_notification` - Broadcast to user room
 - `yellow_alert` - Broadcast to admin room when NoFaq hits threshold
 - `query_resolved` - Intern notified when their query is resolved
+- `new_peer_answer` - Intern notified when peer answers their query
+
+---
+
+## 6-Section Admin Resolution Hub
+
+The Admin Dashboard presents 6 sections for managing escalated queries:
+
+| Section | Condition |
+|---------|-----------|
+| Master Queue | All non-resolved queries |
+| Stagnant (0 answers) | is_locked: true, 0 responses (sweeper-triggered) |
+| Unanswered | status != 'Resolved', 0 responses |
+| Low-Rated | 5 responses, all rated < 4 stars |
+| Highly-Rated | Has response with rating >= 4 |
+| Archive | status = 'Resolved' |
+
+**FAQ Creation Bridge:** Admin can click "+ Add to FAQ Database" on any resolved query to create a permanent FAQ entry.
 
 ---
 

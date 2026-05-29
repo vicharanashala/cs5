@@ -373,6 +373,16 @@ const markAmbiguous = async (req, res) => {
     );
 
     if (updatedQuery.status === 'Ambiguous') {
+      createNotification({
+        recipient_id: query.intern_id,
+        type: 'query_resolved',
+        title: 'Query Marked Ambiguous',
+        message: `Your query "${query.query_text.substring(0, 50)}${query.query_text.length > 50 ? '...' : ''}" was marked as unclear by 3 peers. Please rephrase and submit again.`,
+        link_id: query._id,
+        link_type: 'query',
+        created_by: user_id,
+      });
+
       res.status(200).json({
         success: true,
         message: 'Query marked as ambiguous (3 strikes). Query is now locked and escalated to admins.',

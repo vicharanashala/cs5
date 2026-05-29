@@ -236,7 +236,38 @@ faq project/
 
 ---
 
-## 9. Common Issues & Solutions
+## 8b. 24-Hour Sweeper Automation
+
+The sweeper runs every 15 minutes to enforce SLA timeouts:
+
+**Scenario A - Stagnant (0 answers):**
+- Query has 0 responses for 24+ hours
+- Sweeper locks query → enters "Stagnant Queue"
+- Resolution: Admin override required
+
+**Scenario B - Low-Rated Partial:**
+- Query has 1-4 responses, all rated 1-3 stars, for 24+ hours
+- Sweeper locks query → enters "Low-Rated Queue"
+- Resolution: Admin can approve or override
+
+---
+
+## 9. 6-Section Admin Resolution Hub
+
+The Admin Dashboard presents a 6-section queue for query resolution:
+
+| Section | Filter |
+|---------|--------|
+| Master Queue | All non-resolved queries |
+| Stagnant (0 answers) | is_locked=true, responses=0 |
+| Unanswered | status != 'Resolved', responses=0 |
+| Low-Rated | 5 responses, all rating < 4 |
+| Highly-Rated | has response rating >= 4 |
+| Archive | status = 'Resolved' |
+
+---
+
+## 10. Common Issues & Solutions
 
 ### MongoDB Connection Failed
 
@@ -275,7 +306,7 @@ taskkill /PID <process_id> /F
 
 ---
 
-## 10. Development Workflow
+## 11. Development Workflow
 
 ```bash
 # 1. Create feature branch
@@ -295,7 +326,7 @@ git merge feature/my-feature
 
 ---
 
-## 11. Production Deployment
+## 12. Production Deployment
 
 ### Backend
 ```bash
@@ -315,7 +346,7 @@ VITE_API_URL=https://api.query.in npm run build
 
 ---
 
-## 12. Backend Logs
+## 13. Backend Logs
 
 LLM calls are logged with format:
 ```

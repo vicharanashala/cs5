@@ -369,7 +369,7 @@ const getQueryDetails = async (req, res) => {
  */
 const createFAQFromQuery = async (req, res) => {
   try {
-    const { query_id } = req.body;
+    const { query_id, category = 'General', tags = [], priority = 0 } = req.body;
 
     const query = await Query.findById(query_id);
 
@@ -387,10 +387,50 @@ const createFAQFromQuery = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    const responses = await Response.find({ query_id }).sort({ rating: -1, createdAt: 1 });
+    let answerText = '';
+    let response_author = null;
+
+    const approvedResponse = responses.find((r) => r.approval === true);
+    if (approvedResponse) {
+      answerText = approvedResponse.response_text;
+      response_author = approvedResponse.author_id;
+    }
+
+    if (!answerText) {
+      return res.status(400).json({
+        success: false,
+        error: 'No approved response found to create FAQ from',
+      });
+    }
+
+    const FAQ = require('../models/FAQ');
+    const clean_question = query.query_text.trim();
+    const search_text = `${clean_question} ${answerText}`;
+    const keywords = tags.length > 0 ? tags : [];
+
+    const newFAQ = new FAQ({
+      clean_question,
+      answer: answerText,
+      category,
+      tags,
+      keywords,
+      search_text,
+      priority,
+      related_questions: [],
+      escalate_if_uncertain: false,
+    });
+
+    await newFAQ.save();
+
+    res.status(201).json({
       success: true,
-      message: 'FAQ creation endpoint - implement with FAQ model',
-      query_text: query.query_text,
+      message: 'FAQ created successfully from query',
+      data: {
+        faq_id: newFAQ._id,
+        clean_question: newFAQ.clean_question,
+        category: newFAQ.category,
+      },
     });
   } catch (error) {
     res.status(500).json({

@@ -57,16 +57,62 @@ Each query can receive a **maximum of 5 peer responses**. Once reached:
 
 When **3 different peers** mark a query as "ambiguous":
 
-1. `ambiguous_count` increments per unique peer
-2. At count = 3, query transitions to `status: 'Ambiguous'`
+1. `ambiguous_count` increments per unique peer (enforced via `$addToSet`)
+2. At count = 3, query transitions to `status: 'Ambiguous'`, `is_locked: true`
 3. Query removed from peer queue
-4. Admin sees query in "Ambiguous Queue" for override resolution
+4. **Notification sent to intern** telling them to rephrase and resubmit
+5. Admin sees query in "Ambiguous Queue" for override resolution
 
-**Anti-Gaming:** Same peer cannot mark ambiguous twice on the same query.
+**Anti-Gaming:** Same peer cannot mark ambiguous twice on the same query (`ambiguous_marked_by` array).
+
+**Notification Message:** "Your query '...' was marked as unclear by 3 peers. Please rephrase and submit again."
 
 ---
 
-### 4. Automated AI FAQ Suggestion Engine
+### 4. 24-Hour Sweeper Automation
+
+Background cron job runs every 15 minutes to enforce SLA timeouts:
+
+**Scenario A - Stagnant Queries:**
+- Query has 0 responses for 24+ hours
+- Sweeper locks query → `is_locked: true`
+- Query enters "Stagnant Queue" in Admin dashboard
+
+**Scenario B - Low-Rated Partial Answers:**
+- Query has 1-4 responses, all rated 1-3 stars, for 24+ hours
+- Sweeper locks query → `is_locked: true`
+- Query enters "Low-Rated Queue" in Admin dashboard
+
+---
+
+### 5. 6-Section Admin Resolution Hub
+
+Admin dashboard presents a multi-section queue for query resolution:
+
+| Section | Condition |
+|---------|-----------|
+| Master Queue | All non-resolved queries |
+| Stagnant (0 answers) | is_locked + 0 responses |
+| Unanswered | status != 'Resolved', 0 responses |
+| Low-Rated | 5 responses, all < 4 stars |
+| Highly-Rated | has response rating >= 4 |
+| Archive | status = 'Resolved' |
+
+---
+
+### 6. FAQ Creation Bridge
+
+After resolving a query, admin can create a permanent FAQ entry with one click:
+
+1. Admin views resolved query in Resolution Hub
+2. Clicks "+ Add to FAQ Database" button
+3. System extracts `query_text` as `clean_question`
+4. Uses approved response text as `answer`
+5. Creates indexed FAQ entry for future RAG resolution
+
+---
+
+### 7. Automated AI FAQ Suggestion Engine
 
 Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection.
 
@@ -77,7 +123,7 @@ Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection
 
 ---
 
-### 5. Active Query Cap & Spam Prevention
+### 8. Active Query Cap & Spam Prevention
 
 **Query Cap:** Max 5 unresolved queries per intern
 
@@ -85,7 +131,7 @@ Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection
 
 ---
 
-### 6. Query Input Sanity Check
+### 9. Query Input Sanity Check
 
 Input validation before RAG/LLM processing to prevent garbage inputs like `ajflafjllafffaafas`:
 

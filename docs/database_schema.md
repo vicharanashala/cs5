@@ -203,7 +203,7 @@ MongoDB Atlas cluster with 6 collections. Mongoose ODM used for schema validatio
 | Type | Trigger | Recipient |
 |------|---------|-----------|
 | `peer_answer` | Peer submits answer | Query author (intern) |
-| `query_resolved` | Admin/mod resolves query | Query author (intern) |
+| `query_resolved` | Admin/mod resolves query OR query marked ambiguous | Query author (intern) |
 | `admin_alert` | NoFaq hits 10 occurrences | All admins |
 | `announcement` | Admin creates announcement | All interns |
 
@@ -269,15 +269,47 @@ PENDING ────────────────────────
   ▼                                           ▼
 3-STRIKE                                  is_locked
 AMBIGUOUS ◄────────────────────────────── TRUE
-                                          │
-                                    ┌─────┴─────┐
-                                    │           │
-                              rating >= 4    5 responses
-                                    │      all rating < 4
-                                    │           │
-                                    ▼           ▼
-                                RESOLVED   RESOLVED
+  │                                         │
+  │ (notification sent to intern)           │
+  │                                         │
+  │                              ┌──────────┴──────────┐
+  │                              │                     │
+  │                        rating >= 4            5 responses
+  │                              │             all rating < 4
+  │                              │                   │
+  │                              ▼                   ▼
+  │                     HIGHLY-RATED           LOW-RATED
+  │                         QUEUE                 QUEUE
+  │                              │                   │
+  │                              └─────────┬─────────┘
+  │                                        │
+  │                              ┌─────────┴─────────┐
+  │                              │                   │
+  │                         STAGNANT              stale
+  │                       (0 answers)         (1-4 low rated)
+  │                              │                   │
+  │                              └─────────┬─────────┘
+  │                                        │
+  │                              ┌─────────┴─────────┐
+  │                              │                   │
+  │                         APPROVE              OVERRIDE
+  │                            │                     │
+  │                            └─────────┬───────────┘
+  │                                      │
+  │                                      ▼
+  │                                 RESOLVED
 ```
+
+### Admin Resolution Queues (6-Section)
+
+| Queue | Condition |
+|-------|-----------|
+| Master Queue | All non-resolved queries |
+| Stagnant (0 answers) | is_locked: true, responses: 0 |
+| Unanswered | status != 'Resolved', responses: 0 |
+| Low-Rated | is_locked, 5 responses, all < 4 stars |
+| Highly-Rated | is_locked, has response rating >= 4 |
+| Archive | status = 'Resolved' |
 
 ---
 

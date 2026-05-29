@@ -72,7 +72,7 @@
   ├─ Notification sent to query author (peer_answer)
   └─ Query author rates the response (1-5 stars)
 
-  STEP 5: RATING & LOCKING
+STEP 5: RATING & LOCKING
   │
   ├─ 4-5 stars (HIGH) → Query immediately locked
   │   └─ Escalates to Admin "Highly-Rated Queue"
@@ -81,19 +81,22 @@
   │   └─ Escalates to Admin "Low-Rated Queue"
   │
   └─ Ambiguous: 3 different peers mark query as ambiguous
-      └─ Query status → 'Ambiguous', escalates to Admin
+      └─ Query status → 'Ambiguous', is_locked: true
+      └─ Intern notified: "Your query was unclear. Please rephrase."
 
-  STEP 6: ADMIN RESOLUTION
+STEP 6: ADMIN RESOLUTION
   │
-  ├─ Admin views escalated queries
+  ├─ Admin views escalated queries (6-section queue)
   ├─ Options:
   │   ├─ APPROVE PEER RESPONSE → Query resolved (peer_approved)
-  │   └─ ADMIN OVERRIDE → Query resolved (admin_override)
+  │   ├─ ADMIN OVERRIDE → Query resolved (admin_override)
+  │   └─ ADD TO FAQ → Creates permanent FAQ entry
   └─ Notification sent to intern (query_resolved)
 
-  STEP 7: RESOLVED (Terminal State)
+STEP 7: RESOLVED (Terminal State)
   │
   └─ Query marked as 'Resolved', is_locked: true
+  └─ "Add to FAQ" button available for knowledge base expansion
 ```
 
 ---
@@ -195,6 +198,10 @@
 | 18 | Garbage input passed to RAG/LLM | No input validation | Added query sanity check with lenient validation rules |
 | 19 | Peer answer submission failed (500 error) | authMiddleware sets req.user.userId but controllers use req.user.id | Changed all req.user.id to req.user.userId in all controllers |
 | 20 | MyEscalations socket connection failed | VITE_API_URL undefined caused .replace() to fail | Added fallback for API URL before replace |
+| 21 | Sweeper edge case: 5 responses with all low ratings not locked | responseCount <= 4 should be < MAX_PEER_RESPONSES | Changed condition to use constant MAX_PEER_RESPONSES=5 |
+| 22 | Ambiguous 3-strike doesn't notify intern | No notification sent when query becomes Ambiguous | Added createNotification call in peerController when status changes to Ambiguous |
+| 23 | createFAQFromQuery does nothing | Stub function only returned query_text | Implemented actual FAQ creation from approved response |
+| 24 | Missing Stagnant Queue in Admin Dashboard | Only 5 sections shown instead of 6 | Added "Stagnant (0 answers)" as 6th section + Add to FAQ button |
 
 ---
 
@@ -356,7 +363,7 @@ query.in/
 | 3 | User Management Directory |
 | 4 | Master Query Monitor |
 | 5 | FAQ Knowledge Base Editor |
-| 6 | Resolve Query Hub (5-section queue) |
+| 6 | Resolve Query Hub (6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive) |
 | 7 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---

@@ -29,6 +29,7 @@ const Response = require('../models/Response');
 
 const SWEEP_INTERVAL_MINUTES = 15;
 const SLA_TIMEOUT_HOURS = 24;
+const MAX_PEER_RESPONSES = 5;
 
 const isQueryStale = (query) => {
   const hoursSinceCreation = (Date.now() - query.createdAt.getTime()) / (1000 * 60 * 60);
@@ -59,7 +60,7 @@ const runSweeper = async () => {
       } else {
         const allLowRated = responses.every((r) => r.rating !== null && r.rating <= 3);
 
-        if (allLowRated && responseCount >= 1 && responseCount <= 4) {
+        if (allLowRated && responseCount >= 1 && responseCount < MAX_PEER_RESPONSES) {
           await Query.findByIdAndUpdate(query._id, { is_locked: true });
           console.log(`[Sweeper] Query ${query._id} escalated: low-rated (${responseCount} responses, all 1-3 stars)`);
         }
