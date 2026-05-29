@@ -146,6 +146,40 @@ Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection
 - **Create Announcement** - Admin broadcast
 - **View Announcements** - Intern dashboard
 
+### Admin Dashboard (7-Card Layout)
+- **Card 1: User Registration**
+  - Single User Form (email, password, role)
+  - Bulk JSON Upload with drag & drop
+  - Role assignment dropdown
+  - Confirmation modal before processing
+- **Card 2: Broadcast Announcement**
+  - Heading and content inputs
+  - Posts to Announcements collection
+- **Card 3: User Management Directory**
+  - Sortable/filterable user table
+  - Role filter (All, Interns, Moderators, Admins)
+  - Date sort (Newest/Oldest first)
+  - Email search functionality
+- **Card 4: Master Query Monitor**
+  - Status filter (All, Pending, Peer Answered, Ambiguous, Resolved)
+  - Date sort (Ascending/Descending)
+  - Thread drawer with query details
+  - Peer response carousel with ratings
+  - Approve/Override actions
+- **Card 5: FAQ Knowledge Base Editor**
+  - Full CRUD operations on FAQ collection
+  - Input fields: clean_question, answer, category, tags, keywords, intent, priority, escalate_if_uncertain
+  - Active index list with Edit/Delete per row
+- **Card 6: Resolve Query Hub**
+  - 5-section queue: Master, Unanswered, Low-Rated, Highly-Rated, Archive
+  - Real-time notification badges
+  - Focused query inspection panel
+  - Footer action group (Approve, Override)
+- **Card 7: AI-Assisted FAQ Suggestions**
+  - Yellow alert state when unread suggestions exist
+  - 10-occurrence threshold
+  - Dismiss action for admin review
+
 ### UI/UX Features
 - **Black & White Theme** - #FAFAFA background
 - **Rounded Corners** - rounded-lg
@@ -167,7 +201,12 @@ Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection
 | View Peer Queue | yes | yes | yes |
 | Approve Responses | no | yes | yes |
 | Admin Override | no | yes | yes |
-| Create FAQ | no | no | yes |
-| Create Announcement | no | no | yes |
-| View Suggestions | no | no | yes |
+| User Registration | no | no | yes |
+| Bulk User Upload | no | no | yes |
+| Broadcast Announcement | no | no | yes |
+| User Management | no | no | yes |
+| Master Query Monitor | no | yes | yes |
+| FAQ CRUD | no | no | yes |
+| Resolve Query Hub | no | yes | yes |
+| FAQ Suggestions | no | no | yes |
 | Dismiss Suggestions | no | no | yes |

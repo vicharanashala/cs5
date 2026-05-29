@@ -116,4 +116,91 @@ const searchFAQs = async (req, res) => {
   }
 };
 
-module.exports = { getAllFAQs, createFAQ, searchFAQs };
+/**
+ * Updates an existing FAQ entry.
+ * Only accessible by Admin users.
+ *
+ * @async
+ * @function updateFAQ
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const updateFAQ = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { clean_question, answer, category, tags, keywords, search_text, intent, priority, related_questions, escalate_if_uncertain } = req.body;
+
+    const faq = await FAQ.findByIdAndUpdate(
+      id,
+      {
+        clean_question,
+        answer,
+        category,
+        tags: tags || [],
+        keywords: keywords || [],
+        search_text: search_text || `${clean_question} ${answer}`,
+        intent,
+        priority: priority || 0,
+        related_questions: related_questions || [],
+        escalate_if_uncertain: escalate_if_uncertain || false,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!faq) {
+      return res.status(404).json({
+        success: false,
+        error: 'FAQ not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'FAQ updated successfully',
+      data: faq,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server error while updating FAQ',
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * Deletes an FAQ entry.
+ * Only accessible by Admin users.
+ *
+ * @async
+ * @function deleteFAQ
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const deleteFAQ = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const faq = await FAQ.findByIdAndDelete(id);
+
+    if (!faq) {
+      return res.status(404).json({
+        success: false,
+        error: 'FAQ not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'FAQ deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server error while deleting FAQ',
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { getAllFAQs, createFAQ, searchFAQs, updateFAQ, deleteFAQ };

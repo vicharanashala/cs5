@@ -226,4 +226,98 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe };
+/**
+ * POST /api/auth/bulk-register
+ * Creates multiple user accounts in a single operation.
+ * Only accessible by Admin users.
+ *
+ * @async
+ * @function bulkRegister
+ * @param {Object} req - Express request (body: { users: [{ email, password, role }] })
+ * @param {Object} res - Express response
+ */
+const bulkRegister = async (req, res) => {
+  try {
+    const { users } = req.body;
+
+    if (!Array.isArray(users) || users.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Users array is required',
+      });
+    }
+
+    const createdUsers = [];
+    const errors = [];
+
+    for (const userData of users) {
+      try {
+        const { email, password, role } = userData;
+
+        if (!email || !password || !role) {
+          errors.push({ email, error: 'Missing required fields' });
+          continue;
+        }
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+          errors.push({ email, error: 'User already exists' });
+          continue;
+        }
+
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = new User({
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          role,
+        });
+
+        await user.save();
+        createdUsers.push({ email: user.email, role: user.role });
+      } catch (err) {
+        errors.push({ email: userData.email, error: err.message });
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `Created ${createdUsers.length} users`,
+      count: createdUsers.length,
+      created: createdUsers,
+      errors: errors.length > 0 ? errors : undefined,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server error during bulk registration',
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * GET /api/auth/users
+ * Returns all users in the system.
+ * Only accessible by Admin users.
+ *
+ * @async
+ * @function getAllUsers
+ * @param {Object} req - Express request
+ * @param {Object} res - Express response
+ */
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    res.status(200).json({ success: true, count: users.length, data: users });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching users',
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { login, register, getMe, bulkRegister, getAllUsers };

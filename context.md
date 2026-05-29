@@ -8,7 +8,7 @@
 ---
 
 ## Current Phase
-**Phase 11: Documentation Engine**
+**Phase 11: Documentation Engine (Complete)**
 
 ### Status: ✅ Complete
 - Git repository initialized
@@ -45,7 +45,14 @@
 - **Announcement Controller** - getAllAnnouncements, createAnnouncement
 - **Analytics Controller** - trackNoFaqQuery, getFaqSuggestions, getAllNoFaqQueries, getNoFaqStats
 - **Intern Pages:** PeerQueue, MyEscalations, ViewFAQs, Announcements
-- **Admin Pages:** AdminSuggestions (Card 7 with yellow alert, dismiss, add to FAQs modal)
+- **Admin Dashboard (Complete 7-Card Layout):**
+  - Card 1: User Registration (Single + Bulk JSON Upload with confirmation modal)
+  - Card 2: Broadcast Announcement (heading + content to Announcements collection)
+  - Card 3: User Management Directory (filterable/sortable user table)
+  - Card 4: Master Query Monitor (thread drawer with approve/override actions)
+  - Card 5: FAQ Knowledge Base Editor (CRUD with edit/delete per row)
+  - Card 6: Resolve Query Hub (5-section queue: Master/Unanswered/Low-Rated/High-Rated/Archive)
+  - Card 7: AI-Assisted FAQ Suggestions (yellow alert when unread, dismiss action)
 - **Socket.IO** integration in peerController and adminController (new_peer_answer, query_resolved events)
 - **Groq API** integration as LLM fallback (llama-3.3-70b, llama-3.1-8b, llama-4-scout, qwen3-32b, gpt-oss)
 - **Multi-model fallback** - Gemini (3.5-flash -> 3.1-pro -> 3.1-flash-lite -> 2.5-flash -> 2.5-pro), Groq (llama-3.3-70b -> llama-3.1-8b -> llama-4-scout -> qwen3-32b -> gpt-oss)
@@ -56,6 +63,11 @@
 - **Enhanced logging** - LLM call logs with model name, response length, image error format "Cannot read image.png (this model does not support image input)"
 - **MAX_OUTPUT_TOKENS** - Increased from 800 to 2000 for complete LLM responses
 - **Timeout handling** - 60s timeout with automatic model switching on failure
+- **Backend API updates:**
+  - `/api/auth/bulk-register` - Bulk user registration (admin only)
+  - `/api/auth/users` - Get all users (admin only)
+  - `/api/faqs/:id` - Update FAQ (admin only)
+  - `/api/faqs/:id` - Delete FAQ (admin only)
 
 ### Resolved Issues
 1. Fixed: Explore FAQs button redirected to login instead of FAQ page
@@ -112,11 +124,15 @@
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login
 - `GET /api/auth/me` - Get current user
+- `POST /api/auth/bulk-register` - Bulk register users (admin)
+- `GET /api/auth/users` - Get all users (admin)
 
 ### FAQs
 - `GET /api/faqs` - Get all FAQs
 - `GET /api/faqs/search` - Search FAQs
 - `POST /api/faqs` - Create FAQ (admin)
+- `PUT /api/faqs/:id` - Update FAQ (admin)
+- `DELETE /api/faqs/:id` - Delete FAQ (admin)
 
 ### Queries
 - `GET /api/queries` - Get all queries
@@ -138,6 +154,7 @@
 
 ### Admin
 - `GET /api/admin/escalated` - Get escalated queries
+- `GET /api/admin/query/:id` - Get query details
 - `POST /api/admin/approve` - Approve peer response
 - `POST /api/admin/override` - Admin override answer
 
@@ -151,3 +168,50 @@
 ### Announcements
 - `GET /api/announcements` - Get all announcements
 - `POST /api/announcements` - Create announcement (admin)
+
+---
+
+## Admin Dashboard (7-Card Layout)
+
+### Card 1: User Registration
+- Single User Form: Email, Password, Role selection
+- Bulk JSON Upload: Drag & drop, role assignment, confirmation modal
+
+### Card 2: Broadcast Announcement
+- Publish global announcements with heading and content
+- Creates document in Announcements collection
+
+### Card 3: User Management Directory
+- Sortable/filterable table of all users
+- Role filter: All, Interns, Moderators, Admins
+- Date filter: Newest/Oldest first
+- Email search functionality
+
+### Card 4: Master Query Monitor
+- Filter by status: All, Pending, Peer Answered, Ambiguous, Resolved
+- Sort by date: Ascending/Descending
+- Click to open Thread Drawer with:
+  - Core question display
+  - Peer response carousel (max 5)
+  - Star ratings per response
+  - Approve/Override actions
+
+### Card 5: FAQ Knowledge Base Editor
+- Full CRUD operations on FAQ collection
+- Input fields: clean_question, answer, category, tags, keywords, intent, priority, escalate_if_uncertain
+- Active index list with Edit/Delete actions
+- Creates auto-announcement on FAQ update
+
+### Card 6: Resolve Query Hub
+- 5-section queue architecture:
+  - Master Queue (FIFO chronological)
+  - Unanswered Queue (0 responses, 24h stale)
+  - Low-Rated Peer Response Queue (1-5 answers, all rated <= 3 stars)
+  - Highly-Rated Peer Approval Queue (4-5 star responses)
+  - Historical Resolution Archive
+- Query detail panel with approve/override actions
+
+### Card 7: AI-Assisted FAQ Suggestions
+- Yellow alert state when unread suggestions exist (occurrenceCount >= 10)
+- Displays: query pattern, hit count, impacted intern count, timestamps
+- Actions: Dismiss, Add to FAQs (pre-populates Card 5 form)
