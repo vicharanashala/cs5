@@ -365,7 +365,11 @@ Includes query sanity validation - garbage input rejected with `INVALID_QUERY` e
 
 ### GET /peer/queue
 
-Get pending queries for peer answering.
+Get pending queries for peer answering. Returns queries with status 'Pending' or 'Peer Answered' that:
+- Are not locked
+- Have fewer than 5 responses
+- Are not authored by the current user
+- Have not been answered by the current user
 
 **Headers:** `Authorization: Bearer <token>`
 
@@ -381,6 +385,14 @@ Get pending queries for peer answering.
       "intern_id": { "email": "intern1@query.in" },
       "status": "Pending",
       "responses": [],
+      "createdAt": "2026-05-28T..."
+    },
+    {
+      "_id": "64abc124...",
+      "query_text": "How to reset my password?",
+      "intern_id": { "email": "intern2@query.in" },
+      "status": "Peer Answered",
+      "responses": ["64def456..."],
       "createdAt": "2026-05-28T..."
     }
   ]

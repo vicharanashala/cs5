@@ -64,19 +64,26 @@ const getPeerQueue = async (req, res) => {
   try {
     const currentUserId = req.user.userId;
 
+    const myAnsweredQueryIds = await Response.find({ author_id: currentUserId }).distinct('query_id');
+
     const queries = await Query.find({
-      status: 'Pending',
+      status: { $in: ['Pending', 'Peer Answered'] },
       is_locked: false,
       intern_id: { $ne: currentUserId },
+      _id: { $nin: myAnsweredQueryIds },
     })
       .populate('intern_id', 'email role')
       .sort({ createdAt: 1 })
       .limit(20);
 
+    const filteredQueries = queries.filter((q) => {
+      return q.responses.length < MAX_PEER_RESPONSES;
+    });
+
     res.status(200).json({
       success: true,
-      count: queries.length,
-      data: queries,
+      count: filteredQueries.length,
+      data: filteredQueries,
     });
   } catch (error) {
     res.status(500).json({
@@ -162,10 +169,10 @@ const submitAnswer = async (req, res) => {
       });
     }
 
-    if (query.status !== 'Pending') {
+    if (query.status !== 'Pending' && query.status !== 'Peer Answered') {
       return res.status(400).json({
         success: false,
-        error: `Query is no longer pending. Current status: ${query.status}`,
+        error: `Query is no longer accepting responses. Current status: ${query.status}`,
       });
     }
 
@@ -195,7 +202,7 @@ const submitAnswer = async (req, res) => {
     const updatedQuery = await Query.findOneAndUpdate(
       {
         _id: query_id,
-        status: 'Pending',
+        status: { $in: ['Pending', 'Peer Answered'] },
         is_locked: false,
         $expr: { $lt: [{ $size: '$responses' }, MAX_PEER_RESPONSES] },
       },

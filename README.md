@@ -204,6 +204,9 @@ All query resolutions are tracked with ResolutionType:
 | 31 | ViewFAQs markdown not rendering | Added react-markdown for proper rendering |
 | 32 | ViewFAQs missing status badges | Added "AI Generated", "Peer Answered", "Verified by Admin" badges |
 | 33 | ViewFAQs auto-expand on load | Removed auto-expand, categories start collapsed |
+| 34 | Peer queue empty after first answer | getPeerQueue now queries status: { $in: ['Pending', 'Peer Answered'] } |
+| 35 | Intern who answered sees own response in queue | Added exclusion for queries user already answered |
+| 36 | Submit answer rejected for Peer Answered status | Atomic update now matches both 'Pending' and 'Peer Answered' status |
 
 ---
 

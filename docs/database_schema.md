@@ -265,6 +265,7 @@ MongoDB Atlas cluster with 6 collections. Mongoose ODM used for schema validatio
 ```
 PENDING ──────────────────────────────► PEER_ANSWERED
   │                                           │
+  │ (peer submits answer)                     │ (up to 5 peers can answer)
   │                                           │
   ▼                                           ▼
 3-STRIKE                                  is_locked
@@ -299,6 +300,15 @@ AMBIGUOUS ◄──────────────────────�
   │                                      ▼
   │                                 RESOLVED
 ```
+
+### Peer Queue Behavior
+
+| Query Status | Visible in Peer Queue? | Accepting Responses? |
+|--------------|------------------------|----------------------|
+| Pending | Yes (if < 5 responses, not own query) | Yes |
+| Peer Answered | Yes (if < 5 responses, not already answered) | Yes |
+| Ambiguous | No | No (locked) |
+| Resolved | No | No (locked) |
 
 ### Admin Resolution Queues (6-Section)
 

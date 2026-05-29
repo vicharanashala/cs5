@@ -515,3 +515,27 @@ Added 10 new test users:
 Updated `testCredentials.md`, `README.md`, `context.md` with new credentials.
 
 **Commit:** `d66a88b`
+
+### Prompt 39: Peer Queue Empty After First Answer & Submit Answer Rejected
+**Prompt:** When intern1 posts a query and intern2 answers it, the query becomes empty for all other interns. Also, when intern3 tries to answer, it shows "Query is no longer pending. Current status: Peer Answered".
+
+**Response:**
+Fixed two related bugs in `backend/controllers/peerController.js`:
+
+**Fix 1 - getPeerQueue (lines 67-86):**
+- Changed status filter from `status: 'Pending'` to `status: { $in: ['Pending', 'Peer Answered'] }`
+- Added exclusion for queries the current intern already answered:
+  ```javascript
+  const myAnsweredQueryIds = await Response.find({ author_id: currentUserId }).distinct('query_id');
+  // ...
+  _id: { $nin: myAnsweredQueryIds },
+  ```
+
+**Fix 2 - submitAnswer (lines 172, 205):**
+- Changed status check from `query.status !== 'Pending'` to `query.status !== 'Pending' && query.status !== 'Peer Answered'`
+- Changed atomic update condition from `status: 'Pending'` to `status: { $in: ['Pending', 'Peer Answered'] }`
+
+**Files modified:**
+- `backend/controllers/peerController.js`
+
+**Commit:** `fix: resolve peer queue visibility and submit answer status check`
