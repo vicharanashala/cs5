@@ -19,6 +19,57 @@ const { getGrokResponse } = require('../services/grokService');
 
 const MAX_UNRESOLVED_QUERIES = 5;
 
+const validateQuery = (text) => {
+  const trimmed = text.trim();
+
+  if (trimmed.length < 5) {
+    return 'Please enter a more detailed question (at least 5 characters).';
+  }
+
+  if (trimmed.length > 1000) {
+    return 'Query is too long. Please limit to 1000 characters.';
+  }
+
+  const letterCount = (trimmed.match(/[a-zA-Z]/g) || []).length;
+  const totalChars = trimmed.replace(/\s/g, '').length;
+  if (letterCount < 4) {
+    return 'Please enter a valid question with actual words.';
+  }
+
+  const specialCharRatio = totalChars > 0 ? (totalChars - letterCount) / totalChars : 0;
+  if (specialCharRatio > 0.3) {
+    return 'Please enter a valid question without too many special characters.';
+  }
+
+  if (/^(.)\1{2,}$/.test(trimmed)) {
+    return 'Please enter a valid question without repeated characters.';
+  }
+
+  if (!/[a-zA-Z]{3,}/.test(trimmed)) {
+    return 'Please enter a valid question with at least 3 consecutive letters.';
+  }
+
+  const uniqueLetters = new Set(trimmed.toLowerCase().match(/[a-z]/g) || []);
+  const requiredUnique = Math.min(6, Math.max(3, Math.floor(letterCount * 0.4)));
+  if (uniqueLetters.size < requiredUnique) {
+    return `Please enter a valid question with at least ${requiredUnique} different letters.`;
+  }
+
+  const commonWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'how', 'why', 'who', 'what', 'when', 'where', 'which', 'their', 'there', 'have', 'has', 'been', 'will', 'this', 'that', 'with', 'would', 'from', 'they', 'them', 'than'];
+  const lowerTrimmed = trimmed.toLowerCase();
+  const hasCommonWord = commonWords.some(word => lowerTrimmed.includes(word));
+  if (letterCount > 20 && !hasCommonWord && uniqueLetters.size < 8) {
+    return 'Please enter a meaningful question.';
+  }
+
+  const sequentialCount = (trimmed.match(/(.)\1{1,}/g) || []).join('').length;
+  if (sequentialCount > trimmed.length * 0.4) {
+    return 'Please enter a valid question without repeated patterns.';
+  }
+
+  return null;
+};
+
 /**
  * PHASE 0: Auto-Complete Endpoint
  * Searches FAQ keywords for live suggestions as user types.
@@ -81,6 +132,15 @@ const askAI = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'Query and intern_id are required',
+      });
+    }
+
+    const validationError = validateQuery(query);
+    if (validationError) {
+      return res.status(400).json({
+        success: false,
+        error: validationError,
+        code: 'INVALID_QUERY',
       });
     }
 

@@ -210,7 +210,36 @@ Created frontend intern pages:
 | 14 | no_faq tracking broken | No analytics controller | Created analyticsController.js with trackNoFaqQuery |
 | 15 | Frontend api.js import error | Named export instead of default | Changed `import { api }` to `import api` |
 | 16 | VITE_API_URL undefined crash | env variable not set | Added fallback default `http://localhost:5000` |
-| 17 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
+| 16 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
+| 17 | Garbage input passed to RAG/LLM | No input validation | Added query sanity check with lenient validation rules |
+
+---
+
+### Prompt 35: Query Input Sanity Check
+**Prompt:** Add sanity check when intern asks query before sending to RAG model to prevent garbage input. On failure, ask intern to re-enter valid query.
+
+**Response:**
+Added `validateQuery` function in both frontend and backend:
+
+**Frontend (`AskAI.jsx:123-164`):**
+- Minimum 5 chars, max 1000 chars
+- At least 4 actual letters
+- Special char ratio < 30%
+- No 3+ repeated characters
+- At least 3 consecutive letters
+- 4-6 unique letters required (scaled by length)
+- Long strings (>20 chars) must have common words OR 8+ unique letters
+- Repeated pattern ratio < 40%
+
+**Backend (`askAIController.js:22-70`):**
+- Same validation before RAG processing
+- Returns `400` with `code: 'INVALID_QUERY'` if validation fails
+
+Now `ajflafjllafffaafas` is blocked with: *"Please enter a valid question with at least 6 different letters."*
+
+**Files modified:**
+- `frontend/src/pages/intern/AskAI.jsx`
+- `backend/controllers/askAIController.js`
 
 ---
 

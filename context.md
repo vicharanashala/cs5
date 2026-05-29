@@ -192,6 +192,7 @@
 | 15 | Frontend api.js import error | Named export instead of default | Changed `import { api }` to `import api` |
 | 16 | VITE_API_URL undefined crash | env variable not set | Added fallback default `http://localhost:5000` |
 | 17 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
+| 18 | Garbage input passed to RAG/LLM | No input validation | Added query sanity check with lenient validation rules |
 
 ---
 
@@ -215,6 +216,19 @@
 - **Types:** peer_answer, query_resolved, admin_alert, announcement
 - **Components:** NotificationBell, Toast, NotificationContext
 - **Yellow Alert:** Admin notified when NoFaq hits 10 occurrences
+
+### Query Input Sanity Check
+- **Frontend + Backend validation** before RAG/LLM processing
+- **Validation rules:**
+  - Minimum 4 actual letters required
+  - Special character ratio < 30%
+  - 3+ consecutive letters required
+  - Repeated pattern detection (blocks `aaa`, `ajflafjllafffaafas`)
+  - 4-6 unique letters required (scaled by length)
+  - Long strings (>20 chars) must have common words OR 8+ unique letters
+  - Repeated pattern ratio < 40%
+- **Error code:** `INVALID_QUERY`
+- **Both frontend and backend validation for defense in depth**
 
 ---
 

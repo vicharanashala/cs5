@@ -85,6 +85,24 @@ Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection
 
 ---
 
+### 6. Query Input Sanity Check
+
+Input validation before RAG/LLM processing to prevent garbage inputs like `ajflafjllafffaafas`:
+
+**Frontend + Backend validation (defense in depth):**
+- Minimum 5 chars, max 1000 chars
+- At least 4 actual letters
+- Special char ratio < 30%
+- No 3+ repeated characters (blocks `aaa`)
+- At least 3 consecutive letters
+- 4-6 unique letters required (scaled by length)
+- Long strings (>20 chars) must have common words OR 8+ unique letters
+- Repeated pattern ratio < 40%
+
+**Error handling:** Returns `400` with `code: 'INVALID_QUERY'`
+
+---
+
 ## Full Feature List
 
 ### Authentication & Authorization

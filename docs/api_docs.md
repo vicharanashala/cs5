@@ -295,14 +295,15 @@ Get auto-complete suggestions (debounced, 300ms).
 ### POST /ask
 
 Full AI pipeline: RAG search → LLM fallback → Peer escalation.
+Includes query sanity validation - garbage input rejected with `INVALID_QUERY` error.
 
 **Headers:** `Authorization: Bearer <token>`
 
 **Request Body:**
 ```json
 {
-  "question": "How do I reset my password?",
-  "mode": "full"
+  "query": "How do I reset my password?",
+  "intern_id": "64abc123..."
 }
 ```
 
@@ -310,11 +311,12 @@ Full AI pipeline: RAG search → LLM fallback → Peer escalation.
 ```json
 {
   "success": true,
-  "source": "faq",
-  "data": {
-    "answer": "Click on Forgot Password link...",
-    "faq_id": "64abc123..."
-  }
+  "source": "rag",
+  "resolution": "pending_feedback",
+  "answer": "Click on Forgot Password...",
+  "faq_id": "64abc123...",
+  "match_confidence": 75,
+  "message": "Please upvote if satisfied, or downvote to escalate."
 }
 ```
 
@@ -322,10 +324,10 @@ Full AI pipeline: RAG search → LLM fallback → Peer escalation.
 ```json
 {
   "success": true,
-  "source": "llm",
-  "data": {
-    "answer": "Based on your account settings..."
-  }
+  "source": "grok",
+  "resolution": "pending_feedback",
+  "answer": "Based on your account settings...",
+  "message": "Please upvote if satisfied, or downvote to escalate."
 }
 ```
 
@@ -333,12 +335,27 @@ Full AI pipeline: RAG search → LLM fallback → Peer escalation.
 ```json
 {
   "success": true,
-  "source": "escalated",
-  "data": {
-    "query_id": "64abc123...",
-    "status": "Pending",
-    "message": "Your question has been escalated to peer review"
-  }
+  "resolution": "escalated",
+  "query_id": "64abc123...",
+  "message": "Your query has been added to the peer escalation queue."
+}
+```
+
+**Response (400) - Invalid Query:**
+```json
+{
+  "success": false,
+  "error": "Please enter a valid question with at least 6 different letters.",
+  "code": "INVALID_QUERY"
+}
+```
+
+**Response (429) - Query Cap Reached:**
+```json
+{
+  "success": false,
+  "error": "Escalation blocked: You have 5 unresolved queries.",
+  "code": "QUERY_CAP_REACHED"
 }
 ```
 
