@@ -191,6 +191,7 @@
 | 14 | no_faq tracking broken | No analytics controller | Created analyticsController.js with trackNoFaqQuery |
 | 15 | Frontend api.js import error | Named export instead of default | Changed `import { api }` to `import api` |
 | 16 | VITE_API_URL undefined crash | env variable not set | Added fallback default `http://localhost:5000` |
+| 17 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
 
 ---
 

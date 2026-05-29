@@ -111,7 +111,16 @@ const askAI = async (req, res) => {
       });
     }
 
-if (action === 'rag_downvote') {
+    if (action === 'grok_upvote') {
+      await trackResolution(intern_id, ResolutionType.LLM_RESOLVED, { action: 'grok_upvote' });
+      return res.status(200).json({
+        success: true,
+        resolution: 'resolved',
+        message: 'Thank you for your feedback!',
+      });
+    }
+
+    if (action === 'rag_downvote') {
       const grokResult = await getGrokResponse(query, allFAQs);
 
       if (!grokResult.success) {

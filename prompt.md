@@ -208,6 +208,9 @@ Created frontend intern pages:
 | 12 | Mongoose new: true deprecation | Deprecated option | Changed to returnDocument: 'after' |
 | 13 | Backend crash | Missing ratingRoutes/adminRoutes | Created missing files |
 | 14 | no_faq tracking broken | No analytics controller | Created analyticsController.js with trackNoFaqQuery |
+| 15 | Frontend api.js import error | Named export instead of default | Changed `import { api }` to `import api` |
+| 16 | VITE_API_URL undefined crash | env variable not set | Added fallback default `http://localhost:5000` |
+| 17 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
 
 ---
 
@@ -316,11 +319,11 @@ Updated context.md with:
 - Complete Query Lifecycle flowchart (Steps 0-7)
 - State Machine Transitions diagram
 - Resolution Types table (AUTO_COMPLETE, RAG_RESOLVED, LLM_RESOLVED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED)
-- All 16 resolved issues documented with root cause and fix
+- All 17 resolved issues documented with root cause and fix
 - Notification System integration details
 - Updated milestone progress (Phase 12 complete)
 
-All issues from #1 to #16 documented:
+All issues from #1 to #17 documented:
 | # | Issue | Fix |
 |---|-------|-----|
 | 1 | MongoDB connection failed | Removed useNewUrlParser/useUnifiedTopology |
@@ -339,6 +342,7 @@ All issues from #1 to #16 documented:
 | 14 | VITE_API_URL undefined crash | Added fallback default |
 | 15 | Auto-complete only searched keywords | Search search_text, tags, clean_question |
 | 16 | RAG downvote logic flaw | rag_downvote triggers LLM first |
+| 17 | LLM upvote shows RAG answer | Added grok_upvote handler returning resolved state |
 
 Updated docs/database_schema.md with:
 - Notification collection schema
@@ -374,6 +378,23 @@ Created complete notification system:
   - Updated `MyEscalations.jsx` - Real-time updates on new_peer_answer and query_resolved
 
 Updated docs: context.md, prompt.md
+
+### Prompt 34: Fix LLM Upvote Showing RAG Answer
+**Prompt:** When user upvoting LLM answer, it shows RAG answer instead of thank you message. Fix this error.
+
+**Response:**
+Fixed `backend/controllers/askAIController.js`:
+- Added `grok_upvote` action handler at line 114-121
+- Returns `resolution: 'resolved'` with message 'Thank you for your feedback!' immediately
+- Tracks `LLM_RESOLVED` in analytics
+
+Flow now works correctly:
+1. User submits query → LLM answer (source: 'grok')
+2. User upvotes LLM answer → sends `grok_upvote`
+3. Backend returns `resolution: 'resolved'`
+4. Frontend shows "Thank You!" card with "Ask Another Question" button
+
+Updated prompt.md, context.md with bug #17
 
 ### Prompt 31: Moderator Dashboard 3-Card Layout Implementation
 **Prompt:** Create complete Moderator Dashboard with all 3 cards as per specification
