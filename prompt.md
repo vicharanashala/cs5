@@ -307,23 +307,13 @@ query.in/
 
 ## Recent Changes
 
-### Prompt 30: Admin Dashboard 7-Card Layout Implementation
-**Prompt:** Create complete Admin Dashboard with all 7 cards as per specification
+### Prompt 31: Moderator Dashboard 3-Card Layout Implementation
+**Prompt:** Create complete Moderator Dashboard with all 3 cards as per specification
 
 **Response:**
-Created complete AdminDashboard.jsx with all 7 cards:
-- **Card 1:** User Registration (Single User Form + Bulk JSON Upload with confirmation modal)
-- **Card 2:** Broadcast Announcement (heading + content to Announcements collection)
-- **Card 3:** User Management Directory (filterable/sortable table with role filter, date sort, email search)
-- **Card 4:** Master Query Monitor (thread drawer with peer response carousel, approve/override actions)
-- **Card 5:** FAQ Knowledge Base Editor (full CRUD with edit/delete per row, priority slider, escalation checkbox)
-- **Card 6:** Resolve Query Hub (5-section queue: Master/Unanswered/Low-Rated/Highly-Rated/Archive)
-- **Card 7:** AI-Assisted FAQ Suggestions (yellow alert state when unread suggestions exist)
-
-Updated backend:
-- `PUT /api/faqs/:id` - Update FAQ (admin only)
-- `DELETE /api/faqs/:id` - Delete FAQ (admin only)
-- `POST /api/auth/bulk-register` - Bulk user registration (admin only)
-- `GET /api/auth/users` - Get all users (admin only)
+Created complete ModeratorDashboard.jsx with all 3 cards:
+- **Card 1: Announcements** (View-only, yellow alert when new < 24hrs, "NEW" badge with pulse animation)
+- **Card 2: Master Query Monitor** (Inherited from Admin Card 4 - thread drawer with approve/override)
+- **Card 3: Resolve Query Hub** (Inherited from Admin Card 6 - 5-section queue, moderator can resolve)
 
 Updated docs: context.md, prompt.md

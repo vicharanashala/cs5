@@ -215,3 +215,26 @@
 - Yellow alert state when unread suggestions exist (occurrenceCount >= 10)
 - Displays: query pattern, hit count, impacted intern count, timestamps
 - Actions: Dismiss, Add to FAQs (pre-populates Card 5 form)
+
+---
+
+## Moderator Dashboard (3-Card Layout)
+
+### Card 1: Announcements
+- View-only announcements (moderators cannot create)
+- Yellow alert state when new announcements exist (< 24 hours old)
+- State returns to normal upon opening the card
+- Badge shows "NEW" with pulsing animation
+
+### Card 2: Master Query Monitor
+- Inherits full functionality from Admin Card 4
+- Filter by status: All, Pending, Peer Answered, Ambiguous, Resolved
+- Sort by date: Ascending/Descending
+- Thread drawer with approve/override actions
+- Moderator override labeled as "Moderator Intervention"
+
+### Card 3: Resolve Query Hub
+- Inherits full functionality from Admin Card 6
+- 5-section queue: Master, Unanswered, Low-Rated, Highly-Rated, Archive
+- Moderator can approve high-rated responses
+- Moderator can submit official responses to override

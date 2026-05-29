@@ -180,6 +180,23 @@ Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection
   - 10-occurrence threshold
   - Dismiss action for admin review
 
+### Moderator Dashboard (3-Card Layout)
+- **Card 1: Announcements**
+  - View-only announcements (cannot create)
+  - Yellow alert state when new announcements exist (< 24 hours)
+  - "NEW" badge with pulsing animation
+  - State returns to normal upon opening
+- **Card 2: Master Query Monitor**
+  - Inherits full functionality from Admin Card 4
+  - Filter by status and date sort
+  - Thread drawer with peer response carousel
+  - Approve/Override actions (labeled "Moderator Intervention")
+- **Card 3: Resolve Query Hub**
+  - Inherits full functionality from Admin Card 6
+  - 5-section queue: Master, Unanswered, Low-Rated, Highly-Rated, Archive
+  - Moderator can approve high-rated responses
+  - Moderator can submit official responses to override
+
 ### UI/UX Features
 - **Black & White Theme** - #FAFAFA background
 - **Rounded Corners** - rounded-lg
