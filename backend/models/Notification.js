@@ -9,10 +9,11 @@
  * 2. An admin/moderator resolves an intern's query
  * 3. An admin receives a yellow alert (10-occurrence threshold)
  * 4. A new announcement is created (broadcast to all interns)
+ * 5. A new FAQ is added to the knowledge base (broadcast to all interns)
  *
  * @model Notification
  * @field {ObjectId} recipient_id - User who receives this notification
- * @field {String} type - Enum: 'peer_answer' | 'query_resolved' | 'admin_alert' | 'announcement'
+ * @field {String} type - Enum: 'peer_answer' | 'query_resolved' | 'admin_alert' | 'announcement' | 'faq_added'
  * @field {String} title - Short title for the notification
  * @field {String} message - Full notification text
  * @field {ObjectId} link_id - Related document ID (Query, FAQ, Announcement)
@@ -35,8 +36,8 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Notification type is required'],
       enum: {
-        values: ['peer_answer', 'query_resolved', 'admin_alert', 'announcement'],
-        message: 'Type must be one of: peer_answer, query_resolved, admin_alert, announcement',
+        values: ['peer_answer', 'query_resolved', 'admin_alert', 'announcement', 'faq_added'],
+        message: 'Type must be one of: peer_answer, query_resolved, admin_alert, announcement, faq_added',
       },
     },
     title: {

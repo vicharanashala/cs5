@@ -260,9 +260,10 @@ STEP 7: RESOLVED (Terminal State)
 
 ### Notification System
 - **Hybrid Model:** Socket.IO for real-time + MongoDB for persistence
-- **Types:** peer_answer, query_resolved, admin_alert, announcement
+- **Types:** peer_answer, query_resolved, admin_alert, announcement, faq_added
 - **Components:** NotificationBell, Toast, NotificationContext
 - **Yellow Alert:** Admin notified when NoFaq hits 10 occurrences
+- **FAQ Added:** All interns notified when admin creates new FAQ
 
 ### Query Input Sanity Check
 - **Frontend + Backend validation** before RAG/LLM processing

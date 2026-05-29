@@ -354,6 +354,47 @@ const broadcastAnnouncement = async (announcement, adminId) => {
   }
 };
 
+/**
+ * broadcastFAQAdded
+ * -----------------
+ * Sends notification to all interns when a new FAQ is added.
+ *
+ * @async
+ * @function broadcastFAQAdded
+ * @param {Object} faq - FAQ document that was created
+ * @param {ObjectId} adminId - Admin who created it
+ */
+const broadcastFAQAdded = async (faq, adminId) => {
+  const interns = await User.find({ role: 'intern' }).select('_id');
+
+  for (const intern of interns) {
+    await Notification.create({
+      recipient_id: intern._id,
+      type: 'faq_added',
+      title: 'New FAQ Added',
+      message: `A new FAQ "${faq.clean_question.substring(0, 80)}${faq.clean_question.length > 80 ? '...' : ''}" has been added to the knowledge base.`,
+      link_id: faq._id,
+      link_type: 'faq',
+      created_by: adminId,
+    });
+  }
+
+  if (getIO) {
+    const io = getIO();
+    for (const intern of interns) {
+      io.to(`user:${intern._id.toString()}`).emit('new_notification', {
+        type: 'faq_added',
+        title: 'New FAQ Added',
+        message: `A new FAQ "${faq.clean_question.substring(0, 80)}${faq.clean_question.length > 80 ? '...' : ''}" has been added to the knowledge base.`,
+        link_id: faq._id.toString(),
+        link_type: 'faq',
+        is_read: false,
+        createdAt: faq.createdAt,
+      });
+    }
+  }
+};
+
 module.exports = {
   createNotification,
   getNotifications,
@@ -363,4 +404,5 @@ module.exports = {
   getUnreadCount,
   emitAdminYellowAlert,
   broadcastAnnouncement,
+  broadcastFAQAdded,
 };

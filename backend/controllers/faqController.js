@@ -10,6 +10,7 @@
  */
 
 const FAQ = require('../models/FAQ');
+const { broadcastFAQAdded } = require('./notificationController');
 
 /**
  * Fetches all FAQs from the database, ordered by priority descending.
@@ -62,6 +63,8 @@ const createFAQ = async (req, res) => {
     });
 
     const savedFAQ = await faq.save();
+
+    await broadcastFAQAdded(savedFAQ, req.user.userId);
 
     res.status(201).json({
       success: true,

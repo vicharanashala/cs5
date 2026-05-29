@@ -232,6 +232,7 @@ Hybrid real-time + MongoDB persistence model for instant and offline alerts.
 | `query_resolved` | Admin resolves OR query marked ambiguous | Query author (intern) |
 | `admin_alert` | NoFaq hits 10 occurrences | All admins |
 | `announcement` | Admin creates broadcast | All interns |
+| `faq_added` | Admin adds new FAQ | All interns |
 
 **Components:**
 - `NotificationBell` - Top bar bell icon with unread badge and dropdown
