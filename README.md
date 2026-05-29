@@ -218,6 +218,7 @@ All query resolutions are tracked with ResolutionType:
 | 38 | MyEscalations rating UI - can rate multiple times | "Rate this response" button only shows if rating === null, added rater_note field |
 | 39 | 4-star rating locks query immediately | Changed MIN_HIGH_RATING to 5; 4 stars = Highly-Rated Queue (not locked) |
 | 40 | Ambiguous marked query still visible in peer queue | Added ambiguous_marked_by filter to exclude queries user marked ambiguous |
+| 41 | 3-strike ambiguous query shows "Pending" status on MyEscalations | Added `query_resolved` socket emit when query becomes Ambiguous |
 
 ---
 

@@ -204,7 +204,7 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 | Type | Trigger | Recipient |
 |------|---------|-----------|
 | `peer_answer` | Peer submits answer | Query author (intern) |
-| `query_resolved` | Admin/mod resolves query OR query marked ambiguous | Query author (intern) |
+| `query_resolved` | Admin/mod resolves query OR query marked ambiguous (3 strikes) | Query author (intern) |
 | `admin_alert` | NoFaq hits 10 occurrences | All admins |
 | `announcement` | Admin creates announcement | All interns |
 

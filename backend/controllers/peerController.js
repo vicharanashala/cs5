@@ -408,6 +408,14 @@ const markAmbiguous = async (req, res) => {
         created_by: user_id,
       });
 
+      if (getIO) {
+        const io = getIO();
+        io.to(`user:${query.intern_id.toString()}`).emit('query_resolved', {
+          query_id: query._id,
+          resolution_type: 'auto_ambiguous',
+        });
+      }
+
       res.status(200).json({
         success: true,
         message: 'Query marked as ambiguous (3 strikes). Query is now locked and escalated to admins.',
