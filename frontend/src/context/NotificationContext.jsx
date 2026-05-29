@@ -84,7 +84,8 @@ export const NotificationProvider = ({ children }) => {
       return;
     }
 
-    const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
     const newSocket = io(socketUrl, {
       auth: { token },
       transports: ['websocket', 'polling'],

@@ -179,6 +179,15 @@ All query resolutions are tracked with ResolutionType:
 | `ESCALATED` | Downvoted, sent to peer queue |
 | `SPAM_BLOCKED` | Similar query already in queue |
 | `CAP_BLOCKED` | 5 active queries reached |
+| `MODERATOR_OVERRIDE` | Moderator resolved query (not yet implemented) |
+
+---
+
+## Recent Fixes
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 20 | MyEscalations socket connection failed | Added VITE_API_URL fallback before .replace() |
 
 ---
 

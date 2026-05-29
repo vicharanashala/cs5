@@ -375,6 +375,7 @@ All issues from #1 to #19 documented:
 | 17 | LLM upvote shows RAG answer | Added grok_upvote handler returning resolved state |
 | 18 | Garbage input passed to RAG/LLM | Added query sanity check |
 | 19 | Peer answer submission failed (500) | Changed req.user.id to req.user.userId |
+| 20 | MyEscalations socket connection failed | Added VITE_API_URL fallback before .replace() |
 
 Updated docs/database_schema.md with:
 - Notification collection schema

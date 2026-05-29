@@ -194,6 +194,7 @@
 | 17 | LLM upvote shows RAG answer | grok_upvote not handled in backend | Added grok_upvote handler returning resolved state |
 | 18 | Garbage input passed to RAG/LLM | No input validation | Added query sanity check with lenient validation rules |
 | 19 | Peer answer submission failed (500 error) | authMiddleware sets req.user.userId but controllers use req.user.id | Changed all req.user.id to req.user.userId in all controllers |
+| 20 | MyEscalations socket connection failed | VITE_API_URL undefined caused .replace() to fail | Added fallback for API URL before replace |
 
 ---
 
