@@ -218,6 +218,7 @@ STEP 7: RESOLVED (Terminal State)
 | 34 | Peer queue empty after first answer | getPeerQueue only queried status: 'Pending', but after first answer status becomes 'Peer Answered' | Changed to query status: { $in: ['Pending', 'Peer Answered'] } |
 | 35 | Intern who answered sees own response in queue | No filter to exclude queries user already answered | Added query_id exclusion for current user's answered queries |
 | 36 | Submit answer rejected for Peer Answered status | Atomic update condition only matched status: 'Pending' | Changed to status: { $in: ['Pending', 'Peer Answered'] } |
+| 37 | Notifications not stored before client response | createNotification called after res.json() without await | Moved await createNotification before res.json() in all controllers |
 
 ---
 

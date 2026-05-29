@@ -207,6 +207,7 @@ All query resolutions are tracked with ResolutionType:
 | 34 | Peer queue empty after first answer | getPeerQueue now queries status: { $in: ['Pending', 'Peer Answered'] } |
 | 35 | Intern who answered sees own response in queue | Added exclusion for queries user already answered |
 | 36 | Submit answer rejected for Peer Answered status | Atomic update now matches both 'Pending' and 'Peer Answered' status |
+| 37 | Notifications not stored before client response | Moved await createNotification before res.json() in all controllers |
 
 ---
 

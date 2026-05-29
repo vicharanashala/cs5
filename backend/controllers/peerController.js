@@ -229,16 +229,7 @@ const submitAnswer = async (req, res) => {
       });
     }
 
-    res.status(201).json({
-      success: true,
-      message: 'Answer submitted successfully',
-      data: {
-        response,
-        query_status: updatedQuery.status,
-      },
-    });
-
-    createNotification({
+    await createNotification({
       recipient_id: query.intern_id,
       type: 'peer_answer',
       title: 'New Peer Answer',
@@ -258,6 +249,15 @@ const submitAnswer = async (req, res) => {
         responder_email: req.user.email,
       });
     }
+
+    res.status(201).json({
+      success: true,
+      message: 'Answer submitted successfully',
+      data: {
+        response,
+        query_status: updatedQuery.status,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -397,7 +397,7 @@ const markAmbiguous = async (req, res) => {
     );
 
     if (updatedQuery.status === 'Ambiguous') {
-      createNotification({
+      await createNotification({
         recipient_id: query.intern_id,
         type: 'query_resolved',
         title: 'Query Marked Ambiguous',

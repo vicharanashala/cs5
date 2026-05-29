@@ -162,18 +162,7 @@ const approvePeerResponse = async (req, res) => {
       },
     });
 
-    res.status(200).json({
-      success: true,
-      message: 'Peer response approved. Query resolved.',
-      data: {
-        query_id: query._id,
-        response_id: response._id,
-        resolution_type: 'peer_approved',
-        resolved_by: admin_id,
-      },
-    });
-
-    createNotification({
+    await createNotification({
       recipient_id: query.intern_id,
       type: 'query_resolved',
       title: 'Query Resolved',
@@ -193,6 +182,17 @@ const approvePeerResponse = async (req, res) => {
         resolved_by: admin_id,
       });
     }
+
+    res.status(200).json({
+      success: true,
+      message: 'Peer response approved. Query resolved.',
+      data: {
+        query_id: query._id,
+        response_id: response._id,
+        resolution_type: 'peer_approved',
+        resolved_by: admin_id,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -271,18 +271,7 @@ const overrideWithAdminResponse = async (req, res) => {
       },
     });
 
-    res.status(201).json({
-      success: true,
-      message: 'Admin override accepted. Query resolved.',
-      data: {
-        query_id: query._id,
-        response_id: adminResponse._id,
-        resolution_type: 'admin_override',
-        resolved_by: admin_id,
-      },
-    });
-
-    createNotification({
+    await createNotification({
       recipient_id: query.intern_id,
       type: 'query_resolved',
       title: 'Query Resolved',
@@ -302,6 +291,17 @@ const overrideWithAdminResponse = async (req, res) => {
         resolved_by: admin_id,
       });
     }
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin override accepted. Query resolved.',
+      data: {
+        query_id: query._id,
+        response_id: adminResponse._id,
+        resolution_type: 'admin_override',
+        resolved_by: admin_id,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
