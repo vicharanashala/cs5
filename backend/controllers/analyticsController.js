@@ -35,22 +35,21 @@
 const NoFaq = require('../models/NoFaq');
 const FAQ = require('../models/FAQ');
 
-/**
- * PROMOTION_THRESHOLD: Minimum occurrences before suggesting FAQ creation
- */
 const PROMOTION_THRESHOLD = 10;
 
-/**
- * trackNoFaqQuery
- * ---------------
- * Called by the LLM fallback pipeline when it cannot answer a query.
- * Updates or creates a NoFaq record with proper anti-inflation logic.
- *
- * @async
- * @function trackNoFaqQuery
- * @param {string} queryText - The unanswered query text
- * @param {string} intern_id - The intern's user ID
- */
+const ResolutionType = {
+  AUTO_COMPLETE: 'auto_complete',
+  RAG_RESOLVED: 'rag_resolved',
+  LLM_RESOLVED: 'llm_resolved',
+  ESCALATED: 'escalated',
+  SPAM_BLOCKED: 'spam_blocked',
+  CAP_BLOCKED: 'cap_blocked',
+};
+
+const trackResolution = async (intern_id, resolutionType, metadata = {}) => {
+  console.log(`📊 [ANALYTICS] intern:${intern_id} | ${resolutionType} | ${JSON.stringify(metadata)}`);
+};
+
 const trackNoFaqQuery = async (queryText, intern_id) => {
   const existing = await NoFaq.findOne({ queryText });
 
@@ -263,10 +262,12 @@ const getNoFaqStats = async (req, res) => {
 
 module.exports = {
   trackNoFaqQuery,
+  trackResolution,
   getFaqSuggestions,
   dismissFaqSuggestion,
   createFaqFromSuggestion,
   getAllNoFaqQueries,
   getNoFaqStats,
   PROMOTION_THRESHOLD,
+  ResolutionType,
 };

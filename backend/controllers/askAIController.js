@@ -14,8 +14,10 @@
 
 const FAQ = require('../models/FAQ');
 const Query = require('../models/Query');
-const { trackNoFaqQuery } = require('./analyticsController');
+const { trackNoFaqQuery, trackResolution, ResolutionType } = require('./analyticsController');
 const { getGrokResponse } = require('../services/grokService');
+
+const MAX_UNRESOLVED_QUERIES = 5;
 
 /**
  * PHASE 0: Auto-Complete Endpoint
@@ -87,6 +89,7 @@ const askAI = async (req, res) => {
     if (action === 'autocomplete_select') {
       const faq = allFAQs.find((f) => f._id.toString() === req.body.faq_id);
       if (faq) {
+        await trackResolution(intern_id, ResolutionType.AUTO_COMPLETE, { faq_id: faq._id, category: faq.category });
         return res.status(200).json({
           success: true,
           source: 'autocomplete',
@@ -100,6 +103,7 @@ const askAI = async (req, res) => {
     }
 
     if (action === 'rag_upvote') {
+      await trackResolution(intern_id, ResolutionType.RAG_RESOLVED, { action: 'rag_upvote' });
       return res.status(200).json({
         success: true,
         resolution: 'resolved',
@@ -111,6 +115,34 @@ if (action === 'rag_downvote') {
       const grokResult = await getGrokResponse(query, allFAQs);
 
       if (!grokResult.success) {
+        const activeCount = await Query.countDocuments({
+          intern_id,
+          status: { $nin: ['Resolved', 'Ambiguous'] },
+        });
+
+        if (activeCount >= MAX_UNRESOLVED_QUERIES) {
+          await trackResolution(intern_id, ResolutionType.CAP_BLOCKED, { query, cap: MAX_UNRESOLVED_QUERIES });
+          return res.status(429).json({
+            success: false,
+            error: `Escalation blocked: You have ${MAX_UNRESOLVED_QUERIES} unresolved queries.`,
+            code: 'QUERY_CAP_REACHED',
+          });
+        }
+
+        const similarQuery = await Query.findOne({
+          query_text: { $regex: new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') },
+          status: 'Pending',
+        });
+
+        if (similarQuery) {
+          await trackResolution(intern_id, ResolutionType.SPAM_BLOCKED, { query, similar_id: similarQuery._id });
+          return res.status(429).json({
+            success: false,
+            error: 'Similar query already in peer queue.',
+            code: 'SIMILAR_QUERY_EXISTS',
+          });
+        }
+
         const newQuery = new Query({
           intern_id,
           query_text: query,
@@ -119,6 +151,7 @@ if (action === 'rag_downvote') {
         await newQuery.save();
 
         await trackNoFaqQuery(query, intern_id);
+        await trackResolution(intern_id, ResolutionType.ESCALATED, { query_id: newQuery._id });
 
         return res.status(201).json({
           success: true,
@@ -127,6 +160,8 @@ if (action === 'rag_downvote') {
           message: 'AI service unavailable. Your query has been added to the peer escalation queue.',
         });
       }
+
+      await trackResolution(intern_id, ResolutionType.LLM_RESOLVED, { model: grokResult.model, stage: grokResult.stage });
 
       return res.status(200).json({
         success: true,
@@ -138,6 +173,34 @@ if (action === 'rag_downvote') {
     }
 
     if (action === 'grok_downvote') {
+      const activeCount = await Query.countDocuments({
+        intern_id,
+        status: { $nin: ['Resolved', 'Ambiguous'] },
+      });
+
+      if (activeCount >= MAX_UNRESOLVED_QUERIES) {
+        await trackResolution(intern_id, ResolutionType.CAP_BLOCKED, { query, cap: MAX_UNRESOLVED_QUERIES });
+        return res.status(429).json({
+          success: false,
+          error: `Escalation blocked: You have ${MAX_UNRESOLVED_QUERIES} unresolved queries.`,
+          code: 'QUERY_CAP_REACHED',
+        });
+      }
+
+      const similarQuery = await Query.findOne({
+        query_text: { $regex: new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') },
+        status: 'Pending',
+      });
+
+      if (similarQuery) {
+        await trackResolution(intern_id, ResolutionType.SPAM_BLOCKED, { query, similar_id: similarQuery._id });
+        return res.status(429).json({
+          success: false,
+          error: 'Similar query already in peer queue.',
+          code: 'SIMILAR_QUERY_EXISTS',
+        });
+      }
+
       const newQuery = new Query({
         intern_id,
         query_text: query,
@@ -146,6 +209,7 @@ if (action === 'rag_downvote') {
       await newQuery.save();
 
       await trackNoFaqQuery(query, intern_id);
+      await trackResolution(intern_id, ResolutionType.ESCALATED, { query_id: newQuery._id });
 
       return res.status(201).json({
         success: true,
@@ -184,14 +248,53 @@ if (action === 'rag_downvote') {
     const grokResult = await getGrokResponse(query, allFAQs);
 
     if (!grokResult.success) {
-      return res.status(200).json({
-        success: false,
-        source: 'grok',
-        resolution: 'failed',
-        error: grokResult.error,
-        stage: grokResult.stage,
+      const activeCount = await Query.countDocuments({
+        intern_id,
+        status: { $nin: ['Resolved', 'Ambiguous'] },
+      });
+
+      if (activeCount >= MAX_UNRESOLVED_QUERIES) {
+        await trackResolution(intern_id, ResolutionType.CAP_BLOCKED, { query, cap: MAX_UNRESOLVED_QUERIES });
+        return res.status(429).json({
+          success: false,
+          error: `Escalation blocked: You have ${MAX_UNRESOLVED_QUERIES} unresolved queries.`,
+          code: 'QUERY_CAP_REACHED',
+        });
+      }
+
+      const similarQuery = await Query.findOne({
+        query_text: { $regex: new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') },
+        status: 'Pending',
+      });
+
+      if (similarQuery) {
+        await trackResolution(intern_id, ResolutionType.SPAM_BLOCKED, { query, similar_id: similarQuery._id });
+        return res.status(429).json({
+          success: false,
+          error: 'Similar query already in peer queue.',
+          code: 'SIMILAR_QUERY_EXISTS',
+        });
+      }
+
+      const newQuery = new Query({
+        intern_id,
+        query_text: query,
+        status: 'Pending',
+      });
+      await newQuery.save();
+
+      await trackNoFaqQuery(query, intern_id);
+      await trackResolution(intern_id, ResolutionType.ESCALATED, { query_id: newQuery._id });
+
+      return res.status(201).json({
+        success: true,
+        resolution: 'escalated',
+        query_id: newQuery._id,
+        message: 'Your query has been added to the peer escalation queue.',
       });
     }
+
+    await trackResolution(intern_id, ResolutionType.LLM_RESOLVED, { model: grokResult.model, stage: grokResult.stage });
 
     return res.status(200).json({
       success: true,

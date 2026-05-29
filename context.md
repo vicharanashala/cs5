@@ -47,6 +47,15 @@
 - **Intern Pages:** PeerQueue, MyEscalations, ViewFAQs, Announcements
 - **Admin Pages:** AdminSuggestions (Card 7 with yellow alert, dismiss, add to FAQs modal)
 - **Socket.IO** integration in peerController and adminController (new_peer_answer, query_resolved events)
+- **Groq API** integration as LLM fallback (llama-3.3-70b, llama-3.1-8b, llama-4-scout, qwen3-32b, gpt-oss)
+- **Multi-model fallback** - Gemini (3.5-flash -> 3.1-pro -> 3.1-flash-lite -> 2.5-flash -> 2.5-pro), Groq (llama-3.3-70b -> llama-3.1-8b -> llama-4-scout -> qwen3-32b -> gpt-oss)
+- **Active query cap** - Max 5 unresolved queries per intern, prevents spam escalation
+- **Spam prevention** - Similar query detection regex check before peer escalation
+- **Analytics tracking** - ResolutionType enum (AUTO_COMPLETE, RAG_RESOLVED, LLM_RESOLVED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED)
+- **LLM response rules** - No emojis, no formatting (#, *, bold, italics), plain text only, concise answers
+- **Enhanced logging** - LLM call logs with model name, response length, image error format "Cannot read image.png (this model does not support image input)"
+- **MAX_OUTPUT_TOKENS** - Increased from 800 to 2000 for complete LLM responses
+- **Timeout handling** - 60s timeout with automatic model switching on failure
 
 ### Resolved Issues
 1. Fixed: Explore FAQs button redirected to login instead of FAQ page
@@ -87,8 +96,13 @@
 ## Issues & Notes
 - MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
 - Gemini API Key: AIzaSyAJH1lbg29Egb4CifLCVVSaPjxz2mZ-lIM
-- Gemini Model: gemini-2.5-flash (uses REST API v1)
+- Groq API Key: REDACTED_GROQ_KEY
+- Gemini Models: gemini-3.5-flash, gemini-3.1-pro-preview, gemini-3.1-flash-lite, gemini-2.5-flash, gemini-2.5-pro
+- Groq Models: llama-3.3-70b-versatile, llama-3.1-8b-instant, llama-4-scout-17b, qwen3-32b, gpt-oss-120b, gpt-oss-20b
 - Test accounts: admin@query.in, mod@query.in, intern1@query.in, intern2@query.in
+- Max unresolved queries per intern: 5
+- LLM max output tokens: 2000
+- LLM timeout: 60 seconds
 
 ---
 

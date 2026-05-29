@@ -14,6 +14,17 @@
 
 const Query = require('../models/Query');
 const NoFaq = require('../models/NoFaq');
+const Response = require('../models/Response');
+
+const MAX_UNRESOLVED_QUERIES = 5;
+
+const similarityCheck = (str1, str2) => {
+  const s1 = str1.toLowerCase().split(' ').filter(Boolean);
+  const s2 = str2.toLowerCase().split(' ').filter(Boolean);
+  const common = s1.filter(word => s2.includes(word));
+  const avgLength = (s1.length + s2.length) / 2;
+  return avgLength > 0 ? common.length / avgLength : 0;
+};
 
 /**
  * Submits a new query to the peer escalation queue.
@@ -33,6 +44,33 @@ const submitQuery = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'intern_id and query_text are required',
+      });
+    }
+
+    const activeQueriesCount = await Query.countDocuments({
+      intern_id,
+      status: { $nin: ['Resolved', 'Ambiguous'] },
+    });
+
+    if (activeQueriesCount >= MAX_UNRESOLVED_QUERIES) {
+      return res.status(429).json({
+        success: false,
+        error: `Escalation blocked: You already have ${MAX_UNRESOLVED_QUERIES} unresolved queries. Please wait for responses before submitting more.`,
+        code: 'QUERY_CAP_REACHED',
+      });
+    }
+
+    const similarQuery = await Query.findOne({
+      query_text: { $regex: new RegExp(query_text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') },
+      status: 'Pending',
+    });
+
+    if (similarQuery) {
+      return res.status(429).json({
+        success: false,
+        error: 'A similar query is already in the peer queue. Please wait for that to be resolved.',
+        code: 'SIMILAR_QUERY_EXISTS',
+        similar_query_id: similarQuery._id,
       });
     }
 

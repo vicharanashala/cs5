@@ -11,6 +11,27 @@
 
 ---
 
+### Prompt 29: LLM Improvements & Groq Integration
+**Prompt:** Add Groq API as Gemini fallback, implement multi-model switching, increase max tokens to 2000, add image error logging, enforce plain text LLM responses
+
+**Response:**
+Updated grokService.js (LLM service):
+- Added Groq API integration with API key REDACTED_GROQ_KEY
+- Gemini model order: 3.5-flash -> 3.1-pro -> 3.1-flash-lite -> 2.5-flash -> 2.5-pro
+- Groq model order: llama-3.3-70b -> llama-3.1-8b -> llama-4-scout -> qwen3-32b -> gpt-oss-120b -> gpt-oss-20b
+- MAX_OUTPUT_TOKENS increased from 800 to 2000
+- Timeout increased from 30s to 60s
+- Enhanced logging: logs model name, response length, image error "Cannot read image.png (this model does not support image input)"
+- Timeout handling: auto-switch to next model on timeout
+- LLM response rules: no emojis, no formatting (#, *, bold, italics), plain text only, concise answers
+
+Updated askAIController.js and queryController.js:
+- Added active query cap check (max 5 unresolved per intern)
+- Added spam prevention (similar query regex check)
+- Added analytics tracking with ResolutionType enum
+
+---
+
 ### Prompt 28: Phase 11 - Documentation Engine
 **Prompt:** Execute Milestone 11: Documentation Engine
 
@@ -20,12 +41,12 @@ Created comprehensive documentation suite:
 - **docs/FEATURES.md:** Flagship feature highlights (Gemini pipeline, 5-answer lock, 3-strike rule, FAQ suggestion engine), full feature list, role permission matrix
 - **docs/setup_guide.md:** Step-by-step installation, environment configuration, project structure, troubleshooting, production deployment
 - **docs/architecture.md:** System architecture diagrams, React + Vite structure, Express routing, Socket.IO integration, RBAC middleware, query state machine
-- **docs/api_docs.md:** Complete REST API reference with request/response formats for all endpoints (Auth, FAQs, Queries, Ask AI, Peer, Ratings, Admin, Analytics, Announcements)
+- **docs/api_docs.md:** Complete REST API reference with request/response formats for all endpoints
 - **docs/database_schema.md:** MongoDB schema reference with ObjectId relationships, validation rules, lifecycle diagrams
 
 All documents use professional formatting with code blocks, tables, and diagrams.
 
-**Commit:** `tbd` - "docs: implement master README, feature breakdown, and comprehensive technical documentation"
+**Commit:** `78eb4a4` - "docs: implement master README, feature breakdown, and comprehensive technical documentation"
 
 ---
 
@@ -250,6 +271,9 @@ query.in/
 
 | Commit | Description |
 |--------|-------------|
+| `e191db8` | feat: add Groq API fallback, multi-model switching, 2000 tokens, analytics tracking, plain text LLM responses |
+| `78eb4a4` | docs: implement master README, feature breakdown, and comprehensive technical documentation |
+| `3b1d3d7` | docs: update prompt.md with Phase 9 Socket.IO realtime notifications |
 | `e307d71` | feat: Phase 9 - Socket.IO realtime notifications |
 | `4afcf4a` | feat: implement AI FAQ suggestion engine with 10-occurrence threshold... |
 | `169d831` | feat: implement peer escalation workflow engine with 3-strike rules... |
@@ -275,3 +299,5 @@ query.in/
 1. ✅ Build AI FAQ Suggestion Engine (Phase 8 - Complete)
 2. ✅ Implement Realtime Notifications & Queue System (Phase 9 - Complete)
 3. ✅ Documentation Engine (Phase 11 - Complete)
+4. ✅ LLM Improvements & Groq Integration (Complete)
+5. Automated Testing Suite (Phase 10 - Pending)
