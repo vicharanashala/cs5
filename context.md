@@ -3,101 +3,159 @@
 ## Project Overview
 - **Name:** Query.in
 - **Type:** MERN Stack Crowd-sourced FAQ & P2P Query Resolution Platform
-- **Stack:** MongoDB, Express.js, React (Vite), Node.js, Tailwind CSS, Socket.IO, Gemini LLM API
+- **Stack:** MongoDB, Express.js, React (Vite), Node.js, Tailwind CSS, Socket.IO, Gemini + Groq LLM APIs
 
 ---
 
 ## Current Phase
-**Phase 11: Documentation Engine (Complete)**
+**Phase 12: Notification System & Workflow Documentation**
 
 ### Status: ✅ Complete
-- Git repository initialized
-- Folder structure created (frontend/, backend/)
-- context.md created
-- Backend initialized (Node.js, Express, Mongoose, dependencies)
-- Frontend initialized (Vite React, Tailwind CSS, B&W theme configured)
-- Foundational components created (Card.jsx, Button.jsx)
-- server.js and config/db.js written with detailed comments
-- Environment configuration (.env, .env.example) established
-- 6 Mongoose schemas created (User, Query, Response, FAQ, NoFaq, Announcement)
-- FAQ routes and controller implemented
-- Query routes and controller implemented
-- Auth controller implemented with JWT and bcrypt
-- RBAC middleware implemented
-- Auth routes mounted at /api/auth
-- testCredentials.md created with 4 test accounts
-- AuthContext created (JWT state management, localStorage persistence)
-- ProtectedRoute wrapper component
-- Axios interceptor utility configured
-- Badge, FormattedAnswer, DashboardLayout components
-- Landing page with embedded login
-- Role-based dashboards (Admin, Moderator, Intern)
-- publicApi.js created for public routes
-- Public FAQs page with accordion grouping
-- Smooth rounded corners applied
-- AskAI routes and controller (autoComplete, askAI endpoints)
-- Gemini LLM service (sanity check, context synthesis with temperature 0.1)
-- RAG database search (keyword matching on search_text, tags, keywords)
-- LLM fallback pipeline with upvote/downvote flow
-- **Peer Controller** - getPeerQueue, submitAnswer, skipQuery, markAmbiguous
-- **Rating Controller** - rateResponse, getResponseRatings with high/low rating lock
-- **Admin Controller** - getEscalatedQueries, approvePeerResponse, overrideWithAdminResponse
-- **Announcement Controller** - getAllAnnouncements, createAnnouncement
-- **Analytics Controller** - trackNoFaqQuery, getFaqSuggestions, getAllNoFaqQueries, getNoFaqStats
-- **Intern Pages:** PeerQueue, MyEscalations, ViewFAQs, Announcements
-- **Admin Dashboard (Complete 7-Card Layout):**
-  - Card 1: User Registration (Single + Bulk JSON Upload with confirmation modal)
-  - Card 2: Broadcast Announcement (heading + content to Announcements collection)
-  - Card 3: User Management Directory (filterable/sortable user table)
-  - Card 4: Master Query Monitor (thread drawer with approve/override actions)
-  - Card 5: FAQ Knowledge Base Editor (CRUD with edit/delete per row)
-  - Card 6: Resolve Query Hub (5-section queue: Master/Unanswered/Low-Rated/High-Rated/Archive)
-  - Card 7: AI-Assisted FAQ Suggestions (yellow alert when unread, dismiss action)
-- **Socket.IO** integration in peerController and adminController (new_peer_answer, query_resolved events)
-- **Notification System** - Hybrid real-time + persistence model:
-  - Notification Model: recipient_id, type, title, message, link_id, link_type, is_read, created_by
-  - NotificationController: createNotification, getNotifications, markAsRead, markAllAsRead, deleteNotification, getUnreadCount
-  - NotificationBell component with unread count badge and dropdown list
-  - Toast component for slide-in pop-up notifications
-  - Yellow alert for admin when NoFaq hits 10 occurrences (real-time socket event)
-  - Announcement broadcast to all interns with notification persistence
-- **Groq API** integration as LLM fallback (llama-3.3-70b, llama-3.1-8b, llama-4-scout, qwen3-32b, gpt-oss)
-- **Multi-model fallback** - Gemini (3.5-flash -> 3.1-pro -> 3.1-flash-lite -> 2.5-flash -> 2.5-pro), Groq (llama-3.3-70b -> llama-3.1-8b -> llama-4-scout -> qwen3-32b -> gpt-oss)
-- **Active query cap** - Max 5 unresolved queries per intern, prevents spam escalation
-- **Spam prevention** - Similar query detection regex check before peer escalation
-- **Analytics tracking** - ResolutionType enum (AUTO_COMPLETE, RAG_RESOLVED, LLM_RESOLVED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED)
-- **LLM response rules** - No emojis, no formatting (#, *, bold, italics), plain text only, concise answers
-- **Enhanced logging** - LLM call logs with model name, response length, image error format "Cannot read image.png (this model does not support image input)"
-- **MAX_OUTPUT_TOKENS** - Increased from 800 to 2000 for complete LLM responses
-- **Timeout handling** - 60s timeout with automatic model switching on failure
-- **Backend API updates:**
-  - `/api/auth/bulk-register` - Bulk user registration (admin only)
-  - `/api/auth/users` - Get all users (admin only)
-  - `/api/faqs/:id` - Update FAQ (admin only)
-  - `/api/faqs/:id` - Delete FAQ (admin only)
+- Complete notification system with hybrid real-time + MongoDB persistence
+- Notification Model, Controller, Routes, and Frontend components
+- Toast pop-ups, NotificationBell with unread badge, Yellow alert for admins
+- Comprehensive query workflow documented
 
-### Resolved Issues
-1. Fixed: Explore FAQs button redirected to login instead of FAQ page
-2. Fixed: Auth interceptor redirected to login on 401 for public routes
-3. Fixed: FAQs page now shows all 125 FAQs in accordion format
-4. Fixed: Cards and buttons now have smooth rounded corners
-5. Fixed: Login redirect loop - ProtectedRoute checks localStorage directly
-6. Fixed: Auto-complete dropdown not closing on Enter key
-7. Fixed: RAG downvote now triggers LLM before escalation
-8. Fixed: Auto-complete uses consistent RAG matching
-9. Fixed: LLM service updated from Grok to Gemini
-10. Fixed: Gemini API v1 404 error - uses v1 REST API
-11. Fixed: Mongoose deprecated `new: true` → `returnDocument: 'after'`
-12. Fixed: Frontend handles pending_feedback after rag_downvote
-13. Fixed: Backend missing ratingRoutes.js and adminRoutes.js files
-14. Fixed: Backend missing analytics controller and routes for no_faq tracking
+---
 
-### Next Actions
-- All phases complete. Project ready for production.
+## Query Lifecycle & Workflow
+
+### Complete Query Resolution Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           QUERY LIFECYCLE                                    │
+│                        Intern submits query                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  STEP 0: AUTO-COMPLETE (as user types)
+  │
+  ├─ User types in AskAI input
+  ├─ debounce 300ms → GET /api/ask/autocomplete?q=...
+  ├─ RAG keyword search on FAQ keywords, tags, search_text
+  ├─ Returns up to 5 matching FAQs
+  └─ User can select autocomplete → instant resolution (source: 'autocomplete')
+
+  STEP 1: RAG SEARCH (on submit)
+  │
+  ├─ User submits full question → POST /api/ask
+  ├─ RAG keyword matching (search_text, tags, keywords)
+  ├─ Match confidence > 50%?
+  │   ├─ YES → Return FAQ answer for upvote/downvote
+  │   │       ├─ UPVOTE → Resolution logged (RAG_RESOLVED), query ends
+  │   │       └─ DOWNVOTE → Go to STEP 2 (LLM Fallback)
+  │   │
+  │   └─ NO → Go to STEP 2 (LLM Fallback)
+
+  STEP 2: LLM FALLBACK (Gemini → Groq)
+  │
+  ├─ Gemini 3.5-flash → synthesize context from matching FAQs
+  ├─ If fails → try next model (3.1-pro, 3.1-flash-lite, 2.5-flash, 2.5-pro)
+  ├─ All Gemini models fail → try Groq (llama-3.3-70b → llama-3.1-8b → ...)
+  ├─ LLM returns answer → user sees answer with upvote/downvote buttons
+  │   ├─ UPVOTE → Resolution logged (LLM_RESOLVED), query ends
+  │   └─ DOWNVOTE → Go to STEP 3 (Peer Escalation)
+
+  STEP 3: PEER ESCALATION (if LLM fails or downvoted)
+  │
+  ├─ Check active query cap (max 5 unresolved per intern)
+  ├─ Check for similar query spam
+  ├─ Create Query document (status: 'Pending')
+  ├─ Track in NoFaq collection (for FAQ suggestions)
+  └─ Query enters Peer Queue
+
+  STEP 4: PEER ANSWERS (max 5 peers)
+  │
+  ├─ Other interns see query in Peer Queue
+  ├─ Intern submits answer → POST /api/peer/answer
+  ├─ Query status changes: 'Pending' → 'Peer Answered'
+  ├─ Notification sent to query author (peer_answer)
+  └─ Query author rates the response (1-5 stars)
+
+  STEP 5: RATING & LOCKING
+  │
+  ├─ 4-5 stars (HIGH) → Query immediately locked
+  │   └─ Escalates to Admin "Highly-Rated Queue"
+  │
+  ├─ 1-3 stars (LOW) + 5 responses filled → Query locked
+  │   └─ Escalates to Admin "Low-Rated Queue"
+  │
+  └─ Ambiguous: 3 different peers mark query as ambiguous
+      └─ Query status → 'Ambiguous', escalates to Admin
+
+  STEP 6: ADMIN RESOLUTION
+  │
+  ├─ Admin views escalated queries
+  ├─ Options:
+  │   ├─ APPROVE PEER RESPONSE → Query resolved (peer_approved)
+  │   └─ ADMIN OVERRIDE → Query resolved (admin_override)
+  └─ Notification sent to intern (query_resolved)
+
+  STEP 7: RESOLVED (Terminal State)
+  │
+  └─ Query marked as 'Resolved', is_locked: true
+```
+
+---
+
+### State Machine Transitions
+
+```
+                    ┌─────────────┐
+                    │   PENDING   │ ← Initial state after LLM downvote
+                    └──────┬──────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+              ▼            ▼            ▼
+       ┌───────────┐ ┌───────────┐ ┌───────────┐
+       │  3-STRIKE  │ │  PEER     │ │  TIMEOUT  │
+       │  AMBIGUOUS │ │  ANSWERED  │ │  ESCALATE │
+       └─────┬─────┘ └─────┬─────┘ └─────┬─────┘
+             │            │            │
+             ▼            ▼            ▼
+      ┌──────────┐  ┌─────────────┐ ┌──────────┐
+      │ AMBIGUOUS │  │LOCK or RATE │ │ AUTO     │
+      │ (terminal)│  └──────┬──────┘ │ ESCALATE │
+      └──────────┘         │         └──────────┘
+                           │
+              ┌───────────┴───────────┐
+              │                       │
+              ▼                       ▼
+      ┌───────────────┐     ┌───────────────┐
+      │ is_locked=true │     │  5 responses  │
+      │ (HIGH RATED)   │     │  all < 4 stars│
+      └───────┬───────┘     └───────┬───────┘
+              │                     │
+              ▼                     ▼
+      ┌─────────────────────────────┐
+      │     ADMIN RESOLUTION       │
+      │  (approve or override)      │
+      └─────────────┬───────────────┘
+                    │
+                    ▼
+              ┌──────────┐
+              │ RESOLVED │ ← Terminal state
+              └──────────┘
+```
+
+---
+
+### Resolution Types (Analytics Tracking)
+
+| Type | Trigger | Description |
+|------|---------|-------------|
+| `AUTO_COMPLETE` | User selects autocomplete suggestion | Instant resolution via FAQ |
+| `RAG_RESOLVED` | User upvotes RAG answer | FAQ match accepted |
+| `LLM_RESOLVED` | User upvotes LLM answer | AI answered successfully |
+| `ESCALATED` | User downvotes LLM or LLM fails | Sent to peer queue |
+| `SPAM_BLOCKED` | Similar query in pending state | Spam prevention |
+| `CAP_BLOCKED` | Intern has 5 active queries | Query cap reached |
 
 ---
 
 ## Milestones
+
 1. ✅ Project Architecture & Planning
 2. ✅ MERN Stack Setup & Foundation
 3. ✅ Database & Backend APIs
@@ -107,21 +165,108 @@
 7. ✅ Peer Escalation Workflow Engine
 8. ✅ AI FAQ Suggestion Engine
 9. ✅ Realtime Notifications & Queue System
-10. ⬜ Automated Testing Suite
-11. ✅ Documentation Engine (current)
+10. ⬜ Automated Testing Suite (Pending)
+11. ✅ Documentation Engine
+12. ✅ Notification System (Current)
 
 ---
 
-## Issues & Notes
-- MongoDB Atlas URI: mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation
-- Gemini API Key: AIzaSyAJH1lbg29Egb4CifLCVVSaPjxz2mZ-lIM
-- Groq API Key: REDACTED_GROQ_KEY
-- Gemini Models: gemini-3.5-flash, gemini-3.1-pro-preview, gemini-3.1-flash-lite, gemini-2.5-flash, gemini-2.5-pro
-- Groq Models: llama-3.3-70b-versatile, llama-3.1-8b-instant, llama-4-scout-17b, qwen3-32b, gpt-oss-120b, gpt-oss-20b
-- Test accounts: admin@query.in, mod@query.in, intern1@query.in, intern2@query.in
-- Max unresolved queries per intern: 5
-- LLM max output tokens: 2000
-- LLM timeout: 60 seconds
+## All Resolved Issues
+
+| # | Issue | Root Cause | Fix |
+|---|-------|------------|-----|
+| 1 | MongoDB connection failed | Deprecated mongoose options | Removed useNewUrlParser/useUnifiedTopology |
+| 2 | Explore FAQs redirected to login | No /faqs route | Created public /faqs page |
+| 3 | FAQs page blank data | Axios interceptor on public route | Created publicApi.js |
+| 4 | FAQs not grouped | Flat list layout | Accordion with categories |
+| 5 | Sharp card edges | rounded-sm | Changed to rounded-lg |
+| 6 | Login redirect loop | ProtectedRoute race condition | localStorage check + delay |
+| 7 | Auto-complete only searched keywords | Inconsistent RAG matching | Search search_text, tags, clean_question |
+| 8 | Auto-complete not closing on Enter | Missing keyDown handler | Added handleKeyDown |
+| 9 | RAG downvote escalated directly | Logic flaw | rag_downvote triggers LLM first |
+| 10 | Grok API 403 errors | No credits | Switched to Groq then Gemini |
+| 11 | Gemini 404 error | v1beta API | Switched to v1 REST API |
+| 12 | Mongoose new: true deprecation | Deprecated option | Changed to returnDocument: 'after' |
+| 13 | Backend crash | Missing ratingRoutes/adminRoutes | Created missing files |
+| 14 | no_faq tracking broken | No analytics controller | Created analyticsController.js with trackNoFaqQuery |
+| 15 | Frontend api.js import error | Named export instead of default | Changed `import { api }` to `import api` |
+| 16 | VITE_API_URL undefined crash | env variable not set | Added fallback default `http://localhost:5000` |
+
+---
+
+## Key Features
+
+### LLM Pipeline
+- **Gemini Models (in order):** 3.5-flash → 3.1-pro → 3.1-flash-lite → 2.5-flash → 2.5-pro
+- **Groq Models (fallback, in order):** llama-3.3-70b → llama-3.1-8b → llama-4-scout → qwen3-32b → gpt-oss-120b → gpt-oss-20b
+- **Max Output Tokens:** 2000
+- **Temperature:** 0.1 (focused, deterministic)
+- **Timeout:** 60 seconds
+- **Response Rules:** No emojis, no formatting (#, *, bold, italics), plain text only
+
+### Query Protection
+- **Active Query Cap:** Max 5 unresolved queries per intern
+- **Spam Prevention:** Similar query detection via regex before peer escalation
+- **5-Answer Lock:** Max 5 peer responses per query
+
+### Notification System
+- **Hybrid Model:** Socket.IO for real-time + MongoDB for persistence
+- **Types:** peer_answer, query_resolved, admin_alert, announcement
+- **Components:** NotificationBell, Toast, NotificationContext
+- **Yellow Alert:** Admin notified when NoFaq hits 10 occurrences
+
+---
+
+## Project Structure
+
+```
+query.in/
+├── backend/
+│   ├── config/
+│   │   ├── db.js              # MongoDB connection
+│   │   └── socket.js          # Socket.IO configuration
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── faqController.js
+│   │   ├── queryController.js
+│   │   ├── askAIController.js
+│   │   ├── peerController.js
+│   │   ├── ratingController.js
+│   │   ├── adminController.js
+│   │   ├── announcementController.js
+│   │   ├── analyticsController.js
+│   │   └── notificationController.js
+│   ├── middleware/
+│   │   └── authMiddleware.js  # protect, authorizeRoles
+│   ├── models/
+│   │   ├── User.js, Query.js, Response.js
+│   │   ├── FAQ.js, NoFaq.js, Announcement.js, Notification.js
+│   ├── routes/
+│   ├── services/
+│   │   └── grokService.js     # LLM service (Gemini + Groq)
+│   ├── jobs/
+│   │   └── sweeper.js         # 24-hour cron job
+│   ├── server.js
+│   └── .env
+├── frontend/
+│   ├── src/
+│   │   ├── components/        # UI components
+│   │   ├── context/           # AuthContext, NotificationContext
+│   │   ├── pages/            # Role-based pages
+│   │   ├── utils/            # api.js, publicApi.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── .env
+├── docs/
+│   ├── FEATURES.md
+│   ├── setup_guide.md
+│   ├── architecture.md
+│   ├── api_docs.md
+│   └── database_schema.md
+├── context.md
+├── prompt.md
+└── README.md
+```
 
 ---
 
@@ -131,7 +276,7 @@
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login
 - `GET /api/auth/me` - Get current user
-- `POST /api/auth/bulk-register` - Bulk register users (admin)
+- `POST /api/auth/bulk-register` - Bulk register (admin)
 - `GET /api/auth/users` - Get all users (admin)
 
 ### FAQs
@@ -147,39 +292,39 @@
 
 ### Ask AI
 - `GET /api/ask/autocomplete` - Auto-complete suggestions
-- `POST /api/ask` - Full AI pipeline
+- `POST /api/ask` - Full AI pipeline (RAG → LLM → Escalation)
 
 ### Peer (Intern)
-- `GET /api/peer/queue` - Get pending queries for peer answering
-- `GET /api/peer/my-escalations` - Get my submitted queries
-- `POST /api/peer/answer` - Submit peer answer
+- `GET /api/peer/queue` - Get pending queries
+- `GET /api/peer/my-escalations` - Get my queries
+- `POST /api/peer/answer` - Submit answer
 - `POST /api/peer/skip` - Skip query
-- `POST /api/peer/ambiguous` - Mark query as ambiguous (3-strike rule)
+- `POST /api/peer/ambiguous` - Mark ambiguous (3-strike rule)
 
 ### Ratings
-- `POST /api/ratings/:id` - Rate a peer response (1-5 stars)
+- `POST /api/ratings/:id` - Rate response (1-5 stars)
 
 ### Admin
 - `GET /api/admin/escalated` - Get escalated queries
 - `GET /api/admin/query/:id` - Get query details
 - `POST /api/admin/approve` - Approve peer response
-- `POST /api/admin/override` - Admin override answer
+- `POST /api/admin/override` - Admin override
 
-### Analytics (AI FAQ Suggestion Engine)
-- `GET /api/analytics/faq-suggestions` - Get suggestions (>= 10 occurrences)
+### Analytics
+- `GET /api/analytics/faq-suggestions` - Get suggestions (>= 10 hits)
 - `GET /api/analytics/no-faq` - Get all no_faq records
 - `GET /api/analytics/stats` - Get analytics summary
-- `DELETE /api/analytics/suggestions/:id` - Dismiss a suggestion
+- `DELETE /api/analytics/suggestions/:id` - Dismiss suggestion
 - `POST /api/analytics/create-faq` - Create FAQ from suggestion
 
 ### Announcements
-- `GET /api/announcements` - Get all announcements
+- `GET /api/announcements` - Get announcements
 - `POST /api/announcements` - Create announcement (admin)
 
 ### Notifications
-- `GET /api/notifications` - Get user notifications (paginated)
+- `GET /api/notifications` - Get notifications (paginated)
 - `GET /api/notifications/unread-count` - Get unread count
-- `PATCH /api/notifications/:id/read` - Mark notification as read
+- `PATCH /api/notifications/:id/read` - Mark as read
 - `PATCH /api/notifications/read-all` - Mark all as read
 - `DELETE /api/notifications/:id` - Delete notification
 
@@ -187,68 +332,70 @@
 
 ## Admin Dashboard (7-Card Layout)
 
-### Card 1: User Registration
-- Single User Form: Email, Password, Role selection
-- Bulk JSON Upload: Drag & drop, role assignment, confirmation modal
-
-### Card 2: Broadcast Announcement
-- Publish global announcements with heading and content
-- Creates document in Announcements collection
-
-### Card 3: User Management Directory
-- Sortable/filterable table of all users
-- Role filter: All, Interns, Moderators, Admins
-- Date filter: Newest/Oldest first
-- Email search functionality
-
-### Card 4: Master Query Monitor
-- Filter by status: All, Pending, Peer Answered, Ambiguous, Resolved
-- Sort by date: Ascending/Descending
-- Click to open Thread Drawer with:
-  - Core question display
-  - Peer response carousel (max 5)
-  - Star ratings per response
-  - Approve/Override actions
-
-### Card 5: FAQ Knowledge Base Editor
-- Full CRUD operations on FAQ collection
-- Input fields: clean_question, answer, category, tags, keywords, intent, priority, escalate_if_uncertain
-- Active index list with Edit/Delete actions
-- Creates auto-announcement on FAQ update
-
-### Card 6: Resolve Query Hub
-- 5-section queue architecture:
-  - Master Queue (FIFO chronological)
-  - Unanswered Queue (0 responses, 24h stale)
-  - Low-Rated Peer Response Queue (1-5 answers, all rated <= 3 stars)
-  - Highly-Rated Peer Approval Queue (4-5 star responses)
-  - Historical Resolution Archive
-- Query detail panel with approve/override actions
-
-### Card 7: AI-Assisted FAQ Suggestions
-- Yellow alert state when unread suggestions exist (occurrenceCount >= 10)
-- Displays: query pattern, hit count, impacted intern count, timestamps
-- Actions: Dismiss, Add to FAQs (pre-populates Card 5 form)
+| Card | Feature |
+|------|---------|
+| 1 | User Registration (Single + Bulk JSON Upload) |
+| 2 | Broadcast Announcement |
+| 3 | User Management Directory |
+| 4 | Master Query Monitor |
+| 5 | FAQ Knowledge Base Editor |
+| 6 | Resolve Query Hub (5-section queue) |
+| 7 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---
 
 ## Moderator Dashboard (3-Card Layout)
 
-### Card 1: Announcements
-- View-only announcements (moderators cannot create)
-- Yellow alert state when new announcements exist (< 24 hours old)
-- State returns to normal upon opening the card
-- Badge shows "NEW" with pulsing animation
+| Card | Feature |
+|------|---------|
+| 1 | Announcements (View-only, yellow alert < 24hrs) |
+| 2 | Master Query Monitor |
+| 3 | Resolve Query Hub |
 
-### Card 2: Master Query Monitor
-- Inherits full functionality from Admin Card 4
-- Filter by status: All, Pending, Peer Answered, Ambiguous, Resolved
-- Sort by date: Ascending/Descending
-- Thread drawer with approve/override actions
-- Moderator override labeled as "Moderator Intervention"
+---
 
-### Card 3: Resolve Query Hub
-- Inherits full functionality from Admin Card 6
-- 5-section queue: Master, Unanswered, Low-Rated, Highly-Rated, Archive
-- Moderator can approve high-rated responses
-- Moderator can submit official responses to override
+## Intern Dashboard Pages
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| Dashboard | /intern | Overview |
+| Ask AI | /intern/ask | Submit queries |
+| Peer Queue | /intern/peer-queue | Answer others' queries |
+| My Escalations | /intern/my-queries | Track my queries, rate responses |
+| View FAQs | /intern/faqs | Browse knowledge base |
+| Announcements | /intern/announcements | View admin broadcasts |
+
+---
+
+## Configuration
+
+| Setting | Value |
+|---------|-------|
+| MongoDB Atlas URI | mongodb+srv://admin:myPassword123@faq.jlohvqi.mongodb.net/faq_escalation |
+| Max Output Tokens | 2000 |
+| LLM Timeout | 60 seconds |
+| Max Unresolved Queries per Intern | 5 |
+| Max Peer Responses per Query | 5 |
+| Ambiguous Strike Threshold | 3 |
+| FAQ Suggestion Threshold | 10 occurrences |
+| Auto-complete Debounce | 300ms |
+| Toast Auto-dismiss | 5 seconds |
+
+---
+
+## Test Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@query.in | Admin@123 |
+| Moderator | mod@query.in | Mod@123 |
+| Intern 1 | intern1@query.in | Intern1@123 |
+| Intern 2 | intern2@query.in | Intern2@123 |
+
+---
+
+## Next Actions
+
+1. Automated Testing Suite (Phase 10)
+2. Production deployment optimization
+3. Performance tuning for large FAQ collections

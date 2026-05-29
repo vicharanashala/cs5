@@ -301,11 +301,49 @@ query.in/
 3. ✅ Documentation Engine (Phase 11 - Complete)
 4. ✅ LLM Improvements & Groq Integration (Complete)
 5. ✅ Admin Dashboard 7-Card Layout (Complete)
-6. Automated Testing Suite (Phase 10 - Pending)
+6. ✅ Notification System (Phase 12 - Complete)
+7. Automated Testing Suite (Phase 10 - Pending)
 
 ---
 
 ## Recent Changes
+
+### Prompt 33: Workflow Documentation & Issue Updates
+**Prompt:** Document the complete query workflow, update all doc files (context.md, prompt.md, README.md, docs/), and list all resolved issues.
+
+**Response:**
+Updated context.md with:
+- Complete Query Lifecycle flowchart (Steps 0-7)
+- State Machine Transitions diagram
+- Resolution Types table (AUTO_COMPLETE, RAG_RESOLVED, LLM_RESOLVED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED)
+- All 16 resolved issues documented with root cause and fix
+- Notification System integration details
+- Updated milestone progress (Phase 12 complete)
+
+All issues from #1 to #16 documented:
+| # | Issue | Fix |
+|---|-------|-----|
+| 1 | MongoDB connection failed | Removed useNewUrlParser/useUnifiedTopology |
+| 2 | Explore FAQs redirected to login | Created public /faqs page |
+| 3 | FAQs page blank data | Created publicApi.js |
+| 4 | Sharp card edges | Changed to rounded-lg |
+| 5 | Login redirect loop | localStorage check + delay |
+| 6 | Auto-complete not closing on Enter | Added handleKeyDown |
+| 7 | RAG downvote escalated directly | rag_downvote triggers LLM first |
+| 8 | Grok API 403 errors | Switched to Groq then Gemini |
+| 9 | Gemini 404 error | Uses v1 REST API |
+| 10 | Mongoose new: true deprecation | Changed to returnDocument: 'after' |
+| 11 | Missing ratingRoutes/adminRoutes | Created missing files |
+| 12 | no_faq tracking broken | Created analyticsController.js |
+| 13 | Frontend api.js import error | Changed import { api } to import api |
+| 14 | VITE_API_URL undefined crash | Added fallback default |
+| 15 | Auto-complete only searched keywords | Search search_text, tags, clean_question |
+| 16 | RAG downvote logic flaw | rag_downvote triggers LLM first |
+
+Updated docs/database_schema.md with:
+- Notification collection schema
+- All indexes documented
+- Notification types table
 
 ### Prompt 32: Notification System Implementation
 **Prompt:** Create a complete notification system for Query.in with:

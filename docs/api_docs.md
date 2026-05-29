@@ -799,6 +799,113 @@ Create announcement (admin only).
 
 ---
 
+## Notifications
+
+### GET /notifications
+
+Get notifications for the current user (paginated).
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Query Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| `page` | number | Page number (default: 1) |
+| `limit` | number | Items per page (default: 20) |
+| `unread_only` | boolean | Filter to unread only |
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "64abc123...",
+      "type": "peer_answer",
+      "title": "New Peer Answer",
+      "message": "intern2@query.in answered your query...",
+      "link_id": "64xyz789...",
+      "link_type": "query",
+      "is_read": false,
+      "createdAt": "2026-05-29T..."
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "pages": 3
+  },
+  "unread_count": 5
+}
+```
+
+---
+
+### GET /notifications/unread-count
+
+Get the count of unread notifications.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "unread_count": 5
+}
+```
+
+---
+
+### PATCH /notifications/:id/read
+
+Mark a single notification as read.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Notification marked as read"
+}
+```
+
+---
+
+### PATCH /notifications/read-all
+
+Mark all notifications as read.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "All notifications marked as read"
+}
+```
+
+---
+
+### DELETE /notifications/:id
+
+Delete a notification.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Notification deleted"
+}
+```
+
+---
+
 ## Error Responses
 
 All error responses follow this format:

@@ -182,6 +182,29 @@ All query resolutions are tracked with ResolutionType:
 
 ---
 
+## Notification System
+
+Hybrid real-time + MongoDB persistence model for instant and offline alerts.
+
+| Type | Trigger | Recipient |
+|------|---------|-----------|
+| `peer_answer` | Peer submits answer | Query author (intern) |
+| `query_resolved` | Admin/moderator resolves query | Query author (intern) |
+| `admin_alert` | NoFaq hits 10 occurrences | All admins |
+| `announcement` | Admin creates broadcast | All interns |
+
+**Components:**
+- `NotificationBell` - Top bar bell icon with unread badge and dropdown
+- `Toast` - Slide-in pop-up from bottom-right (auto-dismiss 5s)
+- `NotificationContext` - Socket.IO client + state management
+
+**Real-time Events:**
+- `new_notification` - Broadcast to user room
+- `yellow_alert` - Broadcast to admin room when NoFaq hits threshold
+- `query_resolved` - Intern notified when their query is resolved
+
+---
+
 ## License
 
 Internal project - All rights reserved.

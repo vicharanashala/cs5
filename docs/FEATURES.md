@@ -135,7 +135,11 @@ Queries that fail both RAG and LLM resolution are tracked in `no_faq` collection
 - **User Rooms** - `user:{userId}` room per user
 - **Admin Rooms** - `room:admins` for broadcasts
 - **Query Rooms** - `query:{queryId}` for updates
-- **Events** - `new_peer_answer`, `query_resolved`
+- **Events** - `new_notification`, `yellow_alert`, `query_resolved`
+- **Notification Model** - MongoDB persistence for offline alerts
+- **NotificationBell** - Bell icon with unread count badge and dropdown
+- **Toast** - Slide-in pop-up with 5-second auto-dismiss
+- **Yellow Alert** - Admin notification when NoFaq hits 10 occurrences
 
 ### Analytics Tracking
 - **ResolutionType Enum** - AUTO_COMPLETE, RAG_RESOLVED, LLM_RESOLVED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED
