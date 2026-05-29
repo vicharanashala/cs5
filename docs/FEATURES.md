@@ -85,17 +85,16 @@ Background cron job runs every 15 minutes to enforce SLA timeouts:
 
 ---
 
-### 5. 6-Section Admin Resolution Hub
+### 5-Section Admin/Moderator Resolve Hub
 
-Admin dashboard presents a multi-section queue for query resolution:
+Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 
 | Section | Condition |
 |---------|-----------|
-| Master Queue | All non-resolved queries |
-| Stagnant (0 answers) | is_locked + 0 responses |
+| Pending Resolution | High-rated queries (rating >= 4) OR Ambiguous queries (3-strike rule) |
+| Stagnant (0 answers) | is_locked + 0 responses (sweeper-triggered) |
 | Unanswered | status != 'Resolved', 0 responses |
 | Low-Rated | 5 responses, all < 4 stars |
-| Highly-Rated | has response rating >= 4 |
 | Archive | status = 'Resolved' |
 
 ---
@@ -221,17 +220,13 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **User Management** - Sortable/filterable user table
 - **Query Monitor** - Status filter, date sort, thread drawer
 - **FAQ Editor** - Full CRUD on FAQ collection
-- **Highly Rated** - Queries with 4-5 star ratings (first priority)
-- **Ambiguous** - 3-strike rule queries
-- **Resolve Hub** - 6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive
+- **Resolve Hub** - 5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive
 - **AI Suggestions** - Yellow alert at 10-occurrence threshold
 
 ### Moderator Dashboard (Page-Based Layout)
 - **Dashboard Overview** - Navigation cards to all sections
 - **Query Monitor** - Status filter, thread drawer
-- **Highly Rated** - Queries with 4-5 star ratings (first priority)
-- **Ambiguous** - 3-strike rule queries
-- **Resolve Hub** - Remaining sections: Master, Unanswered, Low-Rated, Archive
+- **Resolve Hub** - 4-section queue: Pending Resolution, Unanswered, Low-Rated, Archive
 
 ### UI/UX Features
 - **Black & White Theme** - #FAFAFA background

@@ -129,18 +129,22 @@ const MyEscalations = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
+  const getStatusBadge = (query) => {
+    if (query.status === 'Resolved') {
+      if (query.resolution_type === 'peer_approved') {
+        return <Badge variant="verified">Approved</Badge>;
+      }
+      return <Badge variant="verified">Resolved</Badge>;
+    }
+    switch (query.status) {
       case 'Pending':
         return <Badge variant="outline">Pending</Badge>;
       case 'Peer Answered':
         return <Badge variant="filled">Peer Answered</Badge>;
       case 'Ambiguous':
         return <Badge variant="ambiguous">Ambiguous</Badge>;
-      case 'Resolved':
-        return <Badge variant="verified">Resolved</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{query.status}</Badge>;
     }
   };
 
@@ -170,7 +174,7 @@ const MyEscalations = () => {
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      {getStatusBadge(query.status)}
+                      {getStatusBadge(query)}
                       {query.is_locked && <Badge variant="outline">Locked</Badge>}
                     </div>
                     <p className="text-black font-medium">{query.query_text}</p>

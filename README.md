@@ -278,15 +278,14 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 ## 6-Section Admin Resolution Hub
 
-The Admin Dashboard presents 6 sections for managing escalated queries:
+The Admin Dashboard presents 5 sections for managing escalated queries:
 
 | Section | Condition |
 |---------|-----------|
-| Master Queue | All non-resolved queries |
+| Pending Resolution | High-rated queries (rating >= 4) OR Ambiguous (3-strike rule) |
 | Stagnant (0 answers) | is_locked: true, 0 responses (sweeper-triggered) |
 | Unanswered | status != 'Resolved', 0 responses |
 | Low-Rated | 5 responses, all rated < 4 stars |
-| Highly-Rated | Has response with rating >= 4 |
 | Archive | status = 'Resolved' |
 
 **FAQ Creation Bridge:** Admin can click "+ Add to FAQ Database" on any resolved query to create a permanent FAQ entry.

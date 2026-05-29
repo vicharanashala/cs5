@@ -547,3 +547,64 @@ Fixed two related bugs in `backend/controllers/peerController.js`:
 - `backend/controllers/peerController.js`
 
 **Commit:** `fix: resolve peer queue visibility and submit answer status check`
+
+### Prompt 40: Consolidate High Rated and Ambiguous into Resolve Hub
+**Prompt:** High-rated queries (4-5 stars) and ambiguous queries (3-strike) should be resolved through the Resolve Hub, not separate pages. Consolidate them into a "Pending Resolution" section in Resolve Hub.
+
+**Response:**
+Updated AdminResolveHub.jsx and ModeratorResolveHub.jsx:
+- Renamed "Master Queue" to "Pending Resolution"
+- Pending Resolution now filters: `is_locked: true AND (has rating >= 4 OR status === 'Ambiguous')`
+- Removed High Rated card from AdminOverview.jsx and ModeratorOverview.jsx
+- Added `window.location.reload()` after approve/override actions
+
+**Files modified:**
+- frontend/src/pages/admin/AdminResolveHub.jsx
+- frontend/src/pages/admin/AdminOverview.jsx
+- frontend/src/pages/moderator/ModeratorResolveHub.jsx
+- frontend/src/pages/moderator/ModeratorOverview.jsx
+
+### Prompt 41: MyEscalations Shows "Resolved" Instead of "Approved"
+**Prompt:** When admin approves a peer response, MyEscalations shows "Resolved" badge but should show "Approved" to distinguish peer_approved resolution from admin_override.
+
+**Response:**
+Updated getStatusBadge() in MyEscalations.jsx:
+```javascript
+if (query.resolution_type === 'peer_approved') {
+  return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Approved</span>;
+}
+```
+
+**Files modified:**
+- frontend/src/pages/intern/MyEscalations.jsx
+
+### Prompt 42: Update Documentation for Resolve Hub Changes
+**Prompt:** Update all documentation files (context.md, prompt.md, docs/, README.md) to reflect the new 5-section Resolve Hub structure with Pending Resolution section.
+
+**Response:**
+Updated:
+- docs/architecture.md - 5-section table
+- docs/FEATURES.md - Admin/Moderator dashboard layouts
+- docs/database_schema.md - Queue definitions
+- README.md - Admin Resolution Hub section
+- context.md - Admin Dashboard cards, pages, and resolved issues table
+- prompt.md - Added prompts 40-41
+
+**Commit:** `docs: update Resolve Hub structure documentation`
+
+### Prompt 43: Git Commit All Changes
+**Prompt:** Commit all changes made to admin/moderator resolve workflow and documentation.
+
+**Response:**
+Staged and committed all modified files:
+- frontend/src/pages/admin/AdminResolveHub.jsx
+- frontend/src/pages/admin/AdminOverview.jsx
+- frontend/src/pages/moderator/ModeratorResolveHub.jsx
+- frontend/src/pages/moderator/ModeratorOverview.jsx
+- frontend/src/pages/intern/MyEscalations.jsx
+- docs/architecture.md
+- docs/FEATURES.md
+- docs/database_schema.md
+- README.md
+- context.md
+- prompt.md

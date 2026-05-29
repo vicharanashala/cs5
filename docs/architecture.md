@@ -397,16 +397,15 @@ const MAX_PEER_RESPONSES = 5;
 
 ---
 
-## 6-Section Admin Resolution Hub
+## 5-Section Admin/Moderator Resolve Hub
 
 | Section | Filter Condition |
 |---------|------------------|
-| Master Queue | `status != 'Resolved'` |
-| Stagnant (0 answers) | `is_locked: true, responses.length: 0` |
-| Unanswered | `status != 'Resolved', responses.length: 0` |
-| Low-Rated | `responses.length >= 5, all ratings < 4` |
-| Highly-Rated | `responses has rating >= 4` |
-| Archive | `status == 'Resolved'` |
+| Pending Resolution | High-rated queries (responses with rating >= 4) OR Ambiguous queries (3-strike rule triggered) |
+| Stagnant (0 answers) | is_locked: true, responses.length: 0 |
+| Unanswered | status != 'Resolved', responses.length: 0 |
+| Low-Rated | responses.length >= 5, all ratings < 4 |
+| Archive | status == 'Resolved' |
 
 ---
 

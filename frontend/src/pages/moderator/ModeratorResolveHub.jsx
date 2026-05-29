@@ -24,7 +24,7 @@ const ModeratorResolveHub = () => {
   const [loading, setLoading] = useState(true);
 
   const sections = [
-    { id: 'master', label: 'Master Queue', count: 0 },
+    { id: 'pending', label: 'Pending Resolution', count: 0 },
     { id: 'unanswered', label: 'Unanswered', count: 0 },
     { id: 'low_rated', label: 'Low-Rated', count: 0 },
     { id: 'archive', label: 'Archive', count: 0 },
@@ -45,7 +45,12 @@ const ModeratorResolveHub = () => {
   }, []);
 
   const categorized = {
-    master: queries.filter(q => q.status !== 'Resolved'),
+    pending: queries.filter(q => {
+      if (q.status === 'Resolved') return false;
+      if (q.status === 'Ambiguous') return true;
+      const hasHighRating = q.responses?.some(r => r.rating >= 4);
+      return hasHighRating;
+    }),
     unanswered: queries.filter(q => q.status !== 'Resolved' && (!q.responses || q.responses.length === 0)),
     low_rated: queries.filter(q => {
       if (q.status !== 'Peer Answered' || !q.responses?.length) return false;
@@ -128,6 +133,7 @@ const QueryDetailPanel = ({ query, onClose }) => {
     try {
       await api.post('/admin/approve', { query_id: query._id, response_id: responseId });
       onClose();
+      window.location.reload();
     } catch (err) {
       console.error('Failed to approve', err);
     } finally {
@@ -141,6 +147,7 @@ const QueryDetailPanel = ({ query, onClose }) => {
     try {
       await api.post('/admin/override', { query_id: query._id, response_text: overrideText });
       onClose();
+      window.location.reload();
     } catch (err) {
       console.error('Failed to override', err);
     } finally {

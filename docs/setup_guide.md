@@ -272,9 +272,7 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 | /admin/users | User management |
 | /admin/queries | Query monitor |
 | /admin/faqs | FAQ editor |
-| /admin/high-rated | Highly rated queries (priority) |
-| /admin/ambiguous | Ambiguous queries (3-strike) |
-| /admin/resolve | Resolve hub |
+| /admin/resolve | Resolve hub (includes Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | /admin/suggestions | AI suggestions |
 
 **Moderator Pages:**
@@ -282,23 +280,20 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 |-------|---------|
 | /moderator | Dashboard overview |
 | /moderator/queries | Query monitor |
-| /moderator/high-rated | Highly rated queries |
-| /moderator/ambiguous | Ambiguous queries |
-| /moderator/resolve | Resolve hub |
+| /moderator/resolve | Resolve hub (includes Pending Resolution, Unanswered, Low-Rated, Archive) |
 
 ---
 
-## 10. Common Issues & Solutions
+## 10. Resolve Hub Sections
 
-The Admin Dashboard presents a 6-section queue for query resolution:
+The Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 
 | Section | Filter |
 |---------|--------|
-| Master Queue | All non-resolved queries |
-| Stagnant (0 answers) | is_locked=true, responses=0 |
+| Pending Resolution | Queries with high-rated responses (rating >= 4) OR ambiguous queries (3-strike rule) |
+| Stagnant (0 answers) | is_locked=true, responses=0 (sweeper-triggered) |
 | Unanswered | status != 'Resolved', responses=0 |
 | Low-Rated | 5 responses, all rating < 4 |
-| Highly-Rated | has response rating >= 4 |
 | Archive | status = 'Resolved' |
 
 ---

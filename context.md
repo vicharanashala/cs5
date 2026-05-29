@@ -240,6 +240,10 @@ STEP 7: RESOLVED (Terminal State)
 | 39 | 4-star rating locks query immediately | Query should stay open on 4-star, only 5-star locks | Changed MIN_HIGH_RATING from 4 to 5 for locking; 4 stars = Highly-Rated Queue (not locked) |
 | 40 | Ambiguous marked query still visible in peer queue | getPeerQueue only excluded answered queries, not ambiguous-marked | Added ambiguous_marked_by filter to exclude queries user marked ambiguous |
 | 41 | 3-strike ambiguous query shows "Pending" status on MyEscalations | markAmbiguous sent notification but no socket event to refresh frontend | Added `query_resolved` socket emit when query becomes Ambiguous |
+| 42 | Approved queries still visible in High Rated/Ambiguous pages | Pages queried same data but didn't filter resolved queries | High Rated and Ambiguous now part of Resolve Hub "Pending Resolution" section |
+| 43 | Approve/Override doesn't remove query from admin view | No page refresh after action | Added `window.location.reload()` after approve/override |
+| 44 | MyEscalations shows "Resolved" instead of "Approved" | No distinction between resolution types | Shows "Approved" badge when `resolution_type === 'peer_approved'` |
+| 45 | High Rated card shown separately in Admin dashboard | Redundant with Resolve Hub | Removed separate High Rated card from Admin/Moderator Overview |
 
 ---
 
@@ -404,7 +408,7 @@ query.in/
 | 3 | User Management Directory |
 | 4 | Master Query Monitor |
 | 5 | FAQ Knowledge Base Editor |
-| 6 | Resolve Query Hub (6-section queue: Master, Stagnant, Unanswered, Low-Rated, Highly-Rated, Archive) |
+| 6 | Resolve Query Hub (5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | 7 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---
@@ -429,9 +433,7 @@ query.in/
 | User Management | /admin/users | User directory |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Highly Rated | /admin/high-rated | Queries with 4-5 star ratings |
-| Ambiguous | /admin/ambiguous | 3-strike rule queries |
-| Resolve Hub | /admin/resolve | Resolution queue (Master, Stagnant, Unanswered, Low-Rated, Archive) |
+| Resolve Hub | /admin/resolve | Resolution queue (Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
 
 ## Moderator Dashboard Pages
@@ -440,9 +442,7 @@ query.in/
 |------|-------|---------|
 | Dashboard | /moderator | Overview with navigation cards |
 | Query Monitor | /moderator/queries | Master query feed |
-| Highly Rated | /moderator/high-rated | Queries with 4-5 star ratings |
-| Ambiguous | /moderator/ambiguous | 3-strike rule queries |
-| Resolve Hub | /moderator/resolve | Resolution queue (Master, Unanswered, Low-Rated, Archive) |
+| Resolve Hub | /moderator/resolve | Resolution queue (Pending Resolution, Unanswered, Low-Rated, Archive) |
 
 ## Intern Dashboard Pages
 

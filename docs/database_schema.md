@@ -317,15 +317,14 @@ AMBIGUOUS ◄──────────────────────�
 | Ambiguous | No | No (locked) |
 | Resolved | No | No (locked) |
 
-### Admin Resolution Queues (6-Section)
+### Admin/Moderator Resolution Queues (5-Section)
 
 | Queue | Condition |
 |-------|-----------|
-| Master Queue | All non-resolved queries |
+| Pending Resolution | High-rated queries (response rating >= 4) OR Ambiguous queries (3-strike rule) |
 | Stagnant (0 answers) | is_locked: true, responses: 0 |
 | Unanswered | status != 'Resolved', responses: 0 |
 | Low-Rated | is_locked, 5 responses, all < 4 stars |
-| Highly-Rated | is_locked, has response rating >= 4 |
 | Archive | status = 'Resolved' |
 
 ---
