@@ -34,31 +34,37 @@ const Toast = ({ notification, onClose, onClick }) => {
         return {
           border: 'border-l-4 border-l-highlight',
           bg: 'bg-white',
+          bar: 'bg-highlight',
         };
       case 'announcement':
         return {
           border: 'border-l-4 border-l-black',
           bg: 'bg-white',
+          bar: 'bg-black',
         };
       case 'peer_answer':
         return {
           border: 'border-l-4 border-l-black',
           bg: 'bg-white',
+          bar: 'bg-black',
         };
       case 'query_resolved':
         return {
-          border: 'border-l-4 border-l-black',
+          border: 'border-l-4 border-l-green-500',
           bg: 'bg-white',
+          bar: 'bg-green-500',
         };
       case 'intern_warning':
         return {
-          border: 'border-l-4 border-l-highlight',
-          bg: 'bg-highlight-light',
+          border: 'border-l-4 border-l-red-600',
+          bg: 'bg-red-50',
+          bar: 'bg-red-600',
         };
       default:
         return {
           border: 'border-l-4 border-l-black',
           bg: 'bg-white',
+          bar: 'bg-black',
         };
     }
   };
@@ -68,7 +74,7 @@ const Toast = ({ notification, onClose, onClick }) => {
   return (
     <div
       className={`
-        fixed bottom-6 right-6 w-96 bg-white rounded-xl shadow-2xl border border-gray-200
+        fixed bottom-6 right-6 w-96 bg-white rounded-xl shadow-xl border border-gray-200
         transform transition-all duration-300 ease-out z-50 overflow-hidden
         ${isVisible && !isLeaving ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
       `}
@@ -81,8 +87,8 @@ const Toast = ({ notification, onClose, onClick }) => {
           <div className="flex items-center gap-2 mb-1.5">
             <span className={`
               text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full
-              ${notification.type === 'admin_alert' || notification.type === 'intern_warning'
-                ? 'bg-highlight text-black'
+              ${notification.type === 'admin_alert' ? 'bg-highlight text-black'
+                : notification.type === 'intern_warning' ? 'bg-red-100 text-red-700 border border-red-200'
                 : 'bg-black text-white'}
             `}>
               {notification.type === 'admin_alert' ? 'Alert' :
@@ -112,11 +118,7 @@ const Toast = ({ notification, onClose, onClick }) => {
 
       <div className="h-1 bg-gray-100">
         <div
-          className={`h-full transition-all duration-[5000ms] ease-linear ${
-            notification.type === 'admin_alert' || notification.type === 'intern_warning'
-              ? 'bg-highlight'
-              : 'bg-black'
-          }`}
+          className={`h-full transition-all duration-[5000ms] ease-linear ${styles.bar}`}
           style={{ width: '100%', animation: 'shrink 5s linear forwards' }}
         />
       </div>

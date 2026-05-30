@@ -3,7 +3,7 @@
  * QUERY.IN - CARD COMPONENT
  * =============================================================================
  * A foundational reusable container with modern SaaS-style design.
- * Clean white background, subtle shadows, and refined borders.
+ * Black borders, rounded-xl corners, and soft shadows.
  *
  * @component Card
  */
@@ -12,13 +12,13 @@ const Card = ({ children, className = '', title, subtitle, action, hover = true 
   return (
     <div
       className={`
-        bg-white rounded-xl border border-gray-200
-        ${hover ? 'hover:shadow-lg hover:border-gray-300 transition-all duration-200' : ''}
+        bg-white rounded-xl border border-black shadow-md
+        ${hover ? 'hover:shadow-xl transition-shadow duration-200' : ''}
         ${className}
       `}
     >
       {(title || subtitle || action) && (
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
           <div>
             {title && (
               <h3 className="text-base font-semibold text-gray-900">{title}</h3>

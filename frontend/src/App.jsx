@@ -35,6 +35,7 @@ import PeerQueue from './pages/intern/PeerQueue';
 import MyEscalations from './pages/intern/MyEscalations';
 import ViewFAQs from './pages/intern/ViewFAQs';
 import Announcements from './pages/intern/Announcements';
+import AllNotifications from './pages/intern/AllNotifications';
 
 const App = () => {
   return (
@@ -239,6 +240,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['intern']}>
               <Announcements />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute allowedRoles={['intern']}>
+              <AllNotifications />
             </ProtectedRoute>
           }
         />

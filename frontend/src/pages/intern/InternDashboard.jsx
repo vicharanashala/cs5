@@ -94,14 +94,14 @@ const InternDashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <Card className="hover:shadow-lg transition-shadow" hover={false}>
+          <Card className="border border-gray-200 hover:shadow-lg transition-shadow" hover={false}>
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-sm font-medium text-gray-500 mb-1">Active Queries</div>
                 <div className="text-3xl font-bold text-black">{stats.activeQueries}</div>
                 <div className="text-sm text-gray-500 mt-1">Pending resolution</div>
               </div>
-              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
@@ -109,14 +109,14 @@ const InternDashboard = () => {
             </div>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow" hover={false}>
+          <Card className="border border-gray-200 hover:shadow-lg transition-shadow" hover={false}>
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-sm font-medium text-gray-500 mb-1">Peer Responses</div>
                 <div className="text-3xl font-bold text-black">{stats.peerAnswers}</div>
                 <div className="text-sm text-gray-500 mt-1">Given to others</div>
               </div>
-              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -124,14 +124,14 @@ const InternDashboard = () => {
             </div>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow" hover={false}>
+          <Card className="border border-gray-200 hover:shadow-lg transition-shadow" hover={false}>
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-sm font-medium text-gray-500 mb-1">Resolved</div>
                 <div className="text-3xl font-bold text-black">{stats.resolved}</div>
                 <div className="text-sm text-gray-500 mt-1">Successfully answered</div>
               </div>
-              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -141,7 +141,7 @@ const InternDashboard = () => {
         </div>
 
         {/* Popular FAQs */}
-        <Card title="Popular FAQs" subtitle="Frequently accessed knowledge base articles" className="hover:shadow-lg transition-shadow" hover={false}>
+        <Card title="Popular FAQs" subtitle="Frequently accessed knowledge base articles" className="border border-gray-200 hover:shadow-lg transition-shadow" hover={false}>
           <div className="space-y-3">
             {faqs.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
@@ -154,10 +154,10 @@ const InternDashboard = () => {
               faqs.map((faq, index) => (
                 <a
                   key={faq._id}
-                  href="/intern/faqs"
-                  className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
+                  href={`/intern/faqs?highlight=${faq._id}`}
+                  className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
                 >
-                  <div className="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center text-sm font-bold">
+                  <div className="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm border border-gray-800">
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -171,7 +171,7 @@ const InternDashboard = () => {
               ))
             )}
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-gray-200">
             <a href="/intern/faqs" className="text-sm font-medium text-black hover:underline inline-flex items-center gap-1">
               View all FAQs
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,7 @@ const InternDashboard = () => {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="bg-black text-white hover:shadow-xl transition-shadow" hover={false}>
+        <Card className="bg-black text-white hover:shadow-xl transition-shadow border-0" hover={false}>
           <div className="text-center py-6">
             <h3 className="text-lg font-semibold mb-2">Have a question?</h3>
             <p className="text-gray-400 mb-6 max-w-sm mx-auto">Get instant answers from our AI or browse existing FAQs</p>

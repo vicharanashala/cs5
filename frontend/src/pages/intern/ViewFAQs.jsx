@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
@@ -49,6 +50,8 @@ const navItems = [
 ];
 
 const ViewFAQs = () => {
+  const [searchParams] = useSearchParams();
+  const highlightId = searchParams.get('highlight');
   const [faqs, setFaqs] = useState([]);
   const [filteredFaqs, setFilteredFaqs] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -60,6 +63,22 @@ const ViewFAQs = () => {
   useEffect(() => {
     fetchFaqs();
   }, []);
+
+  useEffect(() => {
+    if (highlightId && faqs.length > 0) {
+      const targetFaq = faqs.find(f => f._id === highlightId);
+      if (targetFaq) {
+        setExpandedCategory(targetFaq.category);
+        setExpandedFaq(highlightId);
+        setTimeout(() => {
+          const element = document.getElementById(`faq-${highlightId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      }
+    }
+  }, [highlightId, faqs]);
 
   useEffect(() => {
     if (search.trim()) {
@@ -165,10 +184,10 @@ const ViewFAQs = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {search ? (
+            {            search ? (
               /* Search Results */
               filteredFaqs.map((faq) => (
-                <Card key={faq._id} className="hover:shadow-lg transition-shadow" hover={false}>
+                <Card key={faq._id} id={`faq-${faq._id}`} className={`hover:shadow-lg transition-shadow border ${highlightId === faq._id ? 'border-black shadow-md ring-2 ring-black/10' : 'border-gray-100'}`} hover={false}>
                   <div
                     className="cursor-pointer p-5"
                     onClick={() => setExpandedFaq(expandedFaq === faq._id ? null : faq._id)}
@@ -216,7 +235,7 @@ const ViewFAQs = () => {
                 if (catFaqs.length === 0) return null;
                 const isExpanded = expandedCategory === category;
                 return (
-                  <Card key={category} className="hover:shadow-lg transition-shadow overflow-hidden" hover={false}>
+                  <Card key={category} className="hover:shadow-lg transition-shadow overflow-hidden border border-gray-100" hover={false}>
                     <div
                       className="cursor-pointer p-5 flex items-center justify-between"
                       onClick={() => setExpandedCategory(isExpanded ? null : category)}
@@ -246,7 +265,8 @@ const ViewFAQs = () => {
                         {catFaqs.map((faq) => (
                           <div
                             key={faq._id}
-                            className="p-5 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+                            id={`faq-${faq._id}`}
+                            className={`p-5 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer ${highlightId === faq._id ? 'bg-highlight-light' : ''}`}
                             onClick={() => setExpandedFaq(expandedFaq === faq._id ? null : faq._id)}
                           >
                             <div className="flex items-center justify-between">
