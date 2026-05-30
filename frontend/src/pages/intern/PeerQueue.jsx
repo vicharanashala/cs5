@@ -1,14 +1,9 @@
 /**
  * =============================================================================
- * QUERY.IN - PEER QUEUE PAGE (Intern)
+ * QUERY.IN - PEER ANSWER QUEUE PAGE
  * =============================================================================
- * Allows interns to view and answer escalated queries from other interns.
- *
- * FUNCTIONS:
- * 1. Fetch pending queries from peer queue (excludes own queries)
- * 2. Submit peer answers (max 5 per query)
- * 3. Skip queries (move to next)
- * 4. Mark queries as ambiguous (3-strike rule)
+ * Modern SaaS-style interface for answering peer queries.
+ * Sequential query viewing with submit/skip/ambiguous actions.
  *
  * @module pages/intern/PeerQueue
  */
@@ -60,6 +55,7 @@ const PeerQueue = () => {
   const [answerText, setAnswerText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   useEffect(() => {
     fetchQueue();
@@ -72,6 +68,7 @@ const PeerQueue = () => {
       setQueries(res.data.data || []);
       setCurrentIndex(0);
       setMessage('');
+      setMessageType('');
     } catch (err) {
       console.error('Failed to fetch queue', err);
     } finally {
@@ -85,18 +82,22 @@ const PeerQueue = () => {
     const query = queries[currentIndex];
     try {
       setSubmitting(true);
+      setMessage('');
       await api.post('/peer/answer', {
         query_id: query._id,
         response_text: answerText.trim(),
       });
       setMessage('Answer submitted successfully!');
+      setMessageType('success');
       setAnswerText('');
       setTimeout(() => {
         setCurrentIndex((prev) => prev + 1);
         setMessage('');
+        setMessageType('');
       }, 1500);
     } catch (err) {
       setMessage(err.response?.data?.error || 'Failed to submit answer');
+      setMessageType('error');
     } finally {
       setSubmitting(false);
     }
@@ -107,8 +108,10 @@ const PeerQueue = () => {
       setCurrentIndex((prev) => prev + 1);
       setAnswerText('');
       setMessage('');
+      setMessageType('');
     } else {
       setMessage('No more queries in queue');
+      setMessageType('info');
     }
   };
 
@@ -119,11 +122,13 @@ const PeerQueue = () => {
     try {
       const res = await api.post('/peer/ambiguous', { query_id: query._id });
       setMessage(res.data.message);
+      setMessageType('info');
       setTimeout(() => {
         fetchQueue();
       }, 1500);
     } catch (err) {
       setMessage(err.response?.data?.error || 'Failed to mark as ambiguous');
+      setMessageType('error');
     }
   };
 
@@ -132,83 +137,120 @@ const PeerQueue = () => {
   return (
     <DashboardLayout navItems={navItems}>
       <div className="max-w-3xl mx-auto space-y-6">
+        {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-black">Peer Answer Queue</h1>
-            <p className="text-text-secondary mt-1">Help your fellow interns by answering their questions</p>
+            <p className="text-gray-500 mt-1">Help your fellow interns by answering their questions</p>
           </div>
-          <Badge variant="outline">{queries.length} queries pending</Badge>
+          <Badge variant="filled" size="lg">{queries.length} pending</Badge>
         </div>
 
+        {/* Loading State */}
         {loading ? (
-          <Card className="border-2 border-black rounded-lg p-8 text-center">
-            <p className="text-text-muted">Loading queue...</p>
+          <Card className="py-12 text-center" hover={false}>
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-500">Loading queue...</p>
           </Card>
         ) : queries.length === 0 ? (
-          <Card className="border-2 border-black rounded-lg p-8 text-center">
-            <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Card className="py-12 text-center" hover={false}>
+            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Queue Empty</h2>
+            <p className="text-gray-500 mb-5">No pending queries to answer right now</p>
+            <Button variant="outline" onClick={fetchQueue}>Refresh Queue</Button>
+          </Card>
+        ) : currentIndex >= queries.length ? (
+          <Card className="py-12 text-center" hover={false}>
+            <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-black mb-2">Queue Empty</h2>
-            <p className="text-text-secondary">No pending queries to answer. Check back later!</p>
-          </Card>
-        ) : currentIndex >= queries.length ? (
-          <Card className="border-2 border-black rounded-lg p-8 text-center">
-            <h2 className="text-xl font-bold text-black mb-2">All Done!</h2>
-            <p className="text-text-secondary mb-4">You've reviewed all available queries</p>
-            <Button variant="outline" onClick={fetchQueue}>Refresh Queue</Button>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">All Done!</h2>
+            <p className="text-gray-500 mb-5">You've reviewed all available queries</p>
+            <Button variant="primary" onClick={fetchQueue}>Review More</Button>
           </Card>
         ) : (
           <>
-            <Card className="border-2 border-black rounded-lg">
-              <div className="flex items-center justify-between mb-4">
-                <Badge variant="filled">Pending Query</Badge>
-                <span className="text-sm text-text-muted">
+            {/* Query Card */}
+            <Card className="hover:shadow-lg transition-shadow" hover={false}>
+              <div className="flex items-center justify-between mb-5">
+                <Badge variant="outline" size="lg">Pending Query</Badge>
+                <span className="text-sm text-gray-500">
                   {currentIndex + 1} of {queries.length}
                 </span>
               </div>
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg mb-4">
-                <p className="text-black font-medium">{currentQuery.query_text}</p>
+
+              <div className="p-5 bg-gray-50 rounded-xl mb-4">
+                <p className="text-gray-900 font-medium text-base leading-relaxed">{currentQuery.query_text}</p>
               </div>
-              <div className="flex items-center gap-2 text-sm text-text-muted mb-4">
-                <span>Asked by:</span>
-                <span className="font-medium">{currentQuery.intern_id?.email || 'Unknown'}</span>
-                <span>|</span>
-                <span>{currentQuery.responses?.length || 0}/5 responses</span>
+
+              <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center text-xs font-bold">
+                    {currentQuery.intern_id?.email?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <span className="text-gray-600">{currentQuery.intern_id?.email || 'Unknown'}</span>
+                </div>
+                <span className="text-gray-300">|</span>
+                <div className="flex items-center gap-1">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <span className="text-gray-600">{currentQuery.responses?.length || 0}/5 responses</span>
+                </div>
               </div>
             </Card>
 
-            <Card className="border-2 border-black rounded-lg">
-              <h3 className="font-semibold text-black mb-3">Your Answer</h3>
+            {/* Answer Form */}
+            <Card className="hover:shadow-lg transition-shadow" hover={false}>
+              <h3 className="font-semibold text-gray-900 mb-4">Your Answer</h3>
               <textarea
                 value={answerText}
                 onChange={(e) => setAnswerText(e.target.value)}
-                placeholder="Type your answer here..."
-                rows={4}
-                className="w-full px-4 py-3 border-2 border-black bg-white text-black placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-black rounded-lg resize-none"
+                placeholder="Share your knowledge to help your peer..."
+                rows={5}
+                className="w-full px-4 py-3 bg-gray-50 border-0 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/10 focus:bg-white rounded-xl transition-all resize-none text-base"
                 disabled={submitting}
               />
+              
               {message && (
-                <div className="mt-3 p-3 bg-gray-100 border border-gray-300 rounded-lg text-sm text-black">
+                <div className={`mt-4 p-4 rounded-xl text-sm ${
+                  messageType === 'success' ? 'bg-green-50 text-green-700 border border-green-200' :
+                  messageType === 'error' ? 'bg-red-50 text-red-700 border border-red-200' :
+                  'bg-gray-50 text-gray-700 border border-gray-200'
+                }`}>
                   {message}
                 </div>
               )}
-              <div className="flex gap-3 mt-4">
+
+              <div className="flex gap-3 mt-5">
                 <Button
                   variant="primary"
                   onClick={handleSubmitAnswer}
                   disabled={submitting || !answerText.trim()}
                   className="flex-1"
+                  size="lg"
                 >
-                  {submitting ? 'Submitting...' : 'Submit Answer'}
+                  {submitting ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Submitting...
+                    </span>
+                  ) : 'Submit Answer'}
                 </Button>
-                <Button variant="outline" onClick={handleSkip} disabled={submitting}>
+                <Button variant="outline" onClick={handleSkip} disabled={submitting} size="lg">
                   Skip
                 </Button>
-                <Button variant="outline" onClick={handleMarkAmbiguous} disabled={submitting}>
-                  Mark Ambiguous
+                <Button variant="ghost" onClick={handleMarkAmbiguous} disabled={submitting} size="lg">
+                  Mark Unclear
                 </Button>
               </div>
             </Card>
