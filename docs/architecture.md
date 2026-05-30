@@ -163,6 +163,56 @@ frontend/src/
 
 ---
 
+## UI Design System (Phase 14)
+
+### Design Tokens (tailwind.config.js)
+
+```javascript
+colors: {
+  background: '#FAFAFA',    // Page background
+  surface: '#FFFFFF',        // Card/modal surfaces
+  black: '#000000',          // Primary text
+  white: '#FFFFFF',          // Text on dark
+  highlight: '#FFD000',      // Yellow highlight for alerts
+  error: '#DC2626',          // Error states
+}
+shadow: {
+  sm: '0 1px 2px rgba(0,0,0,0.05)',
+  md: '0 4px 6px rgba(0,0,0,0.07)',
+  lg: '0 10px 15px rgba(0,0,0,0.1)',
+  xl: '0 20px 25px rgba(0,0,0,0.12)',
+}
+borderRadius: {
+  sm: '6px',
+  md: '8px',
+  lg: '12px',
+  xl: '16px',
+}
+```
+
+### Component Library
+
+| Component | Purpose | Styling |
+|-----------|---------|---------|
+| Button | Primary actions | bg-black text-white hover:bg-gray-800 rounded-xl |
+| Card | Content containers | bg-surface rounded-xl shadow-md border border-gray-100 |
+| Badge | Status indicators | text-xs font-medium rounded-full px-2.5 py-1 |
+| Toast | Notifications | Slide-in from top-right, auto-dismiss 5s |
+| NotificationBell | Alert indicator | Bell icon with unread count badge |
+| FormattedAnswer | AI responses | bg-surface rounded-xl p-4 whitespace-pre-wrap |
+
+### UI/UX Modernization Changes
+
+- **Color Scheme**: Strictly black (#000000), white (#FFFFFF), and yellow (#FFD000)
+- **Typography**: text-sm (14px) body, text-base (16px) emphasis, text-lg (18px) headings
+- **Spacing**: 8px rhythm - py-2, py-3, py-4, space-y-4, space-y-6
+- **Shadows**: Soft, layered shadows (shadow-sm through shadow-xl)
+- **Borders**: Subtle border-gray-100 on cards
+- **Animations**: Smooth transitions (duration-200), hover scale on buttons
+- **Layout**: DashboardLayout with sticky header, rounded-xl corners throughout
+
+---
+
 ## Backend Architecture (Express + Node.js)
 
 ### Directory Structure

@@ -390,3 +390,44 @@ LLM calls are logged with format:
 📊 [ANALYTICS] intern:xxx | llm_resolved | {"model":"gemini-3.5-flash","stage":"gemini"}
 ⚠️ [ANALYTICS] intern:xxx | cap_blocked | {"cap":5}
 ```
+
+---
+
+## 14. Design System (UI/UX Modernization)
+
+### Color Palette
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Background | #FAFAFA | Page background |
+| Surface | #FFFFFF | Card/modal surfaces |
+| Black | #000000 | Primary text, buttons |
+| White | #FFFFFF | Text on dark backgrounds |
+| Highlight | #FFD000 | Alerts, emphasis, important actions |
+
+### Typography
+
+| Size | Class | Usage |
+|------|-------|-------|
+| 12px | text-xs | Badges, timestamps |
+| 14px | text-sm | Body text |
+| 16px | text-base | Emphasis, labels |
+| 18px | text-lg | Headings |
+| 24px | text-xl | Page titles |
+
+### Spacing & Layout
+
+- 8px spacing rhythm (py-2, py-3, py-4)
+- Cards: rounded-xl (16px corners), shadow-md, border border-gray-100
+- Page sections: space-y-4 to space-y-6
+- Buttons: rounded-xl with hover transitions
+
+### Component Styling
+
+| Component | Styling |
+|-----------|---------|
+| Primary Buttons | bg-black text-white hover:bg-gray-800 rounded-xl transition-all duration-200 |
+| Secondary Buttons | bg-white text-black border border-gray-200 hover:bg-gray-50 rounded-xl |
+| Cards | bg-surface rounded-xl shadow-md border border-gray-100 p-4 |
+| Alerts/Highlights | bg-highlight/10 text-black border-l-4 border-highlight |
+| Form Inputs | border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black |
