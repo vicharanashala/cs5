@@ -302,6 +302,7 @@ All query resolutions are tracked with ResolutionType:
 | 47 | Failed to send warning (500 error) | Added 'intern_warning' to Notification type enum |
 | 48 | MyEscalations shows "Resolved" instead of "Approved" | Both peer_approved and admin_override show "Approved" badge |
 | 49 | Sidebar shows only current page nav items | Created centralized navConfig.jsx, DashboardLayout auto-detects nav items by user role |
+| 50 | Intern dashboard stats incorrect | Active queries showed all queries not just user's, peer responses included skipped/ambiguous | Created GET /api/peer/stats endpoint with accurate counts, Active Queries and Resolved cards now link to My Escalations |
 
 ---
 

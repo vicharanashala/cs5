@@ -438,9 +438,59 @@ const markAmbiguous = async (req, res) => {
   }
 };
 
+/**
+ * getInternStats
+ * --------------
+ * Returns dashboard stats for an intern:
+ * - activeQueries: Count of user's pending/peer-answered queries (not resolved/ambiguous)
+ * - peerResponses: Count of user's submitted peer answers
+ * - resolved: Count of user's queries that were resolved (peer_approved or admin_override)
+ *
+ * @async
+ * @function getInternStats
+ * @param {Object} req - Express request object (req.user.userId available via protect middleware)
+ * @param {Object} res - Express response object
+ */
+const getInternStats = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const activeQueries = await Query.countDocuments({
+      intern_id: userId,
+      status: { $nin: ['Resolved', 'Ambiguous'] },
+    });
+
+    const peerResponses = await Response.countDocuments({
+      author_id: userId,
+      response_type: 'peer',
+    });
+
+    const resolved = await Query.countDocuments({
+      intern_id: userId,
+      status: 'Resolved',
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        activeQueries,
+        peerResponses,
+        resolved,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch intern stats',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getPeerQueue,
   getMyEscalations,
+  getInternStats,
   submitAnswer,
   skipQuery,
   markAmbiguous,

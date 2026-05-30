@@ -22,6 +22,7 @@ const { authorizeRoles } = require('../middleware/authMiddleware');
 const {
   getPeerQueue,
   getMyEscalations,
+  getInternStats,
   submitAnswer,
   skipQuery,
   markAmbiguous,
@@ -31,6 +32,7 @@ router.use(protect);
 
 router.get('/queue', authorizeRoles('intern', 'moderator', 'admin'), getPeerQueue);
 router.get('/my-escalations', authorizeRoles('intern'), getMyEscalations);
+router.get('/stats', authorizeRoles('intern'), getInternStats);
 router.post('/answer', authorizeRoles('intern'), submitAnswer);
 router.post('/skip', authorizeRoles('intern'), skipQuery);
 router.post('/ambiguous', authorizeRoles('intern', 'moderator', 'admin'), markAmbiguous);

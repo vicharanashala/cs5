@@ -433,6 +433,32 @@ Get queries submitted by current intern.
 
 ---
 
+### GET /peer/stats
+
+Get dashboard statistics for the current intern user.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "activeQueries": 2,
+    "peerResponses": 5,
+    "resolved": 3
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `activeQueries` | Count of user's queries that are pending or peer-answered (not resolved/ambiguous) |
+| `peerResponses` | Count of peer answers submitted by user (response_type: 'peer') |
+| `resolved` | Count of user's queries that were successfully resolved by admin (status: 'Resolved') |
+
+---
+
 ### POST /peer/answer
 
 Submit a peer answer.

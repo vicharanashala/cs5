@@ -260,6 +260,7 @@ STEP 7: RESOLVED (Terminal State)
 | 47 | Failed to send warning (500 error) | Notification model enum missing 'intern_warning' type | Added 'intern_warning' to Notification type enum |
 | 48 | MyEscalations shows "Resolved" instead of "Approved" | Only peer_approved showed "Approved", admin_override showed "Resolved" | Changed to show "Approved" for ALL resolved queries regardless of resolution_type |
 | 49 | Sidebar shows only current page nav items | Each page defined its own navItems subset | Created centralized navConfig.jsx, DashboardLayout auto-detects nav items by user role |
+| 50 | Intern dashboard stats incorrect | Active queries showed all queries not just user's, peer responses included skipped/ambiguous | Created GET /api/peer/stats endpoint with accurate counts, Active Queries and Resolved cards now link to My Escalations |
 
 ---
 
