@@ -170,7 +170,7 @@ const InternDashboard = () => {
                 </Button>
               </Link>
               <Link to="/intern/faqs">
-                <Button variant="secondary" size="lg" className="border-white text-white hover:bg-white hover:text-black">
+                <Button variant="secondary" size="lg" className="bg-white text-black border-white hover:bg-gray-100">
                   Browse FAQs
                 </Button>
               </Link>
