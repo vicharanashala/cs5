@@ -724,4 +724,30 @@ Created centralized navigation configuration to fix the sidebar issue:
    - `README.md` - Added issue #49 to Recent Fixes table
    - `context.md` - Added issue #49 to Resolved Issues table and navConfig.jsx to Project Structure
 
-**Commit:** (pending)
+**Commit:** `be258f1` - fix: centralized navigation with navConfig.jsx - all sidebar cards visible on every page
+
+### Prompt 47: Fix Intern Dashboard Stats and Add Navigation Links
+**Prompt:** On the intern dashboard, in the "Active queries" card, only the number of pending queries of that particular user should be displayed, in the "Peer Responses" card, it should only display the number of times the user has answered a particular query of a peer, it should not include skipped question or mark as ambiguous questions. The "Resolved" card should display the number of queries for an intern which has been successfully approved by the admin. And upon clicking the "Active queries" card and "Resolved" card, it should be redirected to the "My Escalations" page.
+
+**Response:**
+Created a new backend endpoint and updated the frontend to show accurate stats:
+
+1. **Backend: New `GET /api/peer/stats` endpoint:**
+   - `getInternStats` function in `peerController.js`:
+     - `activeQueries`: Count of user's queries where status is NOT 'Resolved' or 'Ambiguous'
+     - `peerResponses`: Count of Response documents where `author_id` = user AND `response_type` = 'peer'
+     - `resolved`: Count of user's queries where `status` = 'Resolved'
+   - Added route `GET /api/peer/stats` in `peerRoutes.js`
+
+2. **Frontend `InternDashboard.jsx`:**
+   - Updated `fetchData` to call `api.get('/peer/stats')` instead of `api.get('/queries?limit=0')`
+   - Wrapped "Active Queries" card in `<Link to="/intern/my-queries">`
+   - Wrapped "Resolved" card in `<Link to="/intern/my-queries">`
+   - Converted all `<a href>` to React Router `<Link to>` for consistency
+
+3. **Documentation updated:**
+   - `README.md` - Added issue #50 to Recent Fixes table
+   - `context.md` - Added issue #50 to Resolved Issues
+   - `docs/api_docs.md` - Added GET /peer/stats API documentation
+
+**Commit:** `f9b70c4` - fix: Intern dashboard stats now accurate with new /api/peer/stats endpoint
