@@ -263,6 +263,11 @@ STEP 7: RESOLVED (Terminal State)
 | 50 | Intern dashboard stats incorrect | Active queries showed all queries not just user's, peer responses included skipped/ambiguous | Created GET /api/peer/stats endpoint with accurate counts, Active Queries and Resolved cards now link to My Escalations |
 | 51 | Ask AI page input limitations | Single-line input couldn't handle multiline questions; "Get Answer" button separate from input | Replaced input with textarea (Shift+Enter for new line, Enter to submit), replaced bulb icon with send button (right arrow) on input bar |
 | 52 | Auto-complete suggestions dropdown stays open on Enter | handleKeyDown didn't close suggestions when Enter was pressed | Added setShowSuggestions(false) and setSuggestions([]) in handleKeyDown, added e.stopPropagation() |
+| 53 | Thumbs up/down icons improper on Ask AI page | Old SVG paths were broken/not proper | Replaced with clean, proper thumbs up/down Material Design icons |
+| 54 | Browse FAQs button not properly styled | Button had border-white making it invisible on black background | Changed to variant="secondary" with proper black border |
+| 55 | Question mark icon not centered in Explore FAQs card | Icon was slightly off-center visually | Adjusted icon size to w-12 h-12, reduced strokeWidth to 1.75, proper viewBox alignment |
+| 56 | Ask AI and Browse FAQs buttons lacked hover effect | No visual feedback on mouse hover | Added hover:scale-105 transition-transform for tactile feedback |
+| 57 | Multiple pages lacked hover effects | Cards, buttons, and inputs felt static | Added hover effects across pages - scale, shadow, and background transitions |
 
 ---
 

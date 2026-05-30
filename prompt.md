@@ -856,3 +856,101 @@ Staged and committed:
 - `prompt.md`
 
 **Commit:** `[current]` - fix: Ask AI page input improvements - textarea, send button, Shift+Enter multiline, single Enter submit
+
+---
+
+### Prompt 53: Fix Thumbs Up/Down Icons on Ask AI Page
+**Prompt:** The thumbs up logo on the "Yes Helpful" button in the Ask AI should be proper. Currently it is not proper.
+
+**Response:**
+Updated `AskAI.jsx` with proper Material Design thumbs up/down icons:
+
+```javascript
+// Thumbs Up
+<svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+</svg>
+
+// Thumbs Down
+<svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
+</svg>
+```
+
+**Commit:** `7ec19e5` - fix: proper thumbs up/down icons and visible Browse FAQs button
+
+---
+
+### Prompt 54: Fix Browse FAQs Button Visibility on Black Card
+**Prompt:** The "Browse FAQ" button at the bottom of the intern dashboard has no border like the "Ask AI" button beside it. Add a proper border so both buttons look symmetric.
+
+**Response:**
+Updated `InternDashboard.jsx` - Changed button from:
+- `variant="secondary" className="bg-white text-black border-white"` (invisible on black bg)
+- To `variant="secondary"` (uses default `border-2 border-black`)
+
+Now both buttons have proper black borders for symmetry.
+
+**Commit:** `634d84b` - fix: Browse FAQs button now has proper black border to match Ask AI button symmetry
+
+---
+
+### Prompt 55: Fix Question Mark Icon Centering on Landing Page
+**Prompt:** In the landing page, the FAQ card has a question mark logo that is not properly aligned. Align it properly in the middle of the card with respect to the "Explore FAQs" text.
+
+**Response:**
+Updated `Landing.jsx` - Adjusted the question mark icon:
+- Changed from `w-10 h-10` to `w-12 h-12` for better proportions
+- Reduced `strokeWidth` from `2` to `1.75` for cleaner appearance
+- Changed `<line>` to `<path>` element for the dot at bottom for better rendering
+
+**Commit:** `e450f48` - fix: adjust question mark icon size and centering in Explore FAQs card
+
+---
+
+### Prompt 56: Add Hover Effects to Buttons
+**Prompt:** Make the "Browse FAQ" button and "Ask AI" button hover or show some effect when mouse cursor comes above it.
+
+**Response:**
+Updated `InternDashboard.jsx` - Added `hover:scale-105 transition-transform duration-200` to both buttons. Now they scale up 5% on hover for tactile feedback.
+
+**Commit:** `5dbee9a` - feat: add hover scale effect on Ask AI and Browse FAQs buttons
+
+---
+
+### Prompt 57: Add Hover Effects Across Pages
+**Prompt:** Decide on your own make parts of the webpage hover so that it looks good and neat.
+
+**Response:**
+Added tasteful hover effects across multiple pages:
+
+| Page | Element | Effect |
+|------|---------|--------|
+| Landing | Explore FAQs Card | `hover:scale-[1.02]` + icon turns white |
+| Landing | Login Form Card | `hover:scale-[1.01]` + deeper shadow |
+| Landing | Email/Password Inputs | `hover:border-gray-400` |
+| FAQs | Category Accordions | `hover:shadow-md` |
+| FAQs | FAQ Items | `hover:bg-gray-100` |
+| ViewFAQs | FAQ Items & Category Cards | `hover:shadow-lg`, `hover:bg-gray-100` |
+| Announcements | Cards | `hover:shadow-lg hover:scale-[1.01]` |
+| PeerQueue | Query Card | `hover:scale-[1.01]` |
+| PeerQueue | Answer Form | `hover:shadow-xl` |
+
+**Commit:** `94925da` - feat: add hover effects across pages - scale, shadow, and background transitions for polished UX
+
+---
+
+### Prompt 58: Update Documentation and Commit All Changes
+**Prompt:** Update all the doc folder files including readme, context.md and prompt.md. Also commit all changes.
+
+**Response:**
+Updated context.md with issues #53-57:
+- Issue 53: Thumbs up/down icons improper
+- Issue 54: Browse FAQs button visibility
+- Issue 55: Question mark icon centering
+- Issue 56: Button hover effects missing
+- Issue 57: Multiple pages lacked hover effects
+
+Updated prompt.md with Prompts 53-58 documenting all recent fixes.
+
+**Commit:** `[current]` - docs: update documentation with recent UI fixes
