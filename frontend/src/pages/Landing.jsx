@@ -59,9 +59,9 @@ const Landing = () => {
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Explore FAQs */}
-          <Card className="flex flex-col items-center justify-center py-12 text-center hover:shadow-xl transition-shadow duration-300 border border-gray-200" hover={false}>
-            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 border border-gray-200 shadow-sm flex-shrink-0">
-              <svg className="w-10 h-10 text-black mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <Card className="flex flex-col items-center justify-center py-12 text-center hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 cursor-pointer" hover={false} onClick={() => window.location.href = '/faqs'}>
+            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 border border-gray-200 shadow-sm flex-shrink-0 transition-all duration-300 hover:bg-black group">
+              <svg className="w-10 h-10 text-black mx-auto transition-colors duration-300 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -77,7 +77,7 @@ const Landing = () => {
           </Card>
 
           {/* Right: Login Form */}
-          <Card className="py-10 px-8 hover:shadow-xl transition-shadow duration-300" hover={false}>
+          <Card className="py-10 px-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-300" hover={false}>
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-black">Welcome back</h2>
               <p className="text-gray-500 mt-1">Sign in to your account</p>
@@ -100,7 +100,7 @@ const Landing = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent rounded-lg transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent rounded-lg transition-all hover:border-gray-400"
                   placeholder="you@example.com"
                 />
               </div>
@@ -114,7 +114,7 @@ const Landing = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent rounded-lg transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent rounded-lg transition-all hover:border-gray-400"
                   placeholder="Enter your password"
                 />
               </div>

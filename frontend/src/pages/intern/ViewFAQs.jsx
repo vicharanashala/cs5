@@ -233,7 +233,7 @@ const ViewFAQs = () => {
                           <div
                             key={faq._id}
                             id={`faq-${faq._id}`}
-                            className={`p-5 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer ${highlightId === faq._id ? 'bg-highlight-light' : ''}`}
+                            className={`p-5 border-b border-gray-50 last:border-b-0 hover:bg-gray-100 transition-colors cursor-pointer ${highlightId === faq._id ? 'bg-highlight-light' : ''}`}
                             onClick={() => setExpandedFaq(expandedFaq === faq._id ? null : faq._id)}
                           >
                             <div className="flex items-center justify-between">

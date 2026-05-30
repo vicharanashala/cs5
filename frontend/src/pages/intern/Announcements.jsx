@@ -56,7 +56,7 @@ const Announcements = () => {
         ) : (
           <div className="space-y-4">
             {announcements.map((ann) => (
-              <Card key={ann._id} className="border-2 border-black rounded-lg p-5">
+              <Card key={ann._id} className="border-2 border-black rounded-lg p-5 hover:shadow-lg hover:scale-[1.01] transition-all duration-200 cursor-pointer">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-xs text-text-muted uppercase tracking-wider">Admin</span>
                   <span className="text-sm text-text-muted">

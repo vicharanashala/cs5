@@ -144,7 +144,7 @@ const PeerQueue = () => {
         ) : (
           <>
             {/* Query Card */}
-            <Card className="hover:shadow-lg transition-shadow" hover={false}>
+            <Card className="hover:shadow-xl hover:scale-[1.01] transition-all duration-200" hover={false}>
               <div className="flex items-center justify-between mb-5">
                 <Badge variant="outline" size="lg">Pending Query</Badge>
                 <span className="text-sm text-gray-500">
@@ -174,7 +174,7 @@ const PeerQueue = () => {
             </Card>
 
             {/* Answer Form */}
-            <Card className="hover:shadow-lg transition-shadow" hover={false}>
+            <Card className="hover:shadow-xl transition-shadow" hover={false}>
               <h3 className="font-semibold text-gray-900 mb-4">Your Answer</h3>
               <textarea
                 value={answerText}

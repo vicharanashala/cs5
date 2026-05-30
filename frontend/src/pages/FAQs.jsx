@@ -132,7 +132,7 @@ const FAQs = () => {
             {Object.entries(filteredByCategory).map(([category, categoryFaqs]) => {
               const isExpanded = expandedCategory === category;
               return (
-                <div key={category} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                <div key={category} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                   {/* Category Header */}
                   <button
                     onClick={() => toggleCategory(category)}
@@ -175,7 +175,7 @@ const FAQs = () => {
                           {/* FAQ Question */}
                           <button
                             onClick={() => toggleFaq(faq._id)}
-                            className="w-full px-5 py-4 text-left hover:bg-gray-50 transition-colors flex items-center justify-between gap-4"
+                            className="w-full px-5 py-4 text-left hover:bg-gray-100 transition-colors flex items-center justify-between gap-4"
                           >
                             <span className="font-medium text-gray-900 text-sm pr-4 text-left">{faq.clean_question}</span>
                             <svg
