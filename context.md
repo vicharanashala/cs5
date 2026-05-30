@@ -13,18 +13,22 @@
 ### Status: 🟡 In Progress
 - Updated tailwind.config.js with modern design system
 - Updated core components: Button, Card, Badge, DashboardLayout, Toast, NotificationBell, FormattedAnswer
-- Updated intern pages: Landing, FAQs, InternDashboard, AskAI, ViewFAQs, MyEscalations, PeerQueue, Announcements
+- Updated intern pages: Landing, FAQs, InternDashboard, AskAI, ViewFAQs, MyEscalations, PeerQueue, Announcements, AllNotifications
 - Modern SaaS aesthetic: rounded-xl corners, soft shadows, smooth hover transitions
 - Black and white design with yellow (#FFD000) highlight for alerts
-- 4 commits made on ui-update branch
+- Gold (#FFD700) rating stars, Red (#DC2626) for critical warnings
+- All Notifications page created at /notifications
+- FAQ deep linking with scroll-to-highlight
+- 6 commits made on ui-update branch
 
 ### Design System
-- **Colors:** Background #FAFAFA, Surface #FFFFFF, Black #000000, Highlight #FFD000 (yellow)
+- **Colors:** Background #FAFAFA, Surface #FFFFFF, Black #000000, Highlight #FFD000 (yellow), Gold #FFD700 (stars), Error #DC2626 (red)
 - **Typography:** text-sm (14px), text-base (16px), text-lg (18px)
 - **Spacing:** 8px rhythm with py-2, py-3, py-4, space-y-4, space-y-6
-- **Shadows:** shadow-sm through shadow-xl for layered depth
-- **Borders:** border-gray-100 subtle cards
-- **Animations:** duration-200 smooth transitions, hover scale on buttons
+- **Shadows:** shadow-md for resting, shadow-xl for hover
+- **Borders:** 1px solid black borders on cards and buttons
+- **Animations:** duration-200 smooth transitions
+- **User Select:** Disabled globally except for input fields
 
 ---
 

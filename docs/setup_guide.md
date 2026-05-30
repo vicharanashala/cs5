@@ -401,9 +401,11 @@ LLM calls are logged with format:
 |-------|-----|-------|
 | Background | #FAFAFA | Page background |
 | Surface | #FFFFFF | Card/modal surfaces |
-| Black | #000000 | Primary text, buttons |
+| Black | #000000 | Primary text, buttons, borders |
 | White | #FFFFFF | Text on dark backgrounds |
 | Highlight | #FFD000 | Alerts, emphasis, important actions |
+| Gold | #FFD700 | Rating stars |
+| Error Red | #DC2626 | Critical warnings, errors |
 
 ### Typography
 
@@ -418,7 +420,7 @@ LLM calls are logged with format:
 ### Spacing & Layout
 
 - 8px spacing rhythm (py-2, py-3, py-4)
-- Cards: rounded-xl (16px corners), shadow-md, border border-gray-100
+- Cards: rounded-xl (16px corners), shadow-md, border border-black
 - Page sections: space-y-4 to space-y-6
 - Buttons: rounded-xl with hover transitions
 
@@ -426,8 +428,16 @@ LLM calls are logged with format:
 
 | Component | Styling |
 |-----------|---------|
-| Primary Buttons | bg-black text-white hover:bg-gray-800 rounded-xl transition-all duration-200 |
-| Secondary Buttons | bg-white text-black border border-gray-200 hover:bg-gray-50 rounded-xl |
-| Cards | bg-surface rounded-xl shadow-md border border-gray-100 p-4 |
-| Alerts/Highlights | bg-highlight/10 text-black border-l-4 border-highlight |
-| Form Inputs | border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black |
+| Primary Buttons | bg-black text-white hover:bg-gray-800 rounded-xl shadow-md border border-black |
+| Secondary Buttons | bg-white text-black border border-black hover:bg-gray-50 rounded-xl shadow-md |
+| Cards | bg-surface rounded-xl shadow-md border border-black p-4 |
+| Alerts/Highlights | bg-highlight text-black rounded-xl shadow-md |
+| Error Alerts | bg-red-50 text-red-700 border-l-4 border-red-600 rounded-xl |
+| Gold Stars | text-[#FFD700] for rating stars |
+| Form Inputs | border border-black rounded-lg focus:ring-2 focus:ring-black |
+
+### User Experience
+
+- **No Text Cursor on Click**: Global user-select: none prevents cursor on click
+- **FAQ Deep Linking**: Popular FAQs link to specific FAQ with scroll-to-highlight
+- **All Notifications Page**: Dedicated `/notifications` page for viewing all notifications

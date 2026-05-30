@@ -308,6 +308,7 @@ query.in/
 │   │       ├── InternDashboard.jsx, AskAI.jsx
 │   │       ├── PeerQueue.jsx, MyEscalations.jsx (NEW)
 │   │       ├── ViewFAQs.jsx, Announcements.jsx (NEW)
+│   │       ├── AllNotifications.jsx (NEW)
 │   ├── utils/api.js, publicApi.js
 │   ├── App.jsx, main.jsx, index.css
 ├── docs/
@@ -652,3 +653,46 @@ Modernized the entire frontend with a professional SaaS aesthetic:
 - Professional 8px spacing rhythm
 
 **4 Commits on ui-update branch:** e5a7a83, 15f3195, a205ad7, 0e5de37
+
+### Prompt 45: UI Fixes - Cursor, Icons, Stars, Borders, FAQ Navigation
+**Prompt:** Fix multiple UI issues: text cursor appearing on click, vague thumbs up icon, gold rating stars, hide keywords in Popular FAQs, static browse FAQ button, question mark logo alignment.
+
+**Response:**
+Fixed multiple UI issues:
+
+**1. Text Cursor on Click (index.css):**
+- Added global `user-select: none` to prevent text cursor on click
+- Input fields explicitly allowed to select text
+
+**2. Thumbs Up Icon (AskAI.jsx):**
+- Increased icon size from w-4 h-4 to w-5 h-5
+- Added explicit strokeWidth={2} for clearer visibility
+
+**3. Gold Rating Stars (MyEscalations.jsx):**
+- Changed rating stars from `text-highlight` to `text-[#FFD700]` (gold)
+- Applied to both displayed and interactive stars
+
+**4. Keywords Hidden in Popular FAQs (InternDashboard.jsx):**
+- Removed {faq.category} from Popular FAQs list
+- Search in ViewFAQs already includes tags/keywords
+
+**5. Static "View all FAQs" Link (InternDashboard.jsx):**
+- Added background bg-gray-100 and padding to make always visible
+- Added flex-shrink-0 to prevent compression
+
+**6. Question Mark Logo Alignment (Landing.jsx):**
+- Replaced problematic SVG path with cleaner help-circle icon
+- Increased icon size to w-12 h-12
+- Added flex-shrink-0 to prevent scaling
+
+**7. All Notifications Page (AllNotifications.jsx, App.jsx):**
+- Created new page at /notifications
+- Shows all notifications with mark as read, delete, pagination
+- Red icons/badges for warning/alert types
+
+**8. Red Warnings (MyEscalations.jsx, Toast.jsx, Badge.jsx):**
+- Warning banner uses red colors (bg-red-50, border-l-red-600, text-red-700)
+- Toast uses red for intern_warning type
+- Badge has new errorFilled variant
+
+**6 Commits on ui-update branch:** e5a7a83, 15f3195, a205ad7, 0e5de37, 6302866, f5e75c8

@@ -170,11 +170,11 @@ frontend/src/
 ```javascript
 colors: {
   background: '#FAFAFA',    // Page background
-  surface: '#FFFFFF',        // Card/modal surfaces
-  black: '#000000',          // Primary text
+  surface: '#FFFFFF',      // Card/modal surfaces
+  black: '#000000',         // Primary text
   white: '#FFFFFF',          // Text on dark
   highlight: '#FFD000',      // Yellow highlight for alerts
-  error: '#DC2626',          // Error states
+  error: '#DC2626',         // Error states (red)
 }
 shadow: {
   sm: '0 1px 2px rgba(0,0,0,0.05)',
@@ -194,22 +194,26 @@ borderRadius: {
 
 | Component | Purpose | Styling |
 |-----------|---------|---------|
-| Button | Primary actions | bg-black text-white hover:bg-gray-800 rounded-xl |
-| Card | Content containers | bg-surface rounded-xl shadow-md border border-gray-100 |
+| Button | Primary actions | bg-black text-white hover:bg-gray-800 rounded-xl shadow-md |
+| Card | Content containers | bg-white rounded-xl shadow-md border border-black |
 | Badge | Status indicators | text-xs font-medium rounded-full px-2.5 py-1 |
-| Toast | Notifications | Slide-in from top-right, auto-dismiss 5s |
+| Toast | Notifications | Slide-in from bottom-right, shadow-xl, auto-dismiss 5s |
 | NotificationBell | Alert indicator | Bell icon with unread count badge |
-| FormattedAnswer | AI responses | bg-surface rounded-xl p-4 whitespace-pre-wrap |
+| FormattedAnswer | AI responses | bg-white rounded-xl p-4 whitespace-pre-wrap |
 
 ### UI/UX Modernization Changes
 
-- **Color Scheme**: Strictly black (#000000), white (#FFFFFF), and yellow (#FFD000)
+- **Color Scheme**: Strictly black (#000000), white (#FFFFFF), yellow (#FFD000), gold (#FFD700)
 - **Typography**: text-sm (14px) body, text-base (16px) emphasis, text-lg (18px) headings
 - **Spacing**: 8px rhythm - py-2, py-3, py-4, space-y-4, space-y-6
 - **Shadows**: Soft, layered shadows (shadow-sm through shadow-xl)
-- **Borders**: Subtle border-gray-100 on cards
+- **Borders**: 1px solid black borders on cards and buttons
 - **Animations**: Smooth transitions (duration-200), hover scale on buttons
 - **Layout**: DashboardLayout with sticky header, rounded-xl corners throughout
+- **Gold Stars**: Rating stars use #FFD700 color
+- **Red Warnings**: Critical warnings use red bg (bg-red-50), red text (text-red-700)
+- **User Select**: Disabled globally except for input fields
+- **FAQ Navigation**: Popular FAQs link to specific FAQ with scroll-to-highlight
 
 ---
 

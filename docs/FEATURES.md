@@ -256,10 +256,20 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **Dashboard Layout** - Sticky header with logo, user info, notification bell; sidebar navigation
 - **Loading States** - Animated spinner for async operations
 - **Yellow Alert System** - #FFD000 highlight for important alerts and emphasis
+- **Gold Rating Stars** - Rating stars use gold (#FFD700) color for visual consistency
+- **Red Warning Alerts** - Critical warnings/errors use red colors for emphasis
+- **Black Borders & Shadows** - Consistent 1px black borders, shadow-md/shadow-xl on cards
+- **User Select Prevention** - No text cursor on click (except inputs)
+- **All Notifications Page** - Dedicated page at `/notifications` for viewing all notifications
+- **FAQ Deep Linking** - Popular FAQs link directly to specific FAQ with highlight scroll
 
 ### UI/UX Features
 - **Black & White Theme** - #FAFAFA background, pure black text (#000000)
 - **Yellow Highlight** - #FFD000 for alerts, emphasis, and important actions
+- **Gold Stars** - Rating stars use #FFD700 (gold) color
+- **Red Warnings** - Critical alerts use bg-red-50, text-red-700, border-red-200
+- **Black Borders** - 1px solid black borders on interactive elements
+- **Shadow System** - Resting: shadow-md, Hover: shadow-xl, Transition: 0.2s ease
 - **Modern SaaS Aesthetic** - Soft shadows (shadow-md, shadow-xl), backdrop blur, smooth transitions
 - **Rounded Design** - rounded-xl corners (16px) throughout the application
 - **Professional Typography** - Clear hierarchy with text-sm (14px) body, text-base (16px) emphasis

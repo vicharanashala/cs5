@@ -18,7 +18,7 @@
 | Attribute | Value |
 |-----------|-------|
 | **Stack** | MongoDB, Express.js, React (Vite), Node.js, Tailwind CSS, Socket.IO, Gemini + Groq LLM APIs |
-| **Design** | Strict Black (#000000) & White (#FFFFFF) theme with Yellow (#FFD000) highlight for alerts, rounded-xl corners (16px), soft shadows, modern SaaS aesthetic |
+| **Design** | Strict Black (#000000) & White (#FFFFFF) theme with Yellow (#FFD000) highlight for alerts, Gold (#FFD700) for rating stars, Red (#DC2626) for critical warnings, rounded-xl corners (16px), soft shadows, modern SaaS aesthetic |
 | **Auth** | JWT-based with bcrypt password hashing |
 | **Roles** | Admin, Moderator, Intern |
 | **Max Output Tokens** | 2000 per LLM response |
