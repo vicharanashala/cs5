@@ -262,7 +262,7 @@ const MyEscalations = () => {
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <span
                                       key={star}
-                                      className={`text-lg ${star <= (response.rating || 0) ? 'text-highlight' : 'text-gray-300'}`}
+                                      className={`text-lg ${star <= (response.rating || 0) ? 'text-[#FFD700]' : 'text-gray-300'}`}
                                     >
                                       ★
                                     </span>
@@ -298,7 +298,7 @@ const MyEscalations = () => {
                                       key={star}
                                       onClick={() => setRating(star)}
                                       disabled={submitting}
-                                      className={`text-2xl transition-colors ${star <= rating ? 'text-highlight' : 'text-gray-300'} hover:text-highlight`}
+                                      className={`text-2xl transition-colors ${star <= rating ? 'text-[#FFD700]' : 'text-gray-300'} hover:text-[#FFD700]`}
                                     >
                                       ★
                                     </button>

@@ -155,14 +155,13 @@ const InternDashboard = () => {
                 <a
                   key={faq._id}
                   href={`/intern/faqs?highlight=${faq._id}`}
-                  className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
+                  className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 hover:border-gray-300"
                 >
                   <div className="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm border border-gray-800">
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-gray-900 truncate group-hover:text-black">{faq.clean_question}</div>
-                    <div className="text-sm text-gray-500 mt-0.5">{faq.category}</div>
                   </div>
                   <svg className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -172,7 +171,10 @@ const InternDashboard = () => {
             )}
           </div>
           <div className="mt-4 pt-4 border-t border-gray-200">
-            <a href="/intern/faqs" className="text-sm font-medium text-black hover:underline inline-flex items-center gap-1">
+            <a
+              href="/intern/faqs"
+              className="text-sm font-semibold text-black inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
               View all FAQs
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
