@@ -62,11 +62,9 @@ const AskAI = () => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      if (e.shiftKey) {
-        return;
-      }
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      e.stopPropagation();
       setShowSuggestions(false);
       setSuggestions([]);
       if (query.trim()) {
