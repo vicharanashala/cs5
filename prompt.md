@@ -796,10 +796,58 @@ Updated `prompt.md`:
 - Added Prompt 48 documenting the Ask AI page improvements
 - Added Prompt 49 documenting the documentation update
 
+**Commit:** `1935765` - fix: autocomplete suggestions dropdown now closes on Enter key - added setShowSuggestions(false) and setSuggestions([]) in handleKeyDown
+
 ---
 
-### Prompt 50: Commit All Changes
-**Prompt:** Commit all changes with appropriate commit message.
+### Prompt 51: Fix Auto-complete Suggestions Dropdown Not Closing on Enter
+**Prompt:** On hitting Enter, the suggestion window remains open but it should close. The Enter should work the same as clicking on arrow button to submit.
+
+**Response:**
+Updated `handleKeyDown` in `frontend/src/pages/intern/AskAI.jsx`:
+
+```javascript
+// Before: handleKeyDown didn't close suggestions
+const handleKeyDown = (e) => {
+  if (e.key === 'Enter') {
+    if (e.shiftKey) {
+      return;  // Allow Shift+Enter for newlines
+    }
+    e.preventDefault();
+    // Missing: setShowSuggestions(false) and setSuggestions([])
+    if (query.trim()) {
+      handleSubmit(e);
+    }
+  }
+};
+
+// After: handleKeyDown properly closes suggestions
+const handleKeyDown = (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowSuggestions(false);
+    setSuggestions([]);
+    if (query.trim()) {
+      handleSubmit(e);
+    }
+  }
+};
+```
+
+**Changes made:**
+1. Added `setShowSuggestions(false)` and `setSuggestions([])` to close the dropdown
+2. Added `e.stopPropagation()` to prevent event bubbling
+3. Simplified the condition (removed redundant `e.key === 'Enter'` check inside)
+4. Removed the `if (e.shiftKey) { return; }` early-return since we now properly handle all Enter cases
+
+**Files modified:**
+- `frontend/src/pages/intern/AskAI.jsx`
+
+---
+
+### Prompt 52: Update Documentation and Commit All Changes
+**Prompt:** Update all doc folder files including readme, context.md and prompt.md. Also commit all changes and share all git commit history branch wise.
 
 **Response:**
 Staged and committed:
