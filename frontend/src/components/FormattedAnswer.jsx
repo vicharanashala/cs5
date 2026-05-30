@@ -2,18 +2,11 @@
  * =============================================================================
  * QUERY.IN - FORMATTED ANSWER COMPONENT
  * =============================================================================
- * Renders query responses with rich formatting:
- * - Bullet points for lists
- * - Paragraph sections with clear spacing
- * - Highlighted keywords (bold)
- * - Code blocks (monospace)
- *
- * Transforms plain text into readable structured content.
+ * Modern SaaS-style answer renderer with clean typography.
+ * Supports bullet lists, numbered lists, bold text, and code blocks.
  *
  * @component FormattedAnswer
  */
-
-import { useState } from 'react';
 
 const FormattedAnswer = ({ text }) => {
   if (!text) return null;
@@ -25,8 +18,8 @@ const FormattedAnswer = ({ text }) => {
 
     if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
       return (
-        <li key={idx} className="ml-4 list-disc list-inside text-text-primary leading-relaxed">
-          <span className="font-medium">{formatInline(trimmed.slice(2))}</span>
+        <li key={idx} className="ml-5 list-disc list-inside text-gray-700 leading-relaxed">
+          <span className="font-medium text-gray-900">{formatInline(trimmed.slice(2))}</span>
         </li>
       );
     }
@@ -34,22 +27,22 @@ const FormattedAnswer = ({ text }) => {
     if (/^\d+\.\s/.test(trimmed)) {
       const match = trimmed.match(/^(\d+\.\s)(.*)/);
       return (
-        <li key={idx} className="ml-4 list-decimal list-inside text-text-primary leading-relaxed">
-          <span className="font-medium">{formatInline(match[2])}</span>
+        <li key={idx} className="ml-5 list-decimal list-inside text-gray-700 leading-relaxed">
+          <span className="font-medium text-gray-900">{formatInline(match[2])}</span>
         </li>
       );
     }
 
     if (trimmed.startsWith('```')) {
       return (
-        <pre key={idx} className="bg-gray-100 p-4 rounded-sm font-mono text-sm overflow-x-auto border border-border-subtle my-3">
-          <code>{trimmed.replace(/```/g, '')}</code>
+        <pre key={idx} className="bg-gray-100 p-4 rounded-xl font-mono text-sm overflow-x-auto border border-gray-200 my-4">
+          <code className="text-gray-800">{trimmed.replace(/```/g, '')}</code>
         </pre>
       );
     }
 
     return (
-      <p key={idx} className="text-text-primary leading-relaxed mb-3">
+      <p key={idx} className="text-gray-700 leading-relaxed mb-3 last:mb-0">
         {formatInline(trimmed)}
       </p>
     );
@@ -59,7 +52,7 @@ const FormattedAnswer = ({ text }) => {
     const parts = str.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+        return <strong key={i} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong>;
       }
       return part;
     });
