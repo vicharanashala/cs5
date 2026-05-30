@@ -2,32 +2,36 @@
  * =============================================================================
  * QUERY.IN - BADGE COMPONENT
  * =============================================================================
- * A reusable pill-shaped status badge component for query tracking.
- * Strict B&W theme with high contrast for readability.
- *
- * Variants:
- * - AI Generated: Black outline, white fill (pending/unknown)
- * - Peer Answered: Black fill, white text (active/peer response)
- * - Verified by Admin: White outline, black fill (official/approved)
- * - Ambiguous: Dashed border, muted text (special states)
+ * Modern SaaS-style status badge with clean design.
+ * Uses black, white, and yellow highlight color.
  *
  * @component Badge
  */
 
-const Badge = ({ children, variant = 'outline', className = '' }) => {
+const Badge = ({ children, variant = 'default', size = 'md', className = '' }) => {
   const variants = {
-    outline: 'border border-black text-black bg-white',
+    default: 'bg-gray-100 text-gray-700',
+    outline: 'border border-gray-300 text-gray-700 bg-white',
     filled: 'bg-black text-white',
-    verified: 'border-2 border-black bg-black text-white',
-    ambiguous: 'border border-dashed border-black text-text-muted bg-white',
-    success: 'border border-black bg-white text-black',
+    verified: 'bg-black text-white',
+    highlight: 'bg-highlight text-black',
+    success: 'bg-green-100 text-green-700',
+    warning: 'bg-yellow-100 text-yellow-800',
+    error: 'bg-red-100 text-red-700',
+  };
+
+  const sizes = {
+    sm: 'px-2 py-0.5 text-xs',
+    md: 'px-2.5 py-1 text-xs',
+    lg: 'px-3 py-1.5 text-sm',
   };
 
   return (
     <span
       className={`
-        inline-flex items-center px-3 py-1 text-xs font-medium uppercase tracking-wide rounded-full
+        inline-flex items-center font-medium rounded-full
         ${variants[variant]}
+        ${sizes[size]}
         ${className}
       `}
     >

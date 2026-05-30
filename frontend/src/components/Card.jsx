@@ -2,40 +2,36 @@
  * =============================================================================
  * QUERY.IN - CARD COMPONENT
  * =============================================================================
- * A foundational reusable container component adhering to the strict B&W theme.
- * Features an elevated white background, sharp black border, and soft drop-shadow.
+ * A foundational reusable container with modern SaaS-style design.
+ * Clean white background, subtle shadows, and refined borders.
  *
  * @component Card
- * @param {Object} props - Component props
- * @param {React.ReactNode} props.children - Card content
- * @param {string} [props.className] - Additional CSS classes
- * @param {string} [props.title] - Optional card title
- * @param {string} [props.subtitle] - Optional card subtitle
  */
 
-const Card = ({ children, className = '', title, subtitle }) => {
+const Card = ({ children, className = '', title, subtitle, action, hover = true }) => {
   return (
     <div
       className={`
-        bg-background-card border border-border-subtle rounded-lg
-        shadow-card transition-shadow duration-200 hover:shadow-card-hover
+        bg-white rounded-xl border border-gray-200
+        ${hover ? 'hover:shadow-lg hover:border-gray-300 transition-all duration-200' : ''}
         ${className}
       `}
     >
-      {/* Optional Card Header */}
-      {(title || subtitle) && (
-        <div className="px-6 py-4 border-b border-border-subtle">
-          {title && (
-            <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
-          )}
-          {subtitle && (
-            <p className="text-sm text-text-muted mt-1">{subtitle}</p>
-          )}
+      {(title || subtitle || action) && (
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            {title && (
+              <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+            )}
+            {subtitle && (
+              <p className="text-sm text-gray-500 mt-0.5">{subtitle}</p>
+            )}
+          </div>
+          {action && <div>{action}</div>}
         </div>
       )}
 
-      {/* Card Content */}
-      <div className="p-6">
+      <div className="p-5">
         {children}
       </div>
     </div>
