@@ -751,3 +751,60 @@ Created a new backend endpoint and updated the frontend to show accurate stats:
    - `docs/api_docs.md` - Added GET /peer/stats API documentation
 
 **Commit:** `f9b70c4` - fix: Intern dashboard stats now accurate with new /api/peer/stats endpoint
+
+---
+
+### Prompt 48: Ask AI Page Input Improvements
+**Prompt:** In the "Ask AI" page, replace the single-line input with a textarea for multiline support (Shift+Enter for new line), remove the "Get Answer" button and replace the bulb logo with a send button (right arrow) positioned at the rightmost part of the input bar. Also ensure pressing Enter closes suggestions dropdown AND submits the query in one action.
+
+**Response:**
+Updated `frontend/src/pages/intern/AskAI.jsx`:
+
+1. **Textarea with multiline support:**
+   - Replaced `<input type="text">` with `<textarea>`
+   - Auto-resizing textarea with `onInput` handler (min-h: 52px, max-h: 160px)
+   - Placeholder updated: "How do I submit my NOC? What is the process for... (Shift+Enter for new line)"
+
+2. **Send button replaces bulb icon:**
+   - Removed bulb icon (lightbulb SVG)
+   - Added black rounded send button with right-pointing arrow icon
+   - Positioned absolutely on the right side of the textarea
+   - Submit disabled when query is empty, loading, or already resolved/escalated
+
+3. **Shift+Enter for new line:**
+   - `handleKeyDown` checks `e.shiftKey` - if true, returns early (allows default behavior)
+   - Enter without Shift submits the query
+
+4. **Single Enter to close suggestions AND submit:**
+   - `handleKeyDown` now always closes suggestions dropdown and clears suggestions
+   - If `query.trim()` exists, calls `handleSubmit(e)` immediately
+   - Removed separate "Get Answer" button - submission via Enter or send button
+
+**Files modified:**
+- `frontend/src/pages/intern/AskAI.jsx`
+
+---
+
+### Prompt 49: Documentation Update for Ask AI Improvements
+**Prompt:** Update all documentation files (context.md, prompt.md) to reflect the Ask AI page improvements (issue #51).
+
+**Response:**
+Updated `context.md`:
+- Added issue #51 to Resolved Issues table: "Ask AI page input limitations | Single-line input couldn't handle multiline questions; 'Get Answer' button separate from input | Replaced input with textarea (Shift+Enter for new line, Enter to submit), replaced bulb icon with send button (right arrow) on input bar"
+
+Updated `prompt.md`:
+- Added Prompt 48 documenting the Ask AI page improvements
+- Added Prompt 49 documenting the documentation update
+
+---
+
+### Prompt 50: Commit All Changes
+**Prompt:** Commit all changes with appropriate commit message.
+
+**Response:**
+Staged and committed:
+- `frontend/src/pages/intern/AskAI.jsx`
+- `context.md`
+- `prompt.md`
+
+**Commit:** `[current]` - fix: Ask AI page input improvements - textarea, send button, Shift+Enter multiline, single Enter submit

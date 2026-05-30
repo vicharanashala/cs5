@@ -63,10 +63,14 @@ const AskAI = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      if (showSuggestions && suggestions.length > 0) {
-        e.preventDefault();
-        setShowSuggestions(false);
-        setSuggestions([]);
+      if (e.shiftKey) {
+        return;
+      }
+      e.preventDefault();
+      setShowSuggestions(false);
+      setSuggestions([]);
+      if (query.trim()) {
+        handleSubmit(e);
       }
     }
   };
@@ -259,27 +263,36 @@ const AskAI = () => {
                 Type your question
               </label>
               <div className="relative">
-                <input
-                  type="text"
+                <textarea
                   value={query}
                   onChange={handleQueryChange}
                   onKeyDown={handleKeyDown}
-                  placeholder="How do I submit my NOC? What is the process for..."
-                  className="w-full px-4 py-3.5 pr-12 border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black rounded-xl text-base transition-all"
+                  placeholder="How do I submit my NOC? What is the process for... (Shift+Enter for new line)"
+                  className="w-full px-4 py-3.5 pr-12 border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black rounded-xl text-base transition-all resize-none min-h-[52px] max-h-40"
+                  rows={1}
                   disabled={loading || response?.resolution === 'escalated' || response?.resolution === 'resolved'}
+                  style={{ height: 'auto', overflow: 'hidden' }}
+                  onInput={(e) => {
+                    e.target.style.height = 'auto';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+                  }}
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <button
+                  type="submit"
+                  disabled={loading || !query.trim() || response?.resolution === 'escalated' || response?.resolution === 'resolved'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+                >
                   {loading ? (
-                    <svg className="animate-spin h-5 w-5 text-gray-400" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   )}
-                </div>
+                </button>
               </div>
 
               {/* Auto-complete suggestions dropdown */}
@@ -309,23 +322,6 @@ const AskAI = () => {
             )}
 
             <div className="flex gap-3">
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={loading || !query.trim()}
-                className="flex-1"
-                size="lg"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Processing...
-                  </span>
-                ) : 'Get Answer'}
-              </Button>
               {response && response.resolution === 'pending_feedback' && (
                 <Button
                   type="button"
