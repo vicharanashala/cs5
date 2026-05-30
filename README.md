@@ -301,6 +301,7 @@ All query resolutions are tracked with ResolutionType:
 | 46 | No warning system for intern misuse | Added warning_count and is_disabled to User model, warnIntern endpoint, Spoiled Users page |
 | 47 | Failed to send warning (500 error) | Added 'intern_warning' to Notification type enum |
 | 48 | MyEscalations shows "Resolved" instead of "Approved" | Both peer_approved and admin_override show "Approved" badge |
+| 49 | Sidebar shows only current page nav items | Created centralized navConfig.jsx, DashboardLayout auto-detects nav items by user role |
 
 ---
 

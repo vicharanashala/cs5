@@ -696,3 +696,32 @@ Fixed multiple UI issues:
 - Badge has new errorFilled variant
 
 **6 Commits on ui-update branch:** e5a7a83, 15f3195, a205ad7, 0e5de37, 6302866, f5e75c8
+
+### Prompt 46: Fix Sidebar Navigation - All Cards Visible on Every Page
+**Prompt:** On the dashboard of every user, whenever a card apart from "Dashboard" is clicked, the new card opens and all the other cards available to the user are removed from the left side (which shows all the cards for a user). Suppose I click "Announcements" card as an intern, then it opens the announcement page and shows only the dashboard and announcement card in the left side. Fix it so that upon clicking any card, all the cards are visible and upon clicking them I should be rerouted to that particular page.
+
+**Response:**
+Created centralized navigation configuration to fix the sidebar issue:
+
+1. **Created `frontend/src/utils/navConfig.jsx`** with centralized nav items for all roles:
+   - `internNavItems` (6 items): Dashboard, Announcements, View FAQs, Ask AI, My Escalations, Peer Answer Queue
+   - `moderatorNavItems` (3 items): Dashboard, Query Monitor, Resolve Hub
+   - `adminNavItems` (10 items): Dashboard, User Management, Announcements, Query Monitor, FAQ Editor, Ambiguous, Resolve Hub, AI Suggestions, User Registration, Spoiled Users
+   - `getNavItemsByRole(role)` function to get nav items by role
+
+2. **Updated `DashboardLayout.jsx`:**
+   - Now imports `getNavItemsByRole` from navConfig
+   - Accepts optional `navItems` prop for override, defaults to auto-detect based on `user?.role`
+   - Line: `const navItems = propNavItems || getNavItemsByRole(user?.role);`
+
+3. **Updated all 25 dashboard pages** (removed local navItems arrays and prop passing):
+   - Intern pages (7): InternDashboard, Announcements, ViewFAQs, AskAI, MyEscalations, PeerQueue, AllNotifications
+   - Moderator pages (6): ModeratorOverview, ModeratorQueries, ModeratorHighRated, ModeratorAmbiguous, ModeratorResolveHub, ModeratorDashboard
+   - Admin pages (12): AdminOverview, AdminUsers, AdminAnnouncement, AdminQueries, AdminFaqEditor, AdminAmbiguous, AdminResolveHub, AdminSuggestions, AdminRegistration, AdminSpoiledUsers, AdminHighRated, AdminDashboard
+
+4. **Documentation updated:**
+   - `docs/architecture.md` - Added navConfig.jsx to utils directory
+   - `README.md` - Added issue #49 to Recent Fixes table
+   - `context.md` - Added issue #49 to Resolved Issues table and navConfig.jsx to Project Structure
+
+**Commit:** (pending)

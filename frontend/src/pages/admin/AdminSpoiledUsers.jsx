@@ -13,12 +13,6 @@ import Card from '../../components/Card';
 import Badge from '../../components/Badge';
 import api from '../../utils/api';
 
-const navItems = [
-  { path: '/admin', label: 'Dashboard', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> },
-  { path: '/admin/users', label: 'User Management', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg> },
-  { path: '/admin/spoiled-users', label: 'Spoiled Users', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> },
-];
-
 const AdminSpoiledUsers = () => {
   const [spoiledUsers, setSpoiledUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +50,7 @@ const AdminSpoiledUsers = () => {
   };
 
   return (
-    <DashboardLayout navItems={navItems}>
+    <DashboardLayout>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-black">Spoiled Users</h1>
         <p className="text-text-secondary mt-1">Interns with warning flags - credibility at risk</p>

@@ -259,6 +259,7 @@ STEP 7: RESOLVED (Terminal State)
 | 46 | No warning system for intern misuse | No way to warn or disable misbehaving users | Added warning_count and is_disabled to User model, warnIntern endpoint, intern_warning notification, Spoiled Users page |
 | 47 | Failed to send warning (500 error) | Notification model enum missing 'intern_warning' type | Added 'intern_warning' to Notification type enum |
 | 48 | MyEscalations shows "Resolved" instead of "Approved" | Only peer_approved showed "Approved", admin_override showed "Resolved" | Changed to show "Approved" for ALL resolved queries regardless of resolution_type |
+| 49 | Sidebar shows only current page nav items | Each page defined its own navItems subset | Created centralized navConfig.jsx, DashboardLayout auto-detects nav items by user role |
 
 ---
 
@@ -347,7 +348,7 @@ query.in/
 │   │   ├── components/        # UI components
 │   │   ├── context/           # AuthContext, NotificationContext
 │   │   ├── pages/            # Role-based pages
-│   │   ├── utils/            # api.js, publicApi.js
+│   │   ├── utils/            # api.js, publicApi.js, navConfig.jsx (centralized navigation)
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   └── .env

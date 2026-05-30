@@ -12,14 +12,17 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
+import { getNavItemsByRole } from '../utils/navConfig';
 
-const DashboardLayout = ({ children, navItems }) => {
+const DashboardLayout = ({ children, navItems: propNavItems }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  const navItems = propNavItems || getNavItemsByRole(user?.role);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

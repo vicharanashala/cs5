@@ -82,7 +82,8 @@ frontend/src/
 │       └── Announcements.jsx
 ├── utils/                # Utility functions
 │   ├── api.js            # Protected axios instance
-│   └── publicApi.js      # Public axios instance (no interceptor)
+│   ├── publicApi.js      # Public axios instance (no interceptor)
+│   └── navConfig.jsx     # Centralized navigation items for all roles
 ├── App.jsx               # Router configuration
 ├── main.jsx              # Entry point
 └── index.css             # Global styles (B&W theme)
