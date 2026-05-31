@@ -286,14 +286,15 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 
 ## 10. Resolve Hub Sections
 
-The Admin/Moderator Resolve Hub presents 5 sections for query resolution:
+The Admin/Moderator Resolve Hub presents 6 mutually exclusive sections for query resolution:
 
 | Section | Filter |
 |---------|--------|
-| Pending Resolution | Queries with high-rated responses (rating >= 4) OR ambiguous queries (3-strike rule) |
-| Stagnant (0 answers) | is_locked=true, responses=0 (sweeper-triggered) |
-| Unanswered | status != 'Resolved', responses=0 |
-| Low-Rated | 5 responses, all rating < 4 |
+| Pending Resolution | High-rated responses (rating >= 4), NOT locked, NOT ambiguous |
+| Ambiguous | status === 'Ambiguous' (3-strike rule triggered), locked |
+| Stagnant (Locked Queries) | is_locked=true, responses=0 (sweeper-triggered) |
+| Unanswered | NOT locked, responses=0 |
+| Low-Rated | is_locked, 5 responses, all rating < 4 |
 | Archive | status = 'Resolved' |
 
 ---
