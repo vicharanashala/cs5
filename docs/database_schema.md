@@ -332,14 +332,13 @@ AMBIGUOUS ◄──────────────────────�
 | Ambiguous | No | No (locked) |
 | Resolved | No | No (locked) |
 
-### Admin/Moderator Resolution Queues (6-Section, Mutually Exclusive)
+### Admin/Moderator Resolution Queues (5-Section)
 
 | Queue | Condition |
 |-------|-----------|
-| Pending Resolution | High-rated responses (rating >= 4), NOT locked, NOT ambiguous |
-| Ambiguous | status === 'Ambiguous' (3-strike rule), locked |
-| Stagnant (Locked Queries) | is_locked: true, responses: 0 (sweeper-triggered) |
-| Unanswered | NOT locked, responses: 0 |
+| Pending Resolution | High-rated queries (response rating >= 4) OR Ambiguous queries (3-strike rule) |
+| Stagnant (0 answers) | is_locked: true, responses: 0 |
+| Unanswered | status != 'Resolved', responses: 0 |
 | Low-Rated | is_locked, 5 responses, all < 4 stars |
 | Archive | status = 'Resolved' |
 

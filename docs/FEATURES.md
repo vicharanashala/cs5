@@ -85,17 +85,16 @@ Background cron job runs every 15 minutes to enforce SLA timeouts:
 
 ---
 
-### 6-Section Admin/Moderator Resolve Hub
+### 5-Section Admin/Moderator Resolve Hub
 
-Admin/Moderator Resolve Hub presents 6 mutually exclusive sections for query resolution:
+Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 
 | Section | Condition |
 |---------|-----------|
-| Pending Resolution | High-rated responses (rating >= 4), NOT locked, NOT ambiguous |
-| Ambiguous | status === 'Ambiguous' (3-strike rule), locked |
-| Stagnant (Locked Queries) | is_locked + 0 responses (sweeper-triggered) |
-| Unanswered | NOT locked, 0 responses |
-| Low-Rated | is_locked, 5 responses, all < 4 stars |
+| Pending Resolution | High-rated queries (rating >= 4) OR Ambiguous queries (3-strike rule) |
+| Stagnant (0 answers) | is_locked + 0 responses (sweeper-triggered) |
+| Unanswered | status != 'Resolved', 0 responses |
+| Low-Rated | 5 responses, all < 4 stars |
 | Archive | status = 'Resolved' |
 
 ---
@@ -241,13 +240,13 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **User Management** - Sortable/filterable user table with warning levels and status
 - **Query Monitor** - Status filter, date sort, thread drawer
 - **FAQ Editor** - Full CRUD on FAQ collection
-- **Resolve Hub** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive
+- **Resolve Hub** - 5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive
 - **AI Suggestions** - Yellow alert at 10-occurrence threshold
 
 ### Moderator Dashboard (Page-Based Layout)
 - **Dashboard Overview** - Navigation cards to all sections
 - **Query Monitor** - Status filter, thread drawer
-- **Resolve Hub** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive
+- **Resolve Hub** - 4-section queue: Pending Resolution, Unanswered, Low-Rated, Archive
 
 ### UI/UX Modernization (Phase 14)
 - **Black & White Design System** - #FAFAFA background, #000000 text, #FFD000 yellow highlight

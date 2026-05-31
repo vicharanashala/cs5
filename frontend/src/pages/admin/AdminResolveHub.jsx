@@ -21,7 +21,7 @@ const AdminResolveHub = () => {
   const sections = [
     { id: 'pending', label: 'Pending Resolution', count: 0 },
     { id: 'ambiguous', label: 'Ambiguous Queries', count: 0 },
-    { id: 'stagnant', label: 'Stagnant (Locked Queries)', count: 0 },
+    { id: 'stagnant', label: 'Stagnant (0 answers)', count: 0 },
     { id: 'unanswered', label: 'Unanswered', count: 0 },
     { id: 'low_rated', label: 'Low-Rated', count: 0 },
     { id: 'archive', label: 'Archive', count: 0 },
@@ -43,30 +43,18 @@ const AdminResolveHub = () => {
 
   const categorized = {
     pending: queries.filter(q => {
-      if (q.status === 'Resolved' || q.status === 'Ambiguous') return false;
-      if (q.is_locked) return false;
+      if (q.status === 'Resolved') return false;
+      if (q.status === 'Ambiguous') return false;
       const hasHighRating = q.responses?.some(r => r.rating >= 4);
       return hasHighRating;
     }),
     ambiguous: queries.filter(q => q.status === 'Ambiguous'),
-    stagnant: queries.filter(q => {
-      if (q.status === 'Resolved' || q.status === 'Ambiguous') return false;
-      if (!q.is_locked) return false;
-      if (q.responses && q.responses.length > 0) return false;
-      return true;
-    }),
-    unanswered: queries.filter(q => {
-      if (q.status === 'Resolved' || q.status === 'Ambiguous') return false;
-      if (q.is_locked) return false;
-      if (!q.responses || q.responses.length === 0) return true;
-      return false;
-    }),
+    stagnant: queries.filter(q => q.status !== 'Resolved' && q.is_locked && (!q.responses || q.responses.length === 0)),
+    unanswered: queries.filter(q => q.status !== 'Resolved' && (!q.responses || q.responses.length === 0)),
     low_rated: queries.filter(q => {
-      if (q.status === 'Resolved' || q.status === 'Ambiguous') return false;
-      if (!q.is_locked) return false;
-      if (!q.responses || q.responses.length === 0) return false;
-      const allLowRatings = q.responses.length >= 5 && q.responses.every(r => r.rating && r.rating < 4);
-      return allLowRatings;
+      if (q.status !== 'Peer Answered' || !q.responses?.length) return false;
+      const hasLowRatings = q.responses.some(r => r.rating && r.rating < 4);
+      return hasLowRatings && q.responses.length >= 5;
     }),
     archive: queries.filter(q => q.status === 'Resolved'),
   };
@@ -151,9 +139,10 @@ const QueryDetailPanel = ({ query, onClose }) => {
     try {
       await api.post('/admin/approve', { query_id: query._id, response_id: responseId });
       onClose();
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 100);
     } catch (err) {
       console.error('Failed to approve', err);
+      alert(err.response?.data?.error || 'Failed to approve');
     } finally {
       setLoading(false);
     }
@@ -165,9 +154,10 @@ const QueryDetailPanel = ({ query, onClose }) => {
     try {
       await api.post('/admin/override', { query_id: query._id, response_text: overrideText });
       onClose();
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 100);
     } catch (err) {
       console.error('Failed to override', err);
+      alert(err.response?.data?.error || 'Failed to override');
     } finally {
       setLoading(false);
     }

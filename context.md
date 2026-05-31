@@ -443,7 +443,7 @@ query.in/
 
 ---
 
-## Admin Dashboard (6-Card Layout)
+## Admin Dashboard (5-Card Layout)
 
 | Card | Feature |
 |------|---------|
@@ -451,7 +451,7 @@ query.in/
 | 2 | Broadcast Announcement |
 | 3 | Master Query Monitor |
 | 4 | FAQ Knowledge Base Editor |
-| 5 | Resolve Query Hub (6-section queue: Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive) |
+| 5 | Resolve Query Hub (5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | 6 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---

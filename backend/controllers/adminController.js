@@ -48,15 +48,24 @@ const getEscalatedQueries = async (req, res) => {
   try {
     const { type = 'all' } = req.query;
 
-    let statusFilter = { is_locked: true, status: { $ne: 'Resolved' } };
+    let statusFilter = {};
+    let isLockedFilter = {};
 
-    if (type === 'ambiguous') {
+    if (type === 'all') {
+      // Return all queries except pending (for Archive to work)
+      statusFilter = {};
+      isLockedFilter = {};
+    } else if (type === 'ambiguous') {
       statusFilter.status = 'Ambiguous';
     } else if (type === 'high' || type === 'low') {
       statusFilter.status = 'Peer Answered';
     }
 
-    const queries = await Query.find(statusFilter)
+    const queries = await Query.find({
+      ...statusFilter,
+      ...isLockedFilter,
+      ...(type !== 'all' ? { is_locked: true } : {}),
+    })
       .populate('intern_id', '_id email role warning_count')
       .populate('responses')
       .sort({ updatedAt: -1 });
