@@ -20,7 +20,7 @@ const ModeratorResolveHub = () => {
 
   const sections = [
     { id: 'pending', label: 'Pending Resolution', count: 0 },
-    { id: 'unanswered', label: 'Unanswered', count: 0 },
+    { id: 'stagnant', label: 'Stagnant (Locked, 24h+)', count: 0 },
     { id: 'low_rated', label: 'Low-Rated', count: 0 },
     { id: 'archive', label: 'Archive', count: 0 },
   ];
@@ -46,7 +46,16 @@ const ModeratorResolveHub = () => {
       const hasHighRating = q.responses?.some(r => r.rating >= 4);
       return hasHighRating;
     }),
-    unanswered: queries.filter(q => q.status !== 'Resolved' && (!q.responses || q.responses.length === 0)),
+    stagnant: queries.filter(q => {
+      if (q.status === 'Resolved' || q.status === 'Ambiguous') return false;
+      if (!q.responses || q.responses.length === 0) return false;
+      if (q.responses.length >= 5) return false;
+      const allLowRated = q.responses.every(r => r.rating && r.rating < 4);
+      if (!allLowRated) return false;
+      const createdAt = new Date(q.createdAt);
+      const hoursSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
+      return hoursSinceCreation >= 24;
+    }),
     low_rated: queries.filter(q => {
       if (q.status !== 'Peer Answered' || !q.responses?.length) return false;
       if (q.responses.length < 5) return false;

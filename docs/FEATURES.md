@@ -85,16 +85,15 @@ Background cron job runs every 15 minutes to enforce SLA timeouts:
 
 ---
 
-### 6-Section Admin/Moderator Resolve Hub
+### 5-Section Admin/Moderator Resolve Hub
 
-Admin/Moderator Resolve Hub presents 6 sections for query resolution:
+Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 
 | Section | Condition | Response Display |
 |---------|-----------|------------------|
 | Pending Resolution | High-rated queries (rating >= 4), excludes Ambiguous | Only 4-5★ responses shown, sorted 5★ first |
 | Ambiguous Queries | status = 'Ambiguous' (3-strike rule triggered), can delete these | All responses shown |
-| Stagnant (0 answers) | is_locked: true, 0 responses (sweeper-triggered) | N/A |
-| Unanswered | status != 'Resolved', 0 responses | N/A |
+| Stagnant (Locked, 24h+) | 1-4 responses, ALL 1-3★, created 24+ hours ago | All responses shown (sorted 3★→1★) |
 | Low-Rated | 5+ responses, ALL < 4 stars | All responses shown (sorted 3★→1★), Approve button available |
 | Archive | status = 'Resolved' | All responses shown |
 

@@ -382,16 +382,15 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 ---
 
-## 6-Section Admin Resolution Hub
+## 5-Section Admin Resolution Hub
 
-The Admin Dashboard presents 6 sections for managing escalated queries:
+The Admin Dashboard presents 5 sections for managing escalated queries:
 
 | Section | Condition |
 |---------|-----------|
 | Pending Resolution | High-rated queries (rating >= 4), excludes Ambiguous and Resolved. **Only 4-5★ responses shown, sorted 5★ first** |
 | Ambiguous Queries | Queries marked unclear by 3 peers (3-strike rule), can delete these |
-| Stagnant (0 answers) | is_locked: true, 0 responses (sweeper-triggered) |
-| Unanswered | status != 'Resolved', 0 responses |
+| Stagnant (Locked, 24h+) | Queries with 1-4 low-rated responses (all 1-3★), created 24+ hours ago |
 | Low-Rated | Queries with 5+ responses ALL rated < 4 stars. **All responses shown (sorted 3★→1★) with Approve button** |
 | Archive | status = 'Resolved' |
 

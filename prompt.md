@@ -1075,3 +1075,36 @@ Updated both `AdminResolveHub.jsx` and `ModeratorResolveHub.jsx`:
 **Files modified:**
 - `frontend/src/pages/admin/AdminResolveHub.jsx`
 - `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
+
+---
+
+### Prompt 65: Fix Stagnant Category - Rename and Change Criteria
+**Prompt:**
+1. Change "Stagnant (0 Answers)" category name to "Stagnant (Locked, 24h+)"
+2. Remove "Unanswered" category entirely
+3. New Stagnant criteria: queries with 1-4 low-rated responses (1-3 stars) AND created >= 24 hours ago
+
+**Response:**
+Updated both AdminResolveHub.jsx and ModeratorResolveHub.jsx:
+
+1. **Removed "Unanswered" section** from sections array
+
+2. **Renamed "Stagnant (0 answers)" to "Stagnant (Locked, 24h+)"**
+
+3. **New Stagnant filter logic:**
+```javascript
+stagnant: queries.filter(q => {
+  if (q.status === 'Resolved' || q.status === 'Ambiguous') return false;
+  if (!q.responses || q.responses.length === 0) return false;
+  if (q.responses.length >= 5) return false;
+  const allLowRated = q.responses.every(r => r.rating && r.rating < 4);
+  if (!allLowRated) return false;
+  const createdAt = new Date(q.createdAt);
+  const hoursSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
+  return hoursSinceCreation >= 24;
+})
+```
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
