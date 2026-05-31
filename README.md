@@ -361,12 +361,12 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 | Page | Route | Purpose |
 |------|-------|---------|
-| Dashboard | /admin | Overview with navigation cards |
-| User Management | /admin/users | Combined: Registration, User list with warnings, Active/Inactive toggle |
+| Dashboard | /admin | Overview with navigation cards (7 cards) |
+| User Management | /admin/users | Combined: Registration, User list with warnings (0=green, 1+=yellow, 5=red), Active/Inactive toggle (green/red) |
 | Announcements | /admin/announcement | Publish announcements |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Resolve Hub | /admin/resolve | Resolution queue (includes Stagnant, Unanswered, Low-Rated) |
+| Resolve Hub | /admin/resolve | Resolution queue (includes Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
 | Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 
@@ -376,9 +376,7 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 |------|-------|---------|
 | Dashboard | /moderator | Overview with navigation cards |
 | Query Monitor | /moderator/queries | Master query feed |
-| Highly Rated | /moderator/high-rated | Queries with 4-5 star ratings |
-| Ambiguous | /moderator/ambiguous | 3-strike rule queries |
-| Resolve Hub | /moderator/resolve | Resolution queue |
+| Resolve Hub | /moderator/resolve | Resolution queue (includes Pending Resolution, Unanswered, Low-Rated, Archive) |
 
 ---
 

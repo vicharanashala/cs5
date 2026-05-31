@@ -443,17 +443,16 @@ query.in/
 
 ---
 
-## Admin Dashboard (7-Card Layout)
+## Admin Dashboard (5-Card Layout)
 
 | Card | Feature |
 |------|---------|
 | 1 | User Management (Combined: Registration + User list with warnings + Active/Inactive toggle) |
 | 2 | Broadcast Announcement |
-| 3 | User Management Directory |
-| 4 | Master Query Monitor |
-| 5 | FAQ Knowledge Base Editor |
-| 6 | Resolve Query Hub (5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
-| 7 | AI-Assisted FAQ Suggestions (Yellow alert) |
+| 3 | Master Query Monitor |
+| 4 | FAQ Knowledge Base Editor |
+| 5 | Resolve Query Hub (5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
+| 6 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---
 
@@ -471,8 +470,8 @@ query.in/
 
 | Page | Route | Purpose |
 |------|-------|---------|
-| Dashboard | /admin | Overview with navigation cards |
-| User Management | /admin/users | Combined: Registration, User list with warnings, Active/Inactive toggle |
+| Dashboard | /admin | Overview with navigation cards (7 cards) |
+| User Management | /admin/users | Combined: Registration, User list with warnings (0=green, 1+=yellow, 5=red), Active/Inactive toggle (green/red) |
 | Announcements | /admin/announcement | Publish announcements |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |

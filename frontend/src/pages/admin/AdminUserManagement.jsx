@@ -188,10 +188,9 @@ const UserListTable = () => {
   const roleColors = { admin: 'bg-black text-white', moderator: 'bg-gray-600 text-white', intern: 'bg-gray-400 text-white' };
 
   const getWarningBadge = (warning_count) => {
-    if (warning_count >= 4) return { bg: 'bg-red-500', text: 'text-white', label: warning_count };
-    if (warning_count >= 2) return { bg: 'bg-yellow-400', text: 'text-black', label: warning_count };
-    if (warning_count === 1) return { bg: 'bg-green-400', text: 'text-black', label: warning_count };
-    return { bg: 'bg-gray-200', text: 'text-gray-600', label: '0' };
+    if (warning_count >= 5) return { bg: 'bg-red-600', text: 'text-white', label: warning_count };
+    if (warning_count >= 1) return { bg: 'bg-yellow-400', text: 'text-black', label: warning_count };
+    return { bg: 'bg-green-100', text: 'text-green-800', label: '0' };
   };
 
   return (
@@ -277,7 +276,7 @@ const UserListTable = () => {
                       </td>
                       <td className="py-3 px-4">
                         {user.isActive === false ? (
-                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-300 text-gray-700">Inactive</span>
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-700">Inactive</span>
                         ) : (
                           <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Active</span>
                         )}

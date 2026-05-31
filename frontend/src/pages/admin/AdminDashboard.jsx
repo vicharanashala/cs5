@@ -1,21 +1,19 @@
 /**
  * =============================================================================
- * QUERY.IN - ADMIN DASHBOARD (Complete 7-Card Layout)
+ * QUERY.IN - ADMIN DASHBOARD (Simplified 6-Card Layout)
  * =============================================================================
- * Card 1: User Registration (Single & Bulk JSON Upload)
+ * Card 1: User Management (links to /admin/users - combined Registration + Users + Warnings)
  * Card 2: Broadcast Announcement
- * Card 3: User Management Directory
- * Card 4: Master Query Monitor & Integrated Review Suite
- * Card 5: FAQ Knowledge Base Editor
- * Card 6: Highly Rated Queries (first priority)
- * Card 7: Ambiguous Queries (3-strike rule)
- * Card 8: Resolve Query (remaining: Master, Stagnant, Unanswered, Low-Rated, Archive)
- * Card 9: AI-Assisted FAQ Suggestions
+ * Card 3: Master Query Monitor
+ * Card 4: FAQ Knowledge Base Editor
+ * Card 5: Resolve Query Hub (All sections: Pending, Stagnant, Unanswered, Low-Rated, Archive)
+ * Card 6: AI-Assisted FAQ Suggestions
  *
  * @module pages/admin/AdminDashboard
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Badge from '../../components/Badge';
@@ -23,8 +21,6 @@ import Button from '../../components/Button';
 import api from '../../utils/api';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -33,252 +29,47 @@ const AdminDashboard = () => {
           <p className="text-text-secondary mt-1">Complete system management interface</p>
         </div>
 
-        {/* Card 1: User Registration */}
-        <Card title="User Registration" subtitle="Single onboarding or bulk batch account registration">
-          <div className="flex border-b border-border-subtle mb-4">
-            <button
-              onClick={() => setActiveTab('single')}
-              className={`px-4 py-2 font-medium text-sm border-b-2 ${activeTab === 'single' ? 'border-black text-black' : 'border-transparent text-text-muted hover:text-black'}`}
-            >
-              Single User
-            </button>
-            <button
-              onClick={() => setActiveTab('bulk')}
-              className={`px-4 py-2 font-medium text-sm border-b-2 ${activeTab === 'bulk' ? 'border-black text-black' : 'border-transparent text-text-muted hover:text-black'}`}
-            >
-              Bulk JSON Upload
-            </button>
-          </div>
-
-          {activeTab === 'single' ? <SingleUserForm /> : <BulkUploadForm />}
-        </Card>
+        {/* Card 1: User Management - Links to combined page */}
+        <Link to="/admin/users" className="block">
+          <Card title="User Management" subtitle="Register users, manage accounts, view warnings, activate/deactivate users">
+            <div className="flex items-center justify-between">
+              <div className="text-text-muted">
+                Combined registration, user list, warning levels, and active/inactive toggle
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-black">Open User Management</span>
+                <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </Card>
+        </Link>
 
         {/* Card 2: Broadcast Announcement */}
         <Card title="Publish Global Announcement" subtitle="Form to publish global notices directly into the platform feed">
           <AnnouncementForm />
         </Card>
 
-        {/* Card 3: User Management Directory */}
-        <Card title="Registered Users Database" subtitle="High-level searchable table monitoring all active user accounts">
-          <UserManagement />
-        </Card>
-
-        {/* Card 4: Master Query Monitor */}
+        {/* Card 3: Master Query Monitor */}
         <Card title="Platform Queries Feed" subtitle="Central control grid for tracking and addressing active user tickets">
           <QueryMonitor />
         </Card>
 
-        {/* Card 5: FAQ Knowledge Base Editor */}
+        {/* Card 4: FAQ Knowledge Base Editor */}
         <Card title="FAQ Database Management" subtitle="Create, update, or delete entries in the FAQ collection">
           <FAQEditor />
         </Card>
 
-        {/* Card 6: Highly Rated Queries (First Priority) */}
-        <Card title="Highly Rated Queries" subtitle="Queries with 4-5 star ratings requiring urgent admin attention">
-          <HighlyRatedQueries />
-        </Card>
-
-        {/* Card 7: Ambiguous Queries (3-Strike Rule) */}
-        <Card title="Ambiguous Queries" subtitle="Queries marked unclear by 3 different peers">
-          <AmbiguousQueries />
-        </Card>
-
-        {/* Card 8: Resolve Query */}
+        {/* Card 5: Resolve Query Hub */}
         <Card title="System Query Resolution Hub" subtitle="Central command terminal for reviewing, approving, or overriding escalated queries">
           <ResolveQueryHub />
         </Card>
 
-        {/* Card 9: AI FAQ Suggestions */}
+        {/* Card 6: AI FAQ Suggestions */}
         <AISuggestions />
       </div>
     </DashboardLayout>
-  );
-};
-
-/* ============================================================================
- * Card 1 - Single User Form
- * ============================================================================ */
-const SingleUserForm = () => {
-  const [form, setForm] = useState({ email: '', password: '', role: 'intern' });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage(null);
-    try {
-      const res = await api.post('/auth/register', form);
-      setMessage({ type: 'success', text: `User ${res.data.user.email} registered successfully as ${res.data.user.role}` });
-      setForm({ email: '', password: '', role: 'intern' });
-    } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.error || 'Registration failed' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-text-primary mb-1">Email</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full px-3 py-2 border border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-text-primary mb-1">Password</label>
-          <input
-            type="password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="w-full px-3 py-2 border border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-text-primary mb-1">Role</label>
-          <select
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-            className="w-full px-3 py-2 border border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          >
-            <option value="intern">Intern</option>
-            <option value="moderator">Moderator</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-      </div>
-      {message && (
-        <div className={`px-4 py-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'}`}>
-          {message.text}
-        </div>
-      )}
-      <Button type="submit" disabled={loading} className="w-full md:w-auto">
-        {loading ? 'Registering...' : 'Register User'}
-      </Button>
-    </form>
-  );
-};
-
-/* ============================================================================
- * Card 1 - Bulk JSON Upload
- * ============================================================================ */
-const BulkUploadForm = () => {
-  const [file, setFile] = useState(null);
-  const [selectedRole, setSelectedRole] = useState('intern');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = (e) => {
-    const selected = e.target.files[0];
-    if (selected) setFile(selected);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const dropped = e.dataTransfer.files[0];
-    if (dropped && dropped.type === 'application/json') setFile(dropped);
-  };
-
-  const handleProcess = () => {
-    if (!file) return;
-    setShowConfirm(true);
-  };
-
-  const handleConfirm = async () => {
-    setLoading(true);
-    setShowConfirm(false);
-    try {
-      const text = await file.text();
-      const users = JSON.parse(text);
-      if (!Array.isArray(users)) throw new Error('JSON must be an array of users');
-      const emails = users.map(u => u.email);
-      const res = await api.post('/auth/bulk-register', { users: emails.map(e => ({ email: e, password: 'TempPass123!', role: selectedRole })) });
-      setMessage({ type: 'success', text: `Successfully registered ${res.data.count} users as ${selectedRole}` });
-      setFile(null);
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Bulk registration failed' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-text-primary mb-1">Assign Batch Role</label>
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="w-full px-3 py-2 border border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-          >
-            <option value="intern">Intern</option>
-            <option value="moderator">Moderator</option>
-          </select>
-        </div>
-        <div></div>
-      </div>
-
-      <div
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-black rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-      >
-        <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />
-        <div className="text-text-muted">
-          {file ? (
-            <div className="text-black font-medium">{file.name}</div>
-          ) : (
-            <>
-              <div className="text-4xl mb-2">📁</div>
-              <div>Drag & Drop JSON File or Click to Browse</div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {message && (
-        <div className={`px-4 py-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'}`}>
-          {message.text}
-        </div>
-      )}
-
-      <Button onClick={handleProcess} disabled={!file || loading} className="w-full md:w-auto">
-        {loading ? 'Processing...' : 'Process File Upload'}
-      </Button>
-
-      {/* Confirmation Modal */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 border-2 border-black">
-            <h3 className="text-lg font-bold text-black mb-2">System Confirmation Request</h3>
-            <p className="text-text-secondary mb-4">
-              Warning: You are about to batch-register all users contained within this JSON file with the system role of <strong>{selectedRole.toUpperCase()}</strong>.
-              <br /><br />
-              Please ensure this matches your intended batch layout. This action will modify platform access keys.
-            </p>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setShowConfirm(false)} className="flex-1">
-                Cancel / Go Back
-              </Button>
-              <Button onClick={handleConfirm} className="flex-1 bg-red-600 hover:bg-red-700">
-                Confirm & Continue
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
   );
 };
 
@@ -341,105 +132,7 @@ const AnnouncementForm = () => {
 };
 
 /* ============================================================================
- * Card 3: User Management Directory
- * ============================================================================ */
-const UserManagement = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [sortOrder, setSortOrder] = useState('newest');
-  const [search, setSearch] = useState('');
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await api.get('/auth/users');
-        setUsers(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch users', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, []);
-
-  const filteredUsers = users
-    .filter(u => roleFilter === 'all' || u.role === roleFilter)
-    .filter(u => !search || u.email.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sortOrder === 'newest' ? new Date(b.createdAt) - new Date(a.createdAt) : new Date(a.createdAt) - new Date(b.createdAt));
-
-  const roleColors = { admin: 'bg-black text-white', moderator: 'bg-gray-600 text-white', intern: 'bg-gray-400 text-white' };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-4 items-center">
-        <select
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-3 py-2 border border-black bg-white text-black rounded-lg text-sm"
-        >
-          <option value="all">All Roles</option>
-          <option value="intern">Interns</option>
-          <option value="moderator">Moderators</option>
-          <option value="admin">Admins</option>
-        </select>
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-          className="px-3 py-2 border border-black bg-white text-black rounded-lg text-sm"
-        >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Search users by email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-3 py-2 border border-black bg-white text-black rounded-lg text-sm min-w-[200px]"
-        />
-      </div>
-
-      {loading ? (
-        <div className="text-center py-8 text-text-muted">Loading users...</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-black">
-                <th className="text-left py-3 px-4 font-medium text-black">Email</th>
-                <th className="text-left py-3 px-4 font-medium text-black">Role</th>
-                <th className="text-left py-3 px-4 font-medium text-black">Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map(user => (
-                <tr key={user._id} className="border-b border-border-subtle hover:bg-gray-50">
-                  <td className="py-3 px-4 text-black">{user.email}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${roleColors[user.role]}`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-text-muted text-sm">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-8 text-text-muted">No users found</div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-/* ============================================================================
- * Card 4: Master Query Monitor
+ * Card 3: Master Query Monitor
  * ============================================================================ */
 const QueryMonitor = () => {
   const [queries, setQueries] = useState([]);

@@ -110,25 +110,21 @@ frontend/src/
 
 # Admin Pages
 /admin                    → AdminOverview (protected, admin only)
-/admin/registration      → AdminUserRegistration (admin only)
-/admin/announcement     → AdminAnnouncement (admin only)
-/admin/users             → AdminUsers (admin only)
+/admin/users             → AdminUserManagement (admin only) - Combined: Registration + Users + Warnings
+/admin/announcement      → AdminAnnouncement (admin only)
 /admin/queries           → AdminQueries (admin only)
 /admin/faqs              → AdminFaqEditor (admin only)
-/admin/high-rated         → AdminHighRated (admin only)
 /admin/ambiguous         → AdminAmbiguous (admin only)
-/admin/resolve          → AdminResolveHub (admin only)
+/admin/resolve           → AdminResolveHub (admin only)
 /admin/suggestions       → AdminSuggestions (admin only)
 
 # Moderator Pages
 /moderator               → ModeratorOverview (protected, moderator+)
-/moderator/queries        → ModeratorQueries (moderator only)
-/moderator/high-rated     → ModeratorHighRated (moderator only)
-/moderator/ambiguous      → ModeratorAmbiguous (moderator only)
+/moderator/queries       → ModeratorQueries (moderator only)
 /moderator/resolve       → ModeratorResolveHub (moderator only)
 
 # Intern Pages
-/intern                   → InternDashboard (protected, intern only)
+/intern                  → InternDashboard (protected, intern only)
 /intern/ask              → AskAI (protected, intern only)
 /intern/peer-queue       → PeerQueue (protected, intern only)
 /intern/my-queries       → MyEscalations (protected, intern only)
@@ -498,10 +494,21 @@ Admin/Moderator can send warnings to interns from any query detail panel. This s
 **User Model Fields:**
 - `warning_count`: Number (default: 0, max: 5)
 - `is_disabled`: Boolean (auto-enabled at warning_count >= 5)
+- `isActive`: Boolean (default: true, admin toggle for soft deactivation)
+
+**Warning Badge Colors (on User Management page):**
+- `warning_count === 0`: Green badge (bg-green-100 text-green-800)
+- `warning_count >= 1`: Yellow badge (bg-yellow-400 text-black)
+- `warning_count >= 5`: Red badge (bg-red-600 text-white)
+
+**Status Indicator Colors:**
+- Active (isActive !== false): Green badge (bg-green-100 text-green-800)
+- Inactive (isActive === false): Red badge (bg-red-100 text-red-700)
 
 **Admin Endpoints:**
 - `POST /api/admin/warn-user` - Send warning to intern
 - `GET /api/admin/spoiled-users` - Get all users with warnings
+- `PATCH /api/auth/users/:id/toggle-status` - Toggle user active/inactive
 
 **Warning Flow:**
 1. Admin clicks "Send Warning" button in query detail panel
@@ -510,11 +517,10 @@ Admin/Moderator can send warnings to interns from any query detail panel. This s
 4. If `warning_count >= 5`: `is_disabled = true`, user cannot log in
 5. `intern_warning` notification sent to intern
 
-**Pages with Warning Functionality:**
-- AdminQueries (QueryDrawer)
-- AdminResolveHub (QueryDetailPanel)
-- AdminAmbiguous (QueryDetailPanel)
-- ModeratorResolveHub (QueryDetailPanel)
-- ModeratorAmbiguous (QueryDetailPanel)
+**Combined User Management Page:**
+All user functionality is combined into a single page at `/admin/users`:
+- User Registration (Single & Bulk JSON)
+- User List with warning levels (color-coded) and status indicators
+- Active/Inactive toggle via 3-dot menu (non-admins only)
 
 **Resolved Badge:** All resolved queries (both `peer_approved` and `admin_override`) show "Approved" badge in MyEscalations page.

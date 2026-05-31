@@ -18,7 +18,6 @@ import AdminUserManagement from './pages/admin/AdminUserManagement';
 import AdminAnnouncement from './pages/admin/AdminAnnouncement';
 import AdminQueries from './pages/admin/AdminQueries';
 import AdminFaqEditor from './pages/admin/AdminFaqEditor';
-import AdminHighRated from './pages/admin/AdminHighRated';
 import AdminAmbiguous from './pages/admin/AdminAmbiguous';
 import AdminResolveHub from './pages/admin/AdminResolveHub';
 import ModeratorOverview from './pages/moderator/ModeratorOverview';
@@ -63,15 +62,6 @@ const App = () => {
         />
 
         <Route
-          path="/admin/registration"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminUserManagement />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
           path="/admin/users"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
@@ -103,15 +93,6 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminFaqEditor />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/high-rated"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminHighRated />
             </ProtectedRoute>
           }
         />
