@@ -17,7 +17,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { login, register, getMe, bulkRegister, getAllUsers } = require('../controllers/authController');
+const { login, register, getMe, bulkRegister, getAllUsers, toggleUserStatus } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorizeRoles } = require('../middleware/authMiddleware');
 
@@ -26,5 +26,6 @@ router.post('/register', register);
 router.post('/bulk-register', protect, authorizeRoles('admin'), bulkRegister);
 router.get('/me', protect, getMe);
 router.get('/users', protect, authorizeRoles('admin'), getAllUsers);
+router.patch('/users/:id/toggle-status', protect, authorizeRoles('admin'), toggleUserStatus);
 
 module.exports = router;

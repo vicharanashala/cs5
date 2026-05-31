@@ -14,15 +14,13 @@ import FAQs from './pages/FAQs';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminSuggestions from './pages/admin/AdminSuggestions';
-import AdminUserRegistration from './pages/admin/AdminUserRegistration';
+import AdminUserManagement from './pages/admin/AdminUserManagement';
 import AdminAnnouncement from './pages/admin/AdminAnnouncement';
-import AdminUsers from './pages/admin/AdminUsers';
 import AdminQueries from './pages/admin/AdminQueries';
 import AdminFaqEditor from './pages/admin/AdminFaqEditor';
 import AdminHighRated from './pages/admin/AdminHighRated';
 import AdminAmbiguous from './pages/admin/AdminAmbiguous';
 import AdminResolveHub from './pages/admin/AdminResolveHub';
-import AdminSpoiledUsers from './pages/admin/AdminSpoiledUsers';
 import ModeratorOverview from './pages/moderator/ModeratorOverview';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
 import ModeratorQueries from './pages/moderator/ModeratorQueries';
@@ -73,20 +71,11 @@ const App = () => {
           }
         />
 
-        <Route
+<Route
           path="/admin/announcement"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminAnnouncement />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/users"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminUsers />
             </ProtectedRoute>
           }
         />
@@ -258,15 +247,6 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminSuggestions />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/spoiled-users"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminSpoiledUsers />
             </ProtectedRoute>
           }
         />

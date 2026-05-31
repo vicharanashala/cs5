@@ -99,6 +99,13 @@ const login = async (req, res) => {
       });
     }
 
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        error: 'Your account has been deactivated. Contact an administrator.',
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -327,4 +334,57 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe, bulkRegister, getAllUsers };
+/**
+ * toggleUserStatus
+ * PATCH /api/auth/users/:id/toggle-status
+ * Toggles a user's isActive status. Admin cannot deactivate themselves.
+ */
+const toggleUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user.userId;
+
+    if (id === adminId) {
+      return res.status(400).json({
+        success: false,
+        error: 'You cannot change your own active status',
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot change status of an admin user',
+      });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`,
+      data: {
+        id: user._id,
+        email: user.email,
+        isActive: user.isActive,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to toggle user status',
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { login, register, getMe, bulkRegister, getAllUsers, toggleUserStatus };
