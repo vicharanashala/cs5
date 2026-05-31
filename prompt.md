@@ -261,93 +261,54 @@ Added `validateQuery` function in both frontend and backend:
 Now `ajflafjllafffaafas` is blocked with: *"Please enter a valid question with at least 6 different letters."*
 
 **Files modified:**
-- `frontend/src/pages/intern/AskAI.jsx`
-- `backend/controllers/askAIController.js`
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
 
 ---
 
-## File Structure Summary
+### Prompt 71: Moderator FAQ Suggestion Workflow
+**Prompt:** On the admin dashboard, remove the "Query Monitor" and "Ambiguous queries" also remove them from the page navigation from the left side. Change name of "Resolve Hub" to "Query Management" and update the description accordingly making it easy for the user to understand that all query related things are managed from here. also fix the logo of "User Management" card as it is not correct. The moderator can not query from the "Archive" Category into the faq database, instead add a button for the moderator by which it can suggest the admin for queries in the "Archive" category which should be added to the faq database. in the admin's resolve hub, add a new category as "Moderator Suggested" which shows the suggested query which should be added to the Faq databse with the a button "Add to FAQ database" for the admin along with all the options for adding a query (category,tags, etc.)
 
-```
-query.in/
-├── backend/
-│   ├── config/db.js
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── faqController.js
-│   │   ├── queryController.js
-│   │   ├── askAIController.js
-│   │   ├── peerController.js
-│   │   ├── ratingController.js
-│   │   ├── adminController.js
-│   │   ├── announcementController.js
-│   │   └── analyticsController.js (NEW)
-│   ├── middleware/authMiddleware.js
-│   ├── models/
-│   │   ├── User.js, Query.js, Response.js
-│   │   ├── FAQ.js, NoFaq.js, Announcement.js
-│   ├── routes/
-│   │   ├── authRoutes.js, faqRoutes.js, queryRoutes.js, askAIRoutes.js
-│   │   ├── peerRoutes.js, ratingRoutes.js, adminRoutes.js
-│   │   ├── announcementRoutes.js, analyticsRoutes.js (NEW)
-│   ├── services/grokService.js (Gemini LLM)
-│   ├── server.js
-│   ├── .env, .env.example
-│   └── testCredentials.md
-├── frontend/src/
-│   ├── components/
-│   │   ├── Badge.jsx, Button.jsx, Card.jsx
-│   │   ├── DashboardLayout.jsx, FormattedAnswer.jsx
-│   │   ├── ProtectedRoute.jsx
-│   ├── context/AuthContext.jsx
-│   ├── pages/
-│   │   ├── Landing.jsx, FAQs.jsx
-│   │   ├── admin/AdminDashboard.jsx, AdminSuggestions.jsx (NEW)
-│   │   ├── moderator/ModeratorDashboard.jsx
-│   │   └── intern/
-│   │       ├── InternDashboard.jsx, AskAI.jsx
-│   │       ├── PeerQueue.jsx, MyEscalations.jsx (NEW)
-│   │       ├── ViewFAQs.jsx, Announcements.jsx (NEW)
-│   │       ├── AllNotifications.jsx (NEW)
-│   ├── utils/api.js, publicApi.js
-│   ├── App.jsx, main.jsx, index.css
-├── docs/
-│   ├── FEATURES.md
-│   ├── setup_guide.md
-│   ├── architecture.md
-│   ├── api_docs.md
-│   └── database_schema.md
-├── context.md
-└── prompt.md
-```
+**Response:**
+Implemented complete Moderator FAQ Suggestion workflow:
 
----
+1. **Created Backend Model:**
+   - `backend/models/ModeratorFaqSuggestion.js` - Tracks moderator FAQ suggestions with query_id, suggested_by, question_text, suggested_answer, status (pending/approved/dismissed)
 
-## Git Commit History
+2. **Added Backend Endpoints:**
+   - `POST /admin/suggest-faq` (moderator only) - Submit suggestion for archived query
+   - `GET /admin/moderator-suggestions` (admin only) - Get pending suggestions
+   - `PATCH /admin/moderator-suggestions/:id/dismiss` (admin only) - Dismiss suggestion
 
-| Commit | Description |
-|--------|-------------|
-| `e191db8` | feat: add Groq API fallback, multi-model switching, 2000 tokens, analytics tracking, plain text LLM responses |
-| `78eb4a4` | docs: implement master README, feature breakdown, and comprehensive technical documentation |
-| `3b1d3d7` | docs: update prompt.md with Phase 9 Socket.IO realtime notifications |
-| `e307d71` | feat: Phase 9 - Socket.IO realtime notifications |
-| `4afcf4a` | feat: implement AI FAQ suggestion engine with 10-occurrence threshold... |
-| `169d831` | feat: implement peer escalation workflow engine with 3-strike rules... |
-| `2e1e130` | feat: fix downvote flow, update Gemini API to v1 with gemini-2.5-flash... |
-| `fe265c9` | feat: switch LLM from Grok to Gemini, fix RAG downvote flow... |
-| `30970d9` | fix: use consistent RAG matching for auto-complete... |
-| `fd931f6` | fix: embed login form directly in Landing page... |
-| `005eeee` | fix: simplify auth flow... |
-| `42a4b5d` | fix: use window.location.href for hard redirect after login... |
-| `d787634` | fix: resolve login redirect race condition... |
-| `32b011b` | docs: update context.md with resolved issues and current status |
-| `2fb4e4e` | feat: improve FAQs page with accordion categories... |
-| `28ece33` | feat: add public FAQs page with search/filter... |
-| `8e4311d` | feat: implemented responsive role-based dashboards... |
-| `abdc3c8` | feat: implement JWT authentication, RBAC middleware... |
-| `8676b52` | feat: implement core Mongoose schemas and foundational API routes |
-| `d3753c1` | chore: Initialize MERN stack foundation and B&W design system |
-| `ded982c` | Phase 0: Initialize project structure |
+3. **Updated AdminResolveHub.jsx:**
+   - Removed "Query Monitor" and "Ambiguous Queries" cards from overview
+   - Renamed "Resolve Hub" → "Query Management"
+   - Added "Moderator Suggested" section in Query Management
+   - Shows pending suggestions with "Add to FAQ" button (opens full FAQ creation modal) and "Dismiss" button
+
+4. **Updated ModeratorResolveHub.jsx:**
+   - In Archive section, added "Suggest for FAQ Database" button
+   - Opens modal showing query and approved response
+   - Submits suggestion for admin review
+
+5. **Updated navConfig.jsx:**
+   - Removed Query Monitor and Ambiguous from admin sidebar
+   - Renamed "Resolve Hub" to "Query Management"
+
+6. **Updated AdminOverview.jsx:**
+   - Removed Query Monitor and Ambiguous Queries cards
+   - Updated "Resolve Hub" card to "Query Management" with new description
+   - Fixed User Management logo (now uses settings/management icon)
+
+**Files modified:**
+- `backend/models/ModeratorFaqSuggestion.js` (new)
+- `backend/controllers/adminController.js` - Added suggestFaqFromQuery, getModeratorSuggestions, dismissModeratorSuggestion
+- `backend/routes/adminRoutes.js` - Added new routes
+- `frontend/src/pages/admin/AdminOverview.jsx` - Removed cards, renamed, fixed logo
+- `frontend/src/pages/admin/AdminResolveHub.jsx` - Added Moderator Suggested section
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx` - Added Suggest for FAQ button
+- `frontend/src/utils/navConfig.jsx` - Updated admin nav items
+- `docs/architecture.md`, `docs/database_schema.md`, `docs/api_docs.md`, `docs/FEATURES.md`, `context.md` - Updated documentation
 
 ---
 

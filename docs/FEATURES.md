@@ -208,6 +208,7 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **Approve Peer Response** - Admin approves peer answer
 - **Admin Override** - Admin provides own answer
 - **Resolution Types** - peer_approved, admin_override
+- **Moderator FAQ Suggestions** - Moderators can suggest archived queries for FAQ database; Admin reviews in "Moderator Suggested" section
 
 ### AI FAQ Suggestion Engine
 - **No-FAQ Tracking** - Tracks unanswered questions

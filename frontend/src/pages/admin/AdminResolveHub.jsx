@@ -15,6 +15,7 @@ import api from '../../utils/api';
 const AdminResolveHub = () => {
   const [activeSection, setActiveSection] = useState('pending');
   const [queries, setQueries] = useState([]);
+  const [moderatorSuggestions, setModeratorSuggestions] = useState([]);
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,6 +25,7 @@ const AdminResolveHub = () => {
     { id: 'stagnant', label: 'Stagnant (Locked, 24h+)', count: 0 },
     { id: 'low_rated', label: 'Low-Rated', count: 0 },
     { id: 'archive', label: 'Archive', count: 0 },
+    { id: 'moderator_suggested', label: 'Moderator Suggested', count: 0 },
   ];
 
   useEffect(() => {
@@ -37,7 +39,16 @@ const AdminResolveHub = () => {
         setLoading(false);
       }
     };
+    const fetchModeratorSuggestions = async () => {
+      try {
+        const res = await api.get('/admin/moderator-suggestions');
+        setModeratorSuggestions(res.data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch moderator suggestions', err);
+      }
+    };
     fetchQueries();
+    fetchModeratorSuggestions();
   }, []);
 
   const categorized = {
@@ -65,6 +76,7 @@ const AdminResolveHub = () => {
       return allLowRated;
     }),
     archive: queries.filter(q => q.status === 'Resolved'),
+    moderator_suggested: moderatorSuggestions,
   };
 
   const displayedQueries = categorized[activeSection] || [];
@@ -128,7 +140,15 @@ const AdminResolveHub = () => {
           </div>
 
           {selectedQuery && (
-            <QueryDetailPanel query={selectedQuery} activeSection={activeSection} onClose={() => setSelectedQuery(null)} />
+            <QueryDetailPanel
+              query={selectedQuery}
+              activeSection={activeSection}
+              onClose={() => setSelectedQuery(null)}
+              onSuggestionDismissed={() => {
+                setModeratorSuggestions(prev => prev.filter(s => s._id !== selectedQuery._id));
+                onClose();
+              }}
+            />
           )}
         </div>
       </Card>
@@ -136,7 +156,7 @@ const AdminResolveHub = () => {
   );
 };
 
-const QueryDetailPanel = ({ query, activeSection, onClose }) => {
+const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed }) => {
   const [overrideText, setOverrideText] = useState('');
   const [loading, setLoading] = useState(false);
   const [showWarnModal, setShowWarnModal] = useState(false);
@@ -152,8 +172,10 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
 
   const isHighRatedSection = activeSection === 'pending';
   const isLowRatedSection = activeSection === 'low_rated';
-
+  const isModeratorSuggested = activeSection === 'moderator_suggested';
   const isArchiveSection = activeSection === 'archive';
+
+  const isSuggestionMode = isModeratorSuggested;
 
   const filteredResponses = isArchiveSection
     ? (query.responses || []).filter(r => r.approval === true)
@@ -219,8 +241,9 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
     }
     setLoading(true);
     try {
+      const faqQueryId = isSuggestionMode ? query.query_id?._id || query.query_id : query._id;
       await api.post('/admin/create-faq', {
-        query_id: query._id,
+        query_id: faqQueryId,
         category: finalCategory,
         tags: faqForm.tags.split(',').map(t => t.trim()).filter(Boolean),
         keywords: faqForm.keywords.split(',').map(k => k.trim()).filter(Boolean),
@@ -277,112 +300,165 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto border-2 border-black">
         <div className="p-6 border-b border-black flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-bold text-black">Query Details</h3>
-            <p className="text-text-muted text-sm">ID: {query._id}</p>
+            <h3 className="text-lg font-bold text-black">{isSuggestionMode ? 'Moderator FAQ Suggestion' : 'Query Details'}</h3>
+            <p className="text-text-muted text-sm">{isSuggestionMode ? 'Suggested by Moderator' : `ID: ${query._id}`}</p>
           </div>
           <button onClick={onClose} className="text-2xl text-black hover:text-gray-600">&times;</button>
         </div>
 
         <div className="p-6 space-y-6">
-          <div className="bg-gray-50 p-4 rounded border border-border-subtle">
-            <div className="font-medium text-black">{query.query_text}</div>
-            <div className="text-sm text-text-muted mt-2">
-              From: {query.intern_id?.email} • Status: {query.status}
-            </div>
-            {query.intern_id?.warning_count > 0 && (
-              <div className="mt-2">
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
-                  ⚠️ {query.intern_id.warning_count} warning{query.intern_id.warning_count > 1 ? 's' : ''}
-                </span>
+          {isSuggestionMode ? (
+            <>
+              <div className="bg-gray-50 p-4 rounded border border-border-subtle">
+                <div className="text-sm font-medium text-black mb-2">Question (from archived query):</div>
+                <div className="font-medium text-black">{query.question_text}</div>
+                {query.query_id && (
+                  <div className="text-sm text-text-muted mt-2">
+                    Original Query ID: {query.query_id._id || query.query_id}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div>
-            <div className="text-sm font-medium text-black mb-3">
-              {isArchiveSection ? 'Approved Response' : isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
+              <div>
+                <div className="text-sm font-medium text-black mb-3">Suggested Answer (from approved response):</div>
+                <div className="border border-black rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-gray-600 text-white">moderator</span>
+                    <span className="text-sm">{query.suggested_by?.email}</span>
+                  </div>
+                  <div className="text-black">{query.suggested_answer}</div>
+                </div>
+              </div>
+
+              <div className="border-t border-border-subtle pt-4 space-y-4">
+                <button
+                  onClick={handleAddToFAQ}
+                  disabled={loading}
+                  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  + Add to FAQ Database
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Dismiss this suggestion?')) return;
+                    setLoading(true);
+                    try {
+                      await api.patch(`/admin/moderator-suggestions/${query._id}/dismiss`);
+                      onSuggestionDismissed();
+                    } catch (err) {
+                      console.error('Failed to dismiss', err);
+                      alert(err.response?.data?.error || 'Failed to dismiss suggestion');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
+                  className="w-full px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300"
+                >
+                  Dismiss Suggestion
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="bg-gray-50 p-4 rounded border border-border-subtle">
+              <div className="font-medium text-black">{query.query_text}</div>
+              <div className="text-sm text-text-muted mt-2">
+                From: {query.intern_id?.email} • Status: {query.status}
+              </div>
+              {query.intern_id?.warning_count > 0 && (
+                <div className="mt-2">
+                  <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                    ⚠️ {query.intern_id.warning_count} warning{query.intern_id.warning_count > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
             </div>
-            {filteredResponses.length > 0 ? (
-              <div className="space-y-3">
-                {filteredResponses.map(resp => (
-                  <div key={resp._id} className="border border-black rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[resp.response_type]}`}>
-                        {resp.response_type}
-                      </span>
-                      <span className="text-sm">{resp.author_id?.email}</span>
-                      {resp.rating && <span className="text-yellow-500">★ {resp.rating}/5</span>}
-                      {resp.approval && <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Approved</span>}
+
+            <div>
+              <div className="text-sm font-medium text-black mb-3">
+                {isArchiveSection ? 'Approved Response' : isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
+              </div>
+              {filteredResponses.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredResponses.map(resp => (
+                    <div key={resp._id} className="border border-black rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[resp.response_type]}`}>
+                          {resp.response_type}
+                        </span>
+                        <span className="text-sm">{resp.author_id?.email}</span>
+                        {resp.rating && <span className="text-yellow-500">★ {resp.rating}/5</span>}
+                        {resp.approval && <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Approved</span>}
+                      </div>
+                      <div className="text-black">{resp.response_text}</div>
+                      {!isArchiveSection && (resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
+                        <button
+                          onClick={() => handleApprove(resp._id)}
+                          disabled={loading}
+                          className="mt-3 text-sm px-3 py-1 border border-black rounded hover:bg-gray-50"
+                        >
+                          Approve Response
+                        </button>
+                      )}
                     </div>
-                    <div className="text-black">{resp.response_text}</div>
-                    {!isArchiveSection && (resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-text-muted">
+                  {isArchiveSection ? 'No approved response found' : isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-border-subtle pt-4 space-y-4">
+              {query.status !== 'Resolved' && (
+                <>
+                  <label className="block text-sm font-medium text-black">Submit Official Solution</label>
+                  <textarea
+                    value={overrideText}
+                    onChange={(e) => setOverrideText(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black min-h-[100px]"
+                    placeholder="Type an authoritative answer..."
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleOverride}
+                      disabled={loading || !overrideText.trim()}
+                      className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-400"
+                    >
+                      Submit Official Response & Resolve
+                    </button>
+                    <button
+                      onClick={() => setShowWarnModal(true)}
+                      disabled={loading}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+                    >
+                      ⚠️ Send Warning
+                    </button>
+                    {query.status === 'Ambiguous' && (
                       <button
-                        onClick={() => handleApprove(resp._id)}
+                        onClick={handleDeleteQuery}
                         disabled={loading}
-                        className="mt-3 text-sm px-3 py-1 border border-black rounded hover:bg-gray-50"
+                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400"
                       >
-                        Approve Response
+                        🗑️ Remove Query
                       </button>
                     )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4 text-text-muted">
-                {isArchiveSection ? 'No approved response found' : isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
-              </div>
-            )}
-          </div>
+                </>
+              )}
 
-          <div className="border-t border-border-subtle pt-4 space-y-4">
-            {query.status !== 'Resolved' && (
-              <>
-                <label className="block text-sm font-medium text-black">Submit Official Solution</label>
-                <textarea
-                  value={overrideText}
-                  onChange={(e) => setOverrideText(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black min-h-[100px]"
-                  placeholder="Type an authoritative answer..."
-                />
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleOverride}
-                    disabled={loading || !overrideText.trim()}
-                    className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-400"
-                  >
-                    Submit Official Response & Resolve
-                  </button>
-                  <button
-                    onClick={() => setShowWarnModal(true)}
-                    disabled={loading}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
-                  >
-                    ⚠️ Send Warning
-                  </button>
-                  {query.status === 'Ambiguous' && (
-                    <button
-                      onClick={handleDeleteQuery}
-                      disabled={loading}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400"
-                    >
-                      🗑️ Remove Query
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-
-            {query.status === 'Resolved' && (
-              <button
-                onClick={handleAddToFAQ}
-                disabled={loading}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                + Add to FAQ Database
-              </button>
-            )}
-          </div>
-        </div>
+              {query.status === 'Resolved' && !isSuggestionMode && (
+                <button
+                  onClick={handleAddToFAQ}
+                  disabled={loading}
+                  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  + Add to FAQ Database
+                </button>
+              )}
+            </div>
+          )}
 
         {showWarnModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

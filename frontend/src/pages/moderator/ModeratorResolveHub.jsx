@@ -134,6 +134,8 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [showWarnModal, setShowWarnModal] = useState(false);
   const [warnMessage, setWarnMessage] = useState('');
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState('');
 
   const isHighRatedSection = activeSection === 'pending';
   const isLowRatedSection = activeSection === 'low_rated';
@@ -193,6 +195,28 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
     } catch (err) {
       console.error('Failed to send warning', err);
       alert(err.response?.data?.error || 'Failed to send warning');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSuggestFaq = async () => {
+    if (!selectedAnswer) {
+      alert('Please select an approved response to suggest for FAQ');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/admin/suggest-faq', {
+        query_id: query._id,
+        suggested_answer: selectedAnswer,
+      });
+      setShowSuggestModal(false);
+      alert('FAQ suggestion submitted for admin review');
+      onClose();
+    } catch (err) {
+      console.error('Failed to suggest FAQ', err);
+      alert(err.response?.data?.error || 'Failed to suggest FAQ');
     } finally {
       setLoading(false);
     }
@@ -259,6 +283,20 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
               <div className="text-center py-4 text-text-muted">
                 {isArchiveSection ? 'No approved response found' : isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
               </div>
+            )}
+
+            {isArchiveSection && filteredResponses.length > 0 && (
+              <button
+                onClick={() => {
+                  const approvedResp = filteredResponses.find(r => r.approval);
+                  setSelectedAnswer(approvedResp ? approvedResp.response_text : filteredResponses[0]?.response_text || '');
+                  setShowSuggestModal(true);
+                }}
+                disabled={loading}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                💡 Suggest for FAQ Database
+              </button>
             )}
           </div>
 
@@ -328,6 +366,50 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
                   </button>
                   <button
                     onClick={() => setShowWarnModal(false)}
+                    disabled={loading}
+                    className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 disabled:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showSuggestModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full border-2 border-black">
+              <div className="p-6 border-b border-black">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-black">Suggest for FAQ Database</h3>
+                  <button onClick={() => setShowSuggestModal(false)} className="text-black hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-text-muted">
+                  Suggest this query and its approved response to be added to the FAQ database for future reference.
+                </p>
+                <div className="bg-gray-50 p-3 rounded border border-border-subtle">
+                  <div className="text-sm font-medium text-black mb-1">Query:</div>
+                  <div className="text-sm text-black">{query.query_text}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Selected Answer to Suggest:</label>
+                  <div className="border border-black rounded-lg p-3 bg-white text-sm text-black max-h-40 overflow-y-auto">
+                    {selectedAnswer}
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSuggestFaq}
+                    disabled={loading}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                  >
+                    {loading ? 'Submitting...' : 'Submit Suggestion'}
+                  </button>
+                  <button
+                    onClick={() => setShowSuggestModal(false)}
                     disabled={loading}
                     className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 disabled:bg-gray-100"
                   >

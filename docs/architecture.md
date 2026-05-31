@@ -448,15 +448,34 @@ const MAX_PEER_RESPONSES = 5;
 
 ---
 
-## 5-Section Admin/Moderator Resolve Hub
+## 6-Section Admin/Moderator Resolve Hub
 
+**Admin Resolve Hub (6 sections):**
 | Section | Filter Condition | Response Display |
 |---------|------------------|------------------|
 | Pending Resolution | High-rated queries (responses with rating >= 4), excludes Ambiguous | Only 4-5★ responses shown, sorted 5★ first |
 | Ambiguous Queries | status === 'Ambiguous' (3-strike rule triggered), can delete these queries | All responses shown |
 | Stagnant (Locked, 24h+) | 1-4 responses, ALL < 4 stars, created 24+ hours ago | All responses shown (sorted 3★→1★) |
 | Low-Rated | responses.length >= 5, ALL responses must be < 4 stars | All responses shown (sorted 3★→1★), Approve button available |
-| Archive | status === 'Resolved' | All responses shown |
+| Archive | status === 'Resolved' | Only approved responses shown |
+| Moderator Suggested | Pending FAQ suggestions from moderators | Question + suggested answer, "Add to FAQ" or "Dismiss" buttons |
+
+**Moderator Resolve Hub (4 sections):**
+| Section | Filter Condition | Response Display |
+|---------|------------------|------------------|
+| Pending Resolution | High-rated queries (responses with rating >= 4), excludes Ambiguous | Only 4-5★ responses shown, sorted 5★ first |
+| Stagnant (Locked, 24h+) | 1-4 responses, ALL < 4 stars, created 24+ hours ago | All responses shown (sorted 3★→1★) |
+| Low-Rated | responses.length >= 5, ALL responses must be < 4 stars | All responses shown (sorted 3★→1★), Approve button available |
+| Archive | status === 'Resolved' | Only approved responses shown, "Suggest for FAQ Database" button |
+
+**Moderator FAQ Suggestion Workflow:**
+1. Moderator resolves a query (approves or overrides)
+2. Query moves to Archive
+3. In Archive section, Moderator clicks "Suggest for FAQ Database"
+4. Modal shows query + approved response for confirmation
+5. Suggestion is submitted for admin review
+6. Admin sees suggestion in "Moderator Suggested" section
+7. Admin can create FAQ (with full modal: category, tags, keywords, priority) or dismiss
 
 ---
 

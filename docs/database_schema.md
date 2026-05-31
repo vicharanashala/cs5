@@ -17,6 +17,7 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 | [nofags](#nofags) | Content gap tracking |
 | [announcements](#announcements) | Admin broadcasts |
 | [notifications](#notifications) | Real-time + persistent notifications |
+| [moderator_faq_suggestions](#moderator_faq_suggestions) | Moderator FAQ suggestions for admin review |
 
 ---
 
@@ -223,6 +224,33 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 | `announcement` | Admin creates announcement | All interns |
 | `faq_added` | Admin adds new FAQ to knowledge base | All interns |
 | `intern_warning` | Admin sends warning to intern for misuse | Targeted intern |
+
+---
+
+## ModeratorFaqSuggestions (Moderator FAQ Suggestions)
+
+```javascript
+{
+  _id: ObjectId,           // Primary key
+  query_id: ObjectId,      // Ref: Query (required)
+  suggested_by: ObjectId,  // Ref: User (moderator, required)
+  question_text: String,   // Required (the query text from original query)
+  suggested_answer: String, // Required (the approved response text)
+  status: String,          // enum: 'pending' | 'approved' | 'dismissed', default: 'pending'
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+**Indexes:**
+- `status`: 1, `createdAt`: -1
+
+**Workflow:**
+1. Moderator views archived (resolved) queries in Resolve Hub
+2. Moderator clicks "Suggest for FAQ Database" on an archived query
+3. Suggestion is created with status: 'pending'
+4. Admin sees suggestion in "Moderator Suggested" section of Resolve Hub
+5. Admin can "Add to FAQ Database" (opens FAQ creation modal) or "Dismiss" the suggestion
 
 ---
 

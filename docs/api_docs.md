@@ -963,6 +963,84 @@ Get all interns with warnings (warning_count > 0). Used for the Admin Spoiled Us
 
 ---
 
+### GET /admin/moderator-suggestions
+
+Get pending FAQ suggestions from moderators (admin only). Returns suggestions with status 'pending' that moderators have submitted from archived queries.
+
+**Headers:** `Authorization: Bearer <token>` (admin only)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "_id": "64abc123...",
+      "query_id": { "_id": "64xyz789...", "query_text": "How do I reset my password?" },
+      "suggested_by": { "email": "mod@query.in", "role": "moderator" },
+      "question_text": "How do I reset my password?",
+      "suggested_answer": "Go to Settings > Security > Reset Password...",
+      "status": "pending",
+      "createdAt": "2026-05-29T..."
+    }
+  ]
+}
+```
+
+---
+
+### POST /admin/suggest-faq
+
+Moderator submits a suggestion to add an archived query to the FAQ database.
+
+**Headers:** `Authorization: Bearer <token>` (moderator only)
+
+**Request Body:**
+```json
+{
+  "query_id": "64abc123...",
+  "suggested_answer": "Go to Settings > Security > Reset Password..."
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "FAQ suggestion submitted for admin review",
+  "data": {
+    "suggestion_id": "64abc123..."
+  }
+}
+```
+
+**Response (400) - Already suggested:**
+```json
+{
+  "success": false,
+  "error": "A suggestion for this query is already pending review"
+}
+```
+
+---
+
+### PATCH /admin/moderator-suggestions/:id/dismiss
+
+Admin dismisses a moderator FAQ suggestion.
+
+**Headers:** `Authorization: Bearer <token>` (admin only)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Suggestion dismissed"
+}
+```
+
+---
+
 ## Analytics
 
 ### GET /analytics/faq-suggestions

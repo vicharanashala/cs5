@@ -280,6 +280,7 @@ STEP 7: RESOLVED (Terminal State)
 | 67 | Archive section showed all responses | When viewing resolved queries in Archive, all responses were shown instead of just approved | Filter Archive section to only show `approval === true` response |
 | 68 | "Add to FAQ Database" too basic | Simple confirm() dialog didn't allow customization of tags, keywords, priority, category | Replaced with full modal form with category dropdown, tags, keywords, priority fields |
 | 69 | Category dropdown hardcoded | Category list was hardcoded in frontend instead of using existing database categories | Added GET /api/faqs/categories endpoint, dropdown dynamically populated from database |
+| 70 | Moderator couldn't suggest archived queries for FAQ | No way for moderator to suggest useful queries from Archive for FAQ database | Added "Suggest for FAQ Database" button in Moderator Resolve Hub Archive section; Admin sees suggestions in "Moderator Suggested" section with "Add to FAQ" and "Dismiss" options |
 
 ---
 
@@ -414,11 +415,14 @@ query.in/
 - `GET /api/admin/escalated` - Get escalated queries
 - `GET /api/admin/query/:id` - Get query details
 - `GET /api/admin/spoiled-users` - Get users with warnings
+- `GET /api/admin/moderator-suggestions` - Get pending FAQ suggestions from moderators (admin only)
 - `POST /api/admin/approve` - Approve peer response
 - `POST /api/admin/override` - Admin override
 - `POST /api/admin/create-faq` - Create FAQ from query
+- `POST /api/admin/suggest-faq` - Moderator suggests query for FAQ database (moderator only)
 - `POST /api/admin/clear-all-data` - Clear all Query/Response/NoFaq/Notification data (preserves users/FAQs)
 - `POST /api/admin/warn-user` - Send warning to intern
+- `PATCH /api/admin/moderator-suggestions/:id/dismiss` - Admin dismisses moderator suggestion
 
 ### Peer (Intern)
 - `GET /api/peer/queue` - Get pending queries
@@ -456,10 +460,9 @@ query.in/
 |------|---------|
 | 1 | User Management (Combined: Registration + User list with warnings + Active/Inactive toggle) |
 | 2 | Broadcast Announcement |
-| 3 | Master Query Monitor |
-| 4 | FAQ Knowledge Base Editor |
-| 5 | Resolve Query Hub (5-section queue: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive) |
-| 6 | AI-Assisted FAQ Suggestions (Yellow alert) |
+| 3 | FAQ Knowledge Base Editor |
+| 4 | Query Management (Review, approve, or override escalated queries. Resolve ambiguous or low-rated tickets.) |
+| 5 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---
 
@@ -477,14 +480,12 @@ query.in/
 
 | Page | Route | Purpose |
 |------|-------|---------|
-| Dashboard | /admin | Overview with navigation cards (7 cards) |
+| Dashboard | /admin | Overview with navigation cards |
 | User Management | /admin/users | Combined: Registration, User list with warnings (0=green, 1+=yellow, 5=red), Active/Inactive toggle (green/red) |
 | Announcements | /admin/announcement | Publish announcements |
-| Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Resolve Hub | /admin/resolve | Resolution queue (Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive) |
+| Query Management | /admin/resolve | Resolution queue (6 sections: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
-| Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 
 ## Moderator Dashboard Pages
 
@@ -492,7 +493,7 @@ query.in/
 |------|-------|---------|
 | Dashboard | /moderator | Overview with navigation cards |
 | Query Monitor | /moderator/queries | Master query feed |
-| Resolve Hub | /moderator/resolve | Resolution queue (Pending Resolution, Stagnant, Low-Rated, Archive) |
+| Resolve Hub | /moderator/resolve | Resolution queue (Archive section includes "Suggest for FAQ" button) |
 
 ## Intern Dashboard Pages
 

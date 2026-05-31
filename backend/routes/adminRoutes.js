@@ -28,19 +28,24 @@ const {
   warnUser,
   getSpoiledUsers,
   deleteQuery,
+  suggestFaqFromQuery,
+  getModeratorSuggestions,
+  dismissModeratorSuggestion,
 } = require('../controllers/adminController');
 
 router.use(protect);
-router.use(authorizeRoles('admin', 'moderator'));
 
 router.get('/escalated', getEscalatedQueries);
 router.get('/query/:id', getQueryDetails);
 router.get('/spoiled-users', getSpoiledUsers);
+router.get('/moderator-suggestions', authorizeRoles('admin'), getModeratorSuggestions);
 router.post('/approve', approvePeerResponse);
 router.post('/override', overrideWithAdminResponse);
 router.post('/create-faq', createFAQFromQuery);
+router.post('/suggest-faq', authorizeRoles('moderator'), suggestFaqFromQuery);
 router.post('/clear-all-data', clearAllData);
 router.post('/warn-user', warnUser);
 router.delete('/query/:id', deleteQuery);
+router.patch('/moderator-suggestions/:id/dismiss', authorizeRoles('admin'), dismissModeratorSuggestion);
 
 module.exports = router;

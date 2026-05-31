@@ -19,6 +19,7 @@
 const Query = require('../models/Query');
 const Response = require('../models/Response');
 const User = require('../models/User');
+const ModeratorFaqSuggestion = require('../models/ModeratorFaqSuggestion');
 const { createNotification, warnIntern } = require('./notificationController');
 
 let getIO;
@@ -616,6 +617,114 @@ const deleteQuery = async (req, res) => {
   }
 };
 
+const suggestFaqFromQuery = async (req, res) => {
+  try {
+    const { query_id, suggested_answer } = req.body;
+    const suggested_by = req.user.userId;
+
+    if (!query_id || !suggested_answer) {
+      return res.status(400).json({
+        success: false,
+        error: 'query_id and suggested_answer are required',
+      });
+    }
+
+    const query = await Query.findById(query_id);
+    if (!query) {
+      return res.status(404).json({
+        success: false,
+        error: 'Query not found',
+      });
+    }
+
+    const existingSuggestion = await ModeratorFaqSuggestion.findOne({
+      query_id,
+      status: 'pending',
+    });
+
+    if (existingSuggestion) {
+      return res.status(400).json({
+        success: false,
+        error: 'A suggestion for this query is already pending review',
+      });
+    }
+
+    const suggestion = new ModeratorFaqSuggestion({
+      query_id,
+      suggested_by,
+      question_text: query.query_text,
+      suggested_answer,
+    });
+
+    await suggestion.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'FAQ suggestion submitted for admin review',
+      data: {
+        suggestion_id: suggestion._id,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to submit FAQ suggestion',
+      message: error.message,
+    });
+  }
+};
+
+const getModeratorSuggestions = async (req, res) => {
+  try {
+    const suggestions = await ModeratorFaqSuggestion.find({ status: 'pending' })
+      .populate('suggested_by', 'email role')
+      .populate('query_id', 'query_text intern_id')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: suggestions.length,
+      data: suggestions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch moderator suggestions',
+      message: error.message,
+    });
+  }
+};
+
+const dismissModeratorSuggestion = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const suggestion = await ModeratorFaqSuggestion.findByIdAndUpdate(
+      id,
+      { status: 'dismissed' },
+      { new: true }
+    );
+
+    if (!suggestion) {
+      return res.status(404).json({
+        success: false,
+        error: 'Suggestion not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Suggestion dismissed',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to dismiss suggestion',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getEscalatedQueries,
   approvePeerResponse,
@@ -626,4 +735,7 @@ module.exports = {
   warnUser,
   getSpoiledUsers,
   deleteQuery,
+  suggestFaqFromQuery,
+  getModeratorSuggestions,
+  dismissModeratorSuggestion,
 };
