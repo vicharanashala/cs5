@@ -299,13 +299,13 @@ STEP 7: RESOLVED (Terminal State) - KNOWLEDGE CREATED
            ┌─────────────────────┐
            │   ADMIN REVIEW      │
            │  (Final Authority)  │
-           ├─────────────────────┤
-           │ • Pending Resolution│
-           │ • Stagnant (0 ans)  │
-           │ • Unanswered       │
-           │ • Low-Rated        │
-           │ • Archive           │
-           └────────┬────────────┘
+├─────────────────────┤
+            │ • Pending Resolution│
+            │ • Ambiguous         │
+            │ • Stagnant (24h+)   │
+            │ • Low-Rated        │
+            │ • Archive           │
+            └────────┬────────────┘
                     │
          ┌──────────┴──────────┐
          │                     │

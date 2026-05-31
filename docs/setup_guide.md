@@ -271,29 +271,21 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 | /admin/announcement | Publish announcements |
 | /admin/queries | Query monitor |
 | /admin/faqs | FAQ editor |
-| /admin/resolve | Resolve hub (includes Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
-| /admin/suggestions | AI suggestions |
-| /admin/ambiguous | Queries marked unclear by 3 peers |
+| /admin/resolve | Resolve hub (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive) |
 
-**Moderator Pages:**
-| Route | Purpose |
-|-------|---------|
-| /moderator | Dashboard overview |
-| /moderator/queries | Query monitor |
-| /moderator/resolve | Resolve hub (includes Pending Resolution, Unanswered, Low-Rated, Archive) |
+| /moderator/resolve | Resolve hub (includes Pending Resolution, Stagnant, Low-Rated, Archive) |
 
 ---
 
 ## 10. Resolve Hub Sections
 
-The Admin/Moderator Resolve Hub presents 6 sections for query resolution:
+The Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 
 | Section | Filter |
 |---------|--------|
 | Pending Resolution | High-rated queries (rating >= 4), excludes Ambiguous |
 | Ambiguous Queries | status = 'Ambiguous' (3-strike rule triggered), can delete these |
-| Stagnant (0 answers) | is_locked=true, responses=0 (sweeper-triggered) |
-| Unanswered | status != 'Resolved', responses=0 |
+| Stagnant (Locked, 24h+) | 1-4 responses, ALL 1-3★, created 24+ hours ago |
 | Low-Rated | 5 responses, all rating < 4 |
 | Archive | status = 'Resolved' |
 

@@ -368,7 +368,7 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 | Announcements | /admin/announcement | Publish announcements |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Resolve Hub | /admin/resolve | Resolution queue (includes Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive) |
+| Resolve Hub | /admin/resolve | Resolution queue (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
 | Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 
@@ -378,7 +378,7 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 |------|-------|---------|
 | Dashboard | /moderator | Overview with navigation cards |
 | Query Monitor | /moderator/queries | Master query feed |
-| Resolve Hub | /moderator/resolve | Resolution queue (includes Pending Resolution, Unanswered, Low-Rated, Archive) |
+| Resolve Hub | /moderator/resolve | Resolution queue (includes Pending Resolution, Stagnant, Low-Rated, Archive) |
 
 ---
 
