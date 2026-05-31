@@ -224,21 +224,23 @@ const MyEscalations = () => {
                                   {response.author_id?.email || 'Anonymous'}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <span
-                                      key={star}
-                                      className={`text-lg ${star <= (response.rating || 0) ? 'text-yellow-500' : 'text-gray-300'}`}
-                                    >
-                                      ★
-                                    </span>
-                                  ))}
+                              {response.rating !== null && (
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <span
+                                        key={star}
+                                        className={`text-lg ${star <= (response.rating || 0) ? 'text-yellow-500' : 'text-gray-300'}`}
+                                      >
+                                        ★
+                                      </span>
+                                    ))}
+                                  </div>
+                                  {response.approval && (
+                                    <Badge variant="highlight" size="sm">Approved</Badge>
+                                  )}
                                 </div>
-                                {response.approval && (
-                                  <Badge variant="highlight" size="sm">Approved</Badge>
-                                )}
-                              </div>
+                              )}
                             </div>
                             <FormattedAnswer text={response.response_text} />
                             {response.rating === null && !query.is_locked && selectedResponse !== response._id && (

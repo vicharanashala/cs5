@@ -26,12 +26,20 @@ const AskAI = () => {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState('');
 
+  const debounceRef = { current: null };
+
   const debounce = (func, wait) => {
-    let timeout;
     return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => func(...args), wait);
     };
+  };
+
+  const cancelDebounce = () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
   };
 
   const searchSuggestions = useCallback(
@@ -158,6 +166,7 @@ const AskAI = () => {
 
     setLoading(true);
     setError('');
+    cancelDebounce();
     setShowSuggestions(false);
     setSuggestions([]);
 
@@ -391,28 +400,28 @@ const AskAI = () => {
         {/* Escalated State */}
         {response?.resolution === 'escalated' && (
           <Card className="bg-black text-white text-center py-10 hover:shadow-xl transition-shadow" hover={false}>
-            <div className="w-16 h-16 bg-highlight text-black rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <div className="w-16 h-16 bg-green-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-5">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <h2 className="text-xl font-bold mb-2">Query Escalated</h2>
             <p className="text-gray-400 mb-6 max-w-sm mx-auto">{response.message}</p>
-            <Button variant="highlight" onClick={reset}>Ask Another Question</Button>
+            <Button variant="primary" onClick={reset}>Ask Another Question</Button>
           </Card>
         )}
 
         {/* Resolved State */}
         {response?.resolution === 'resolved' && (
           <Card className="bg-black text-white text-center py-10 hover:shadow-xl transition-shadow" hover={false}>
-            <div className="w-16 h-16 bg-highlight text-black rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <div className="w-16 h-16 bg-green-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-5">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <h2 className="text-xl font-bold mb-2">Thank You!</h2>
             <p className="text-gray-400 mb-6">{response.message}</p>
-            <Button variant="highlight" onClick={reset}>Ask Another Question</Button>
+            <Button variant="primary" onClick={reset}>Ask Another Question</Button>
           </Card>
         )}
       </div>
