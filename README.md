@@ -362,14 +362,13 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 | Page | Route | Purpose |
 |------|-------|---------|
 | Dashboard | /admin | Overview with navigation cards |
-| User Registration | /admin/registration | Single & bulk user registration |
+| User Management | /admin/users | Combined: Registration, User list with warnings, Active/Inactive toggle |
 | Announcements | /admin/announcement | Publish announcements |
-| User Management | /admin/users | User directory |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
 | Resolve Hub | /admin/resolve | Resolution queue (includes Stagnant, Unanswered, Low-Rated) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
-| Spoiled Users | /admin/spoiled-users | Users with warnings and credibility tracking |
+| Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 
 ## Moderator Dashboard Pages
 
@@ -383,7 +382,7 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 ---
 
-## 6-Section Admin Resolution Hub
+## 5-Section Admin Resolution Hub
 
 The Admin Dashboard presents 5 sections for managing escalated queries:
 

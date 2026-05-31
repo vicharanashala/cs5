@@ -158,7 +158,7 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 
 **Admin Tool:** Send warning button in query details modal on all admin/moderator resolve pages (AdminQueries, AdminResolveHub, AdminAmbiguous, ModeratorResolveHub, ModeratorAmbiguous)
 
-**Spoiled Users Page:** Admin dashboard page (`/admin/spoiled-users`) listing all users with warnings
+**User Management Page:** Combined page at `/admin/users` with user list showing warning counts (color-coded: green/yellow/red) and 3-dot menu for active/inactive toggle
 
 **Login Block:** Disabled users cannot log in (403 error)
 
@@ -235,9 +235,9 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 
 ### Admin Dashboard (Page-Based Layout)
 - **Dashboard Overview** - Navigation cards to all sections
-- **User Registration** - Single & bulk JSON upload
+- **User Management** - Combined: Registration accordion + User table with warnings + Active/Inactive toggle (3-dot menu)
 - **Announcements** - Broadcast global notices
-- **User Management** - Sortable/filterable user table
+- **User Management** - Sortable/filterable user table with warning levels and status
 - **Query Monitor** - Status filter, date sort, thread drawer
 - **FAQ Editor** - Full CRUD on FAQ collection
 - **Resolve Hub** - 5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive
@@ -299,6 +299,7 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 | Bulk User Upload | no | no | yes |
 | Broadcast Announcement | no | no | yes |
 | User Management | no | no | yes |
+| Toggle User Active/Inactive | no | no | yes |
 | Master Query Monitor | no | yes | yes |
 | FAQ CRUD | no | no | yes |
 | Resolve Query Hub | no | yes | yes |

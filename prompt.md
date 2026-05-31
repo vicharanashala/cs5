@@ -1002,3 +1002,39 @@ Updated context.md with issues #58-61:
 Updated prompt.md with Prompts 59-61 documenting all recent fixes.
 
 **Commit:** `[current]` - docs: update documentation with issues #58-61
+
+---
+
+### Prompt 62: Combine User Registration, User Management, and Spoiled Users Pages
+**Prompt:** On the Admin panel, combine User Registration, User Management and Spoiled Users on a single page. Add isActive field to User model, add toggle active/inactive functionality, prevent admin from making themselves inactive.
+
+**Response:**
+Combined three separate pages into single `AdminUserManagement.jsx` page:
+
+1. **Backend Changes:**
+   - Added `isActive` boolean to User model (default: true)
+   - Login now blocks inactive users (403: "Your account has been deactivated")
+   - Added `PATCH /api/auth/users/:id/toggle-status` endpoint
+   - Admin cannot deactivate themselves or other admins
+
+2. **Frontend Changes:**
+   - Created combined `AdminUserManagement.jsx` page with:
+     - "Register User" button to show/hide registration accordion
+     - Single User form + Bulk JSON upload
+     - User table with: Email, Role, Warnings (color-coded), Status, Joined, Actions
+     - Warnings shown as badges: green (0-1), yellow (2-3), red (4+)
+     - 3-dot menu for Active/Inactive toggle (non-admins only)
+     - Filters: role, status (all/active/inactive), sort, search
+   - Removed `AdminUserRegistration.jsx` and `AdminSpoiledUsers.jsx`
+   - Updated navConfig to remove separate Registration and Spoiled Users links
+   - Updated App.jsx routing
+
+**Files modified:**
+- backend/models/User.js - Added isActive field
+- backend/controllers/authController.js - Block inactive users, added toggleUserStatus
+- backend/routes/authRoutes.js - Added toggle-status endpoint
+- frontend/src/pages/admin/AdminUserManagement.jsx - New combined page
+- frontend/src/utils/navConfig.jsx - Updated admin nav items
+- frontend/src/App.jsx - Updated routes
+
+**Commit:** `a08c216` - feat: combine User Registration, Management, and Spoiled Users into single page

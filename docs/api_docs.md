@@ -119,6 +119,70 @@ Get current authenticated user.
 
 ---
 
+### GET /auth/users
+
+Get all users (admin only). Returns users with `isActive` and `is_disabled` status.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "count": 15,
+  "data": [
+    {
+      "_id": "64abc123...",
+      "email": "intern1@query.in",
+      "role": "intern",
+      "warning_count": 2,
+      "is_disabled": false,
+      "isActive": true,
+      "createdAt": "2026-05-01T..."
+    }
+  ]
+}
+```
+
+---
+
+### PATCH /auth/users/:id/toggle-status
+
+Toggle a user's `isActive` status (admin only). Cannot toggle self or other admins.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "User deactivated successfully",
+  "data": {
+    "id": "64abc123...",
+    "email": "intern1@query.in",
+    "isActive": false
+  }
+}
+```
+
+**Response (400) - Cannot toggle self:**
+```json
+{
+  "success": false,
+  "error": "You cannot change your own active status"
+}
+```
+
+**Response (400) - Cannot toggle admin:**
+```json
+{
+  "success": false,
+  "error": "Cannot change status of an admin user"
+}
+```
+
+---
+
 ## FAQs
 
 ### GET /faqs

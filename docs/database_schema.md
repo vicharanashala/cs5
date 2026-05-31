@@ -30,6 +30,7 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
   role: String,            // enum: 'admin' | 'moderator' | 'intern'
   warning_count: Number,   // Default: 0, max: 5
   is_disabled: Boolean,    // Default: false, auto-set at warning_count >= 5
+  isActive: Boolean,       // Default: true, admin toggle for soft deactivation
   createdAt: Date,
   updatedAt: Date
 }
@@ -42,6 +43,12 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 - `warning_count`: Tracks number of warnings (0-5)
 - `is_disabled`: Auto-enables when warning_count >= 5
 - Disabled users cannot log in (403 error)
+
+**Active Status:**
+- `isActive`: Soft deactivation toggle (default: true)
+- Inactive users cannot log in (403 error: "Your account has been deactivated")
+- Admin cannot toggle themselves or other admins
+- Provides soft deactivation without hard delete
 
 **Relationships:**
 - Queries created → `queries.intern_id`

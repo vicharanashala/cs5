@@ -272,6 +272,7 @@ STEP 7: RESOLVED (Terminal State)
 | 59 | Suggestions dropdown stays open after submit | Debounced search could fire after submit | Added cancelDebounce() to clear pending timeout on submit |
 | 60 | Escalated/Resolved cards had yellow checkmark and button | Color scheme inconsistent with success state | Changed to green checkmark (bg-green-500) and black button (variant="primary") |
 | 61 | Star ratings and status badges had inconsistent colors | text-yellow-600 hardcoded, no color-coded status | Changed to text-yellow-500, added pending (blue) and peer (yellow) badge variants |
+| 62 | Separate User Registration, User Management, and Spoiled Users pages | Three different pages for related functionality | Combined into single AdminUserManagement page with registration accordion, user table with warnings column, and 3-dot menu for active/inactive toggle |
 
 ---
 
@@ -316,9 +317,10 @@ STEP 7: RESOLVED (Terminal State)
 - **Auto-Disable:** Account automatically disabled when warning_count >= 5
 - **Warning Types:** intern_warning notification sent to misbehaving interns
 - **Admin Tool:** Send warning button in query details modal
-- **Spoiled Users Page:** Admin dashboard page listing all users with warnings
-- **Login Block:** Disabled users cannot log in (403 error)
+- **Combined User Management:** All user functionality combined in `/admin/users` page including warnings display and active/inactive toggle
+- **Login Block:** Disabled or inactive users cannot log in (403 error)
 - **Frontend Alert:** Warning banner shown on MyEscalations page if user has warnings
+- **isActive Toggle:** Admin can activate/deactivate users (except self and other admins)
 
 ---
 
@@ -445,7 +447,7 @@ query.in/
 
 | Card | Feature |
 |------|---------|
-| 1 | User Registration (Single + Bulk JSON Upload) |
+| 1 | User Management (Combined: Registration + User list with warnings + Active/Inactive toggle) |
 | 2 | Broadcast Announcement |
 | 3 | User Management Directory |
 | 4 | Master Query Monitor |
@@ -470,14 +472,13 @@ query.in/
 | Page | Route | Purpose |
 |------|-------|---------|
 | Dashboard | /admin | Overview with navigation cards |
-| User Registration | /admin/registration | Single & bulk user registration |
+| User Management | /admin/users | Combined: Registration, User list with warnings, Active/Inactive toggle |
 | Announcements | /admin/announcement | Publish announcements |
-| User Management | /admin/users | User directory |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
 | Resolve Hub | /admin/resolve | Resolution queue (Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
-| Spoiled Users | /admin/spoiled-users | Users with warnings and credibility tracking |
+| Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 
 ## Moderator Dashboard Pages
 
