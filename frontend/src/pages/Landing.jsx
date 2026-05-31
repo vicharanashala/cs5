@@ -60,7 +60,7 @@ const Landing = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Explore FAQs */}
           <Card className="flex flex-col items-center justify-center py-12 text-center hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-200 cursor-pointer" hover={false} onClick={() => window.location.href = '/faqs'}>
-            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 border border-gray-200 shadow-sm flex-shrink-0 transition-all duration-300 hover:bg-black group">
+            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 border border-gray-200 shadow-sm flex-shrink-0 transition-all duration-300 hover:bg-black group mx-auto">
               <svg className="w-12 h-12 text-black transition-colors duration-300 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
