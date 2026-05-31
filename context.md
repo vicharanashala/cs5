@@ -268,6 +268,10 @@ STEP 7: RESOLVED (Terminal State)
 | 55 | Question mark icon not centered in Explore FAQs card | Icon was slightly off-center visually | Adjusted icon size to w-12 h-12, reduced strokeWidth to 1.75, proper viewBox alignment |
 | 56 | Ask AI and Browse FAQs buttons lacked hover effect | No visual feedback on mouse hover | Added hover:scale-105 transition-transform for tactile feedback |
 | 57 | Multiple pages lacked hover effects | Cards, buttons, and inputs felt static | Added hover effects across pages - scale, shadow, and background transitions |
+| 58 | Read-only stars shown when not rated yet | View-only stars displayed for unrated responses | Wrapped read-only stars in `response.rating !== null` condition |
+| 59 | Suggestions dropdown stays open after submit | Debounced search could fire after submit | Added cancelDebounce() to clear pending timeout on submit |
+| 60 | Escalated/Resolved cards had yellow checkmark and button | Color scheme inconsistent with success state | Changed to green checkmark (bg-green-500) and black button (variant="primary") |
+| 61 | Star ratings and status badges had inconsistent colors | text-yellow-600 hardcoded, no color-coded status | Changed to text-yellow-500, added pending (blue) and peer (yellow) badge variants |
 
 ---
 

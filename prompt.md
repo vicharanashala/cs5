@@ -953,4 +953,52 @@ Updated context.md with issues #53-57:
 
 Updated prompt.md with Prompts 53-58 documenting all recent fixes.
 
-**Commit:** `[current]` - docs: update documentation with recent UI fixes
+**Commit:** `4b46ff2` - docs: update context.md and prompt.md with recent UI fixes (#53-57)
+
+---
+
+### Prompt 59: Fix Read-Only Stars Showing Before Rating
+**Prompt:** When a user tries to rate the answer to their query reply in "my-queries" page, it shows a View Only stars even if it is not rated by the user yet. Only show those Read Only stars when it is already rated by the user.
+
+**Response:**
+Updated `MyEscalations.jsx`:
+- Wrapped the read-only stars display section with `{response.rating !== null && (...)}`
+- Now stars only appear after user has rated the response
+- Before rating, only "Rate this response" button is shown
+
+**Commit:** `ced30b9` - feat: update star ratings to yellow-500 and add color-coded status badges
+
+---
+
+### Prompt 60: Fix Suggestions Dropdown and Escalated/Resolved Card Styling
+**Prompt:** On the intern/ask page, when the user tries to submit a query, sometimes even if the RAG answers upon submitting, the suggestions box does not disappear. And upon successful escalation, the checkmark and Ask Another Question button is yellow, instead the checkmark must be green and the button must be black.
+
+**Response:**
+Updated `AskAI.jsx`:
+
+**Fix 1 - Suggestions dropdown not closing:**
+- Added `debounceRef` to track and cancel pending debounce timeouts
+- Added `cancelDebounce()` function that clears the pending timeout
+- Called `cancelDebounce()` at the start of `handleSubmit` before setting `showSuggestions(false)`
+
+**Fix 2 - Escalated/Resolved cards styling:**
+- Changed from yellow checkmark (`bg-highlight text-black`) to green (`bg-green-500 text-white`)
+- Changed from yellow button (`variant="highlight"`) to black (`variant="primary"`)
+
+**Commit:** `58ad762` - fix: suggestions dropdown closes on submit and escalated/resolved cards show green checkmark with black button
+
+---
+
+### Prompt 61: Update Documentation and Commit All Changes
+**Prompt:** Update all the doc folder files including readme, context.md and prompt.md. Also commit all changes.
+
+**Response:**
+Updated context.md with issues #58-61:
+- Issue 58: Read-only stars shown when not rated yet
+- Issue 59: Suggestions dropdown stays open after submit
+- Issue 60: Escalated/Resolved cards had yellow checkmark and button
+- Issue 61: Star ratings and status badges had inconsistent colors
+
+Updated prompt.md with Prompts 59-61 documenting all recent fixes.
+
+**Commit:** `[current]` - docs: update documentation with issues #58-61
