@@ -53,8 +53,9 @@ const AdminResolveHub = () => {
     unanswered: queries.filter(q => q.status !== 'Resolved' && (!q.responses || q.responses.length === 0)),
     low_rated: queries.filter(q => {
       if (q.status !== 'Peer Answered' || !q.responses?.length) return false;
-      const hasLowRatings = q.responses.some(r => r.rating && r.rating < 4);
-      return hasLowRatings && q.responses.length >= 5;
+      if (q.responses.length < 5) return false;
+      const allLowRated = q.responses.every(r => r.rating && r.rating < 4);
+      return allLowRated;
     }),
     archive: queries.filter(q => q.status === 'Resolved'),
   };
@@ -120,7 +121,7 @@ const AdminResolveHub = () => {
           </div>
 
           {selectedQuery && (
-            <QueryDetailPanel query={selectedQuery} onClose={() => setSelectedQuery(null)} />
+            <QueryDetailPanel query={selectedQuery} activeSection={activeSection} onClose={() => setSelectedQuery(null)} />
           )}
         </div>
       </Card>
@@ -128,11 +129,24 @@ const AdminResolveHub = () => {
   );
 };
 
-const QueryDetailPanel = ({ query, onClose }) => {
+const QueryDetailPanel = ({ query, activeSection, onClose }) => {
   const [overrideText, setOverrideText] = useState('');
   const [loading, setLoading] = useState(false);
   const [showWarnModal, setShowWarnModal] = useState(false);
   const [warnMessage, setWarnMessage] = useState('');
+
+  const isHighRatedSection = activeSection === 'pending';
+  const isLowRatedSection = activeSection === 'low_rated';
+
+  const filteredResponses = isHighRatedSection
+    ? (query.responses || [])
+        .filter(r => r.rating >= 4)
+        .sort((a, b) => b.rating - a.rating)
+    : isLowRatedSection
+    ? (query.responses || [])
+        .filter(r => r.rating && r.rating < 4)
+        .sort((a, b) => b.rating - a.rating)
+    : query.responses || [];
 
   const handleApprove = async (responseId) => {
     setLoading(true);
@@ -245,20 +259,22 @@ const QueryDetailPanel = ({ query, onClose }) => {
           </div>
 
           <div>
-            <div className="text-sm font-medium text-black mb-3">Peer Responses</div>
-            {query.responses?.length > 0 ? (
+            <div className="text-sm font-medium text-black mb-3">
+              {isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
+            </div>
+            {filteredResponses.length > 0 ? (
               <div className="space-y-3">
-                {query.responses.map(resp => (
+                {filteredResponses.map(resp => (
                   <div key={resp._id} className="border border-black rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[resp.response_type]}`}>
                         {resp.response_type}
                       </span>
                       <span className="text-sm">{resp.author_id?.email}</span>
-                      {resp.rating && <span className="text-yellow-500">★ {resp.rating}/5</span>}
+                      <span className="text-yellow-500">★ {resp.rating}/5</span>
                     </div>
                     <div className="text-black">{resp.response_text}</div>
-                    {resp.rating >= 4 && query.status === 'Peer Answered' && (
+                    {(resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
                       <button
                         onClick={() => handleApprove(resp._id)}
                         disabled={loading}
@@ -271,7 +287,9 @@ const QueryDetailPanel = ({ query, onClose }) => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4 text-text-muted">No peer responses</div>
+              <div className="text-center py-4 text-text-muted">
+                {isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
+              </div>
             )}
           </div>
 

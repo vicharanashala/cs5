@@ -304,6 +304,8 @@ All query resolutions are tracked with ResolutionType:
 | 49 | Sidebar shows only current page nav items | Created centralized navConfig.jsx, DashboardLayout auto-detects nav items by user role |
 | 50 | Intern dashboard stats incorrect | Active queries showed all queries not just user's, peer responses included skipped/ambiguous | Created GET /api/peer/stats endpoint with accurate counts, Active Queries and Resolved cards now link to My Escalations |
 | 51 | Ask AI page input limitations | Single-line input couldn't handle multiline questions; "Get Answer" button separate from input | Replaced input with textarea (Shift+Enter for new line, Enter to submit), replaced bulb icon with send button (right arrow) on input bar |
+| 63 | Pending Resolution showed all responses | Low-rated responses (1-3★) were visible in Pending Resolution section | Filter to show only 4-5★ responses in Pending Resolution, sorted 5★ first |
+| 64 | Low-Rated queue showed mixed queries | Queries with some high ratings were shown in Low-Rated queue | Low-Rated now shows only queries with ALL responses rated 1-3★, responses sorted descending with Approve button |
 
 ---
 
@@ -386,11 +388,11 @@ The Admin Dashboard presents 6 sections for managing escalated queries:
 
 | Section | Condition |
 |---------|-----------|
-| Pending Resolution | High-rated queries (rating >= 4), excludes Ambiguous and Resolved |
+| Pending Resolution | High-rated queries (rating >= 4), excludes Ambiguous and Resolved. **Only 4-5★ responses shown, sorted 5★ first** |
 | Ambiguous Queries | Queries marked unclear by 3 peers (3-strike rule), can delete these |
 | Stagnant (0 answers) | is_locked: true, 0 responses (sweeper-triggered) |
 | Unanswered | status != 'Resolved', 0 responses |
-| Low-Rated | 5 responses, all rated < 4 stars |
+| Low-Rated | Queries with 5+ responses ALL rated < 4 stars. **All responses shown (sorted 3★→1★) with Approve button** |
 | Archive | status = 'Resolved' |
 
 **FAQ Creation Bridge:** Admin can click "+ Add to FAQ Database" on any resolved query to create a permanent FAQ entry.

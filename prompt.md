@@ -1038,3 +1038,40 @@ Combined three separate pages into single `AdminUserManagement.jsx` page:
 - frontend/src/App.jsx - Updated routes
 
 **Commit:** `a08c216` - feat: combine User Registration, Management, and Spoiled Users into single page
+
+---
+
+### Prompt 63: Fix Pending Resolution Response Display
+**Prompt:** In the Resolution Hub, in the "Pending Resolution" query drawer only the responses rated 4 stars and 5 stars should be visible for a given query, where the 5 star rated responses will come above the 4 star rates responses. Don't show lower rated responses (1-3 stars) for a query in the "Pending Resolution" category
+
+**Response:**
+Updated both `AdminResolveHub.jsx` and `ModeratorResolveHub.jsx`:
+
+1. **Pass activeSection to QueryDetailPanel** - To know which section is active
+2. **Filter responses for Pending Resolution** - Only show responses with `rating >= 4`
+3. **Sort high-rated responses** - 5 stars first, then 4 stars (descending order)
+4. **Update label** - Shows "High-Rated Responses (4-5★)" in pending section
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
+
+---
+
+### Prompt 64: Fix Low-Rated Queue Display
+**Prompt:** In the "Low-Rated" category in the resolve hub, only queries with all the responses as low rated (1-3 stars) should be visible along with all the responses in descending order with "Approve Response" button available for each response so that it can be resolved.
+
+**Response:**
+Updated both `AdminResolveHub.jsx` and `ModeratorResolveHub.jsx`:
+
+1. **Fix Low-Rated queue filter** - Changed from `hasLowRatings && length >= 5` to `every(r => r.rating < 4) && length >= 5`
+   - Now only shows queries where ALL responses are low-rated (1-3 stars)
+
+2. **Filter responses for Low-Rated section** - Show only `rating < 4` responses
+3. **Sort low-rated responses** - 3 stars first, then 2 stars, then 1 star (descending order)
+4. **Show Approve button** - Available for low-rated responses so queries can be resolved
+5. **Update label** - Shows "Low-Rated Responses (1-3★)" in low-rated section
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
