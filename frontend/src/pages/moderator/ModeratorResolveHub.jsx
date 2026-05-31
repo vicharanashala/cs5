@@ -138,7 +138,11 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
   const isHighRatedSection = activeSection === 'pending';
   const isLowRatedSection = activeSection === 'low_rated';
 
-  const filteredResponses = isHighRatedSection
+  const isArchiveSection = activeSection === 'archive';
+
+  const filteredResponses = isArchiveSection
+    ? (query.responses || []).filter(r => r.approval === true)
+    : isHighRatedSection
     ? (query.responses || [])
         .filter(r => r.rating >= 4)
         .sort((a, b) => b.rating - a.rating)
@@ -224,7 +228,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
 
           <div>
             <div className="text-sm font-medium text-black mb-3">
-              {isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
+              {isArchiveSection ? 'Approved Response' : isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
             </div>
             {filteredResponses.length > 0 ? (
               <div className="space-y-3">
@@ -235,10 +239,11 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
                         {resp.response_type}
                       </span>
                       <span className="text-sm">{resp.author_id?.email}</span>
-                      <span className="text-yellow-500">★ {resp.rating}/5</span>
+                      {resp.rating && <span className="text-yellow-500">★ {resp.rating}/5</span>}
+                      {resp.approval && <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Approved</span>}
                     </div>
                     <div className="text-black">{resp.response_text}</div>
-                    {(resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
+                    {!isArchiveSection && (resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
                       <button
                         onClick={() => handleApprove(resp._id)}
                         disabled={loading}
@@ -252,7 +257,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
               </div>
             ) : (
               <div className="text-center py-4 text-text-muted">
-                {isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
+                {isArchiveSection ? 'No approved response found' : isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
               </div>
             )}
           </div>

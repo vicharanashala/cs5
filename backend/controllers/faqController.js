@@ -206,4 +206,17 @@ const deleteFAQ = async (req, res) => {
   }
 };
 
-module.exports = { getAllFAQs, createFAQ, searchFAQs, updateFAQ, deleteFAQ };
+const getCategories = async (req, res) => {
+  try {
+    const categories = await FAQ.distinct('category');
+    res.status(200).json({ success: true, data: categories.sort() });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching categories',
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { getAllFAQs, createFAQ, searchFAQs, updateFAQ, deleteFAQ, getCategories };

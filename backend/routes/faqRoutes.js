@@ -17,12 +17,14 @@
 
 const express = require('express');
 const router = express.Router();
-const { getAllFAQs, createFAQ, searchFAQs, updateFAQ, deleteFAQ } = require('../controllers/faqController');
+const { getAllFAQs, createFAQ, searchFAQs, updateFAQ, deleteFAQ, getCategories } = require('../controllers/faqController');
+
 const { protect } = require('../middleware/authMiddleware');
 const { authorizeRoles } = require('../middleware/authMiddleware');
 
 router.get('/', getAllFAQs);
 router.get('/search', searchFAQs);
+router.get('/categories', getCategories);
 router.post('/', protect, authorizeRoles('admin'), createFAQ);
 router.put('/:id', protect, authorizeRoles('admin'), updateFAQ);
 router.delete('/:id', protect, authorizeRoles('admin'), deleteFAQ);

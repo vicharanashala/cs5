@@ -215,6 +215,20 @@ Get all FAQs (public endpoint).
 
 ---
 
+### GET /api/faqs/categories
+
+Get all unique FAQ categories from the database (for dropdown population).
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": ["Account", "General", "HR", "Operations", "Technical", "Training"]
+}
+```
+
+---
+
 ### GET /faqs/search?q=<query>
 
 Search FAQs with auto-complete.
@@ -821,6 +835,7 @@ Create a permanent FAQ entry from a resolved query. Uses the approved peer respo
   "query_id": "64abc123...",
   "category": "General",
   "tags": ["tag1", "tag2"],
+  "keywords": ["tag1", "tag2"],
   "priority": 5
 }
 ```

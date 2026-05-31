@@ -141,11 +141,23 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [showWarnModal, setShowWarnModal] = useState(false);
   const [warnMessage, setWarnMessage] = useState('');
+  const [showFaqModal, setShowFaqModal] = useState(false);
+  const [faqCategories, setFaqCategories] = useState([]);
+  const [faqForm, setFaqForm] = useState({
+    category: '',
+    tags: '',
+    keywords: '',
+    priority: 5,
+  });
 
   const isHighRatedSection = activeSection === 'pending';
   const isLowRatedSection = activeSection === 'low_rated';
 
-  const filteredResponses = isHighRatedSection
+  const isArchiveSection = activeSection === 'archive';
+
+  const filteredResponses = isArchiveSection
+    ? (query.responses || []).filter(r => r.approval === true)
+    : isHighRatedSection
     ? (query.responses || [])
         .filter(r => r.rating >= 4)
         .sort((a, b) => b.rating - a.rating)
@@ -185,19 +197,40 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
   };
 
   const handleAddToFAQ = async () => {
-    if (!confirm('Create an FAQ from this resolved query?')) return;
+    try {
+      const res = await api.get('/faqs/categories');
+      setFaqCategories(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch categories', err);
+      setFaqCategories([]);
+    }
+    setFaqForm({ category: '', tags: '', keywords: '', priority: 5 });
+    setShowFaqModal(true);
+  };
+
+  const handleFaqSubmit = async () => {
+    const finalCategory = faqForm.category === 'Other'
+      ? faqForm.customCategory?.trim()
+      : faqForm.category.trim();
+
+    if (!finalCategory) {
+      alert('Please select or enter a category');
+      return;
+    }
     setLoading(true);
     try {
       await api.post('/admin/create-faq', {
         query_id: query._id,
-        category: 'General',
-        tags: [],
-        priority: 0,
+        category: finalCategory,
+        tags: faqForm.tags.split(',').map(t => t.trim()).filter(Boolean),
+        keywords: faqForm.keywords.split(',').map(k => k.trim()).filter(Boolean),
+        priority: Number(faqForm.priority) || 0,
       });
+      setShowFaqModal(false);
       alert('FAQ created successfully!');
     } catch (err) {
       console.error('Failed to create FAQ', err);
-      alert('Failed to create FAQ');
+      alert(err.response?.data?.error || 'Failed to create FAQ');
     } finally {
       setLoading(false);
     }
@@ -267,7 +300,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
 
           <div>
             <div className="text-sm font-medium text-black mb-3">
-              {isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
+              {isArchiveSection ? 'Approved Response' : isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
             </div>
             {filteredResponses.length > 0 ? (
               <div className="space-y-3">
@@ -278,10 +311,11 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
                         {resp.response_type}
                       </span>
                       <span className="text-sm">{resp.author_id?.email}</span>
-                      <span className="text-yellow-500">★ {resp.rating}/5</span>
+                      {resp.rating && <span className="text-yellow-500">★ {resp.rating}/5</span>}
+                      {resp.approval && <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Approved</span>}
                     </div>
                     <div className="text-black">{resp.response_text}</div>
-                    {(resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
+                    {!isArchiveSection && (resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
                       <button
                         onClick={() => handleApprove(resp._id)}
                         disabled={loading}
@@ -295,7 +329,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
               </div>
             ) : (
               <div className="text-center py-4 text-text-muted">
-                {isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
+                {isArchiveSection ? 'No approved response found' : isHighRatedSection ? 'No high-rated responses (4-5★)' : isLowRatedSection ? 'No low-rated responses (1-3★)' : 'No peer responses'}
               </div>
             )}
           </div>
@@ -385,6 +419,103 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
                   </button>
                   <button
                     onClick={() => setShowWarnModal(false)}
+                    disabled={loading}
+                    className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 disabled:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showFaqModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full border-2 border-black">
+              <div className="p-6 border-b border-black">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-black">Add to FAQ Database</h3>
+                  <button onClick={() => setShowFaqModal(false)} className="text-black hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-text-muted">
+                  Creating FAQ from: <strong>{query.query_text}</strong>
+                </p>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Category <span className="text-red-600">*</span></label>
+                  <select
+                    value={faqForm.category}
+                    onChange={(e) => setFaqForm({ ...faqForm, category: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  >
+                    <option value="">Select a category</option>
+                    {faqCategories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    <option value="Other">Other (type below)</option>
+                  </select>
+                </div>
+
+                {faqForm.category === 'Other' && (
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Enter Custom Category</label>
+                    <input
+                      type="text"
+                      value={faqForm.customCategory || ''}
+                      onChange={(e) => setFaqForm({ ...faqForm, customCategory: e.target.value })}
+                      placeholder="Type custom category..."
+                      className="w-full px-4 py-2 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={faqForm.tags}
+                    onChange={(e) => setFaqForm({ ...faqForm, tags: e.target.value })}
+                    placeholder="training, onboarding, vins"
+                    className="w-full px-4 py-2 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Keywords (comma-separated, high-weight for autocomplete)</label>
+                  <input
+                    type="text"
+                    value={faqForm.keywords}
+                    onChange={(e) => setFaqForm({ ...faqForm, keywords: e.target.value })}
+                    placeholder="noc, form, submission"
+                    className="w-full px-4 py-2 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Priority (0-10, higher = more important)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={faqForm.priority}
+                    onChange={(e) => setFaqForm({ ...faqForm, priority: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={handleFaqSubmit}
+                    disabled={loading}
+                    className="flex-1 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-400"
+                  >
+                    {loading ? 'Creating...' : 'Create FAQ'}
+                  </button>
+                  <button
+                    onClick={() => setShowFaqModal(false)}
                     disabled={loading}
                     className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 disabled:bg-gray-100"
                   >
