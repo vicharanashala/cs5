@@ -448,15 +448,16 @@ const MAX_PEER_RESPONSES = 5;
 
 ---
 
-## 5-Section Admin/Moderator Resolve Hub
+## 6-Section Admin/Moderator Resolve Hub
 
 | Section | Filter Condition |
 |---------|------------------|
-| Pending Resolution | High-rated queries (responses with rating >= 4) OR Ambiguous queries (3-strike rule triggered) |
+| Pending Resolution | High-rated queries (responses with rating >= 4), excludes Ambiguous |
+| Ambiguous Queries | status === 'Ambiguous' (3-strike rule triggered), can delete these queries |
 | Stagnant (0 answers) | is_locked: true, responses.length: 0 |
 | Unanswered | status != 'Resolved', responses.length: 0 |
 | Low-Rated | responses.length >= 5, all ratings < 4 |
-| Archive | status == 'Resolved' |
+| Archive | status === 'Resolved' |
 
 ---
 

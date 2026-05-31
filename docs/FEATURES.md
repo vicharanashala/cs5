@@ -91,8 +91,9 @@ Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 
 | Section | Condition |
 |---------|-----------|
-| Pending Resolution | High-rated queries (rating >= 4) OR Ambiguous queries (3-strike rule) |
-| Stagnant (0 answers) | is_locked + 0 responses (sweeper-triggered) |
+| Pending Resolution | High-rated queries (rating >= 4), excludes Ambiguous |
+| Ambiguous Queries | status = 'Ambiguous' (3-strike rule triggered), can delete these |
+| Stagnant (0 answers) | is_locked: true, 0 responses (sweeper-triggered) |
 | Unanswered | status != 'Resolved', 0 responses |
 | Low-Rated | 5 responses, all < 4 stars |
 | Archive | status = 'Resolved' |
@@ -240,7 +241,7 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **User Management** - Sortable/filterable user table with warning levels and status
 - **Query Monitor** - Status filter, date sort, thread drawer
 - **FAQ Editor** - Full CRUD on FAQ collection
-- **Resolve Hub** - 5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive
+- **Resolve Hub** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive
 - **AI Suggestions** - Yellow alert at 10-occurrence threshold
 
 ### Moderator Dashboard (Page-Based Layout)

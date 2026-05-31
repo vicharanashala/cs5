@@ -451,7 +451,7 @@ query.in/
 | 2 | Broadcast Announcement |
 | 3 | Master Query Monitor |
 | 4 | FAQ Knowledge Base Editor |
-| 5 | Resolve Query Hub (5-section queue: Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
+| 5 | Resolve Query Hub (6-section queue: Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive) |
 | 6 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---
@@ -475,7 +475,7 @@ query.in/
 | Announcements | /admin/announcement | Publish announcements |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Resolve Hub | /admin/resolve | Resolution queue (Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
+| Resolve Hub | /admin/resolve | Resolution queue (Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
 | Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 

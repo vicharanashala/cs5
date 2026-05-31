@@ -713,12 +713,12 @@ Get all ratings for a query (query author only).
 ### GET /admin/escalated?type=<type>
 
 Get escalated queries for admin review. Returns 6-section queue structure:
-- **master**: All non-resolved queries
+- **all**: All queries (including resolved) for Archive section
+- **ambiguous**: Queries with status = 'Ambiguous'
 - **stagnant**: Locked queries with 0 responses (sweeper-triggered)
 - **unanswered**: Non-resolved queries with 0 responses
 - **low**: Queries with 5 responses all rated < 4 stars
 - **high**: Queries with responses rated >= 4 stars
-- **all**: All escalated queries
 
 **Headers:** `Authorization: Bearer <token>`
 

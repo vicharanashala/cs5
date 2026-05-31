@@ -366,7 +366,7 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 | Announcements | /admin/announcement | Publish announcements |
 | Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Resolve Hub | /admin/resolve | Resolution queue (includes Pending Resolution, Stagnant, Unanswered, Low-Rated, Archive) |
+| Resolve Hub | /admin/resolve | Resolution queue (includes Pending Resolution, Ambiguous, Stagnant, Unanswered, Low-Rated, Archive) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
 | Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 
@@ -380,13 +380,14 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 ---
 
-## 5-Section Admin Resolution Hub
+## 6-Section Admin Resolution Hub
 
-The Admin Dashboard presents 5 sections for managing escalated queries:
+The Admin Dashboard presents 6 sections for managing escalated queries:
 
 | Section | Condition |
 |---------|-----------|
-| Pending Resolution | High-rated queries (rating >= 4) OR Ambiguous (3-strike rule) |
+| Pending Resolution | High-rated queries (rating >= 4), excludes Ambiguous and Resolved |
+| Ambiguous Queries | Queries marked unclear by 3 peers (3-strike rule), can delete these |
 | Stagnant (0 answers) | is_locked: true, 0 responses (sweeper-triggered) |
 | Unanswered | status != 'Resolved', 0 responses |
 | Low-Rated | 5 responses, all rated < 4 stars |

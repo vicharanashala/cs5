@@ -336,7 +336,8 @@ AMBIGUOUS ◄──────────────────────�
 
 | Queue | Condition |
 |-------|-----------|
-| Pending Resolution | High-rated queries (response rating >= 4) OR Ambiguous queries (3-strike rule) |
+| Pending Resolution | High-rated queries (response rating >= 4), excludes Ambiguous |
+| Ambiguous Queries | status = 'Ambiguous' (3-strike rule triggered), can delete these |
 | Stagnant (0 answers) | is_locked: true, responses: 0 |
 | Unanswered | status != 'Resolved', responses: 0 |
 | Low-Rated | is_locked, 5 responses, all < 4 stars |
