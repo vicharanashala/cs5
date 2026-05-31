@@ -3,7 +3,13 @@
  * QUERY.IN - BADGE COMPONENT
  * =============================================================================
  * Modern SaaS-style status badge with clean design.
- * Uses black, white, yellow highlight, and red for errors/warnings.
+ * Uses black, white, yellow highlight, and color-coded status badges.
+ *
+ * Status Colors:
+ * - Pending: Blue
+ * - Peer Answered: Yellow
+ * - Resolved: Green
+ * - Ambiguous: Red
  *
  * @component Badge
  */
@@ -13,12 +19,14 @@ const Badge = ({ children, variant = 'default', size = 'md', className = '' }) =
     default: 'bg-gray-100 text-gray-700 border border-gray-200',
     outline: 'border border-black text-black bg-white',
     filled: 'bg-black text-white',
-    verified: 'bg-black text-white',
+    verified: 'bg-green-100 text-green-700 border border-green-200',
     highlight: 'bg-highlight text-black border border-black',
     success: 'bg-green-100 text-green-700 border border-green-200',
     warning: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
     error: 'bg-red-100 text-red-700 border border-red-200',
     errorFilled: 'bg-red-600 text-white border border-red-700',
+    pending: 'bg-blue-100 text-blue-700 border border-blue-200',
+    peer: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
   };
 
   const sizes = {

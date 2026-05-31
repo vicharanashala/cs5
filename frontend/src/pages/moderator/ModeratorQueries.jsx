@@ -169,7 +169,7 @@ const QueryDrawer = ({ query, onClose }) => {
                         {resp.author_id?.email || 'Unknown'}
                       </span>
                       {resp.rating && (
-                        <span className="text-yellow-600">★ {resp.rating}</span>
+                        <span className="text-yellow-500">★ {resp.rating}</span>
                       )}
                     </div>
                     <div className="text-black">{resp.response_text}</div>

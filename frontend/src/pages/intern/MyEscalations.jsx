@@ -110,15 +110,15 @@ const MyEscalations = () => {
 
   const getStatusBadge = (query) => {
     if (query.resolution_type === 'peer_approved' || query.resolution_type === 'admin_override') {
-      return <Badge variant="highlight" size="lg">Approved</Badge>;
+      return <Badge variant="success" size="lg">Approved</Badge>;
     }
     switch (query.status) {
       case 'Pending':
-        return <Badge variant="outline" size="lg">Pending</Badge>;
+        return <Badge variant="pending" size="lg">Pending</Badge>;
       case 'Peer Answered':
-        return <Badge variant="filled" size="lg">Peer Answered</Badge>;
+        return <Badge variant="peer" size="lg">Peer Answered</Badge>;
       case 'Ambiguous':
-        return <Badge variant="error" size="lg">Needs Rephrase</Badge>;
+        return <Badge variant="error" size="lg">Ambiguous</Badge>;
       case 'Resolved':
         return <Badge variant="success" size="lg">Resolved</Badge>;
       default:
@@ -229,7 +229,7 @@ const MyEscalations = () => {
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <span
                                       key={star}
-                                      className={`text-lg ${star <= (response.rating || 0) ? 'text-[#FFD700]' : 'text-gray-300'}`}
+                                      className={`text-lg ${star <= (response.rating || 0) ? 'text-yellow-500' : 'text-gray-300'}`}
                                     >
                                       ★
                                     </span>
@@ -265,7 +265,7 @@ const MyEscalations = () => {
                                       key={star}
                                       onClick={() => setRating(star)}
                                       disabled={submitting}
-                                      className={`text-2xl transition-colors ${star <= rating ? 'text-[#FFD700]' : 'text-gray-300'} hover:text-[#FFD700]`}
+                                      className={`text-2xl transition-colors ${star <= rating ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-500`}
                                     >
                                       ★
                                     </button>

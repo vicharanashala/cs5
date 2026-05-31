@@ -231,7 +231,7 @@ const QueryDetailPanel = ({ query, onClose }) => {
                         {resp.response_type}
                       </span>
                       <span className="text-sm">{resp.author_id?.email}</span>
-                      {resp.rating && <span className="text-yellow-600">★ {resp.rating}/5</span>}
+                      {resp.rating && <span className="text-yellow-500">★ {resp.rating}/5</span>}
                     </div>
                     <div className="text-black">{resp.response_text}</div>
                     {resp.rating >= 4 && query.status === 'Peer Answered' && (
