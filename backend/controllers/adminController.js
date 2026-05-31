@@ -578,6 +578,35 @@ const getSpoiledUsers = async (req, res) => {
   }
 };
 
+const deleteQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = await Query.findById(id);
+    if (!query) {
+      return res.status(404).json({
+        success: false,
+        error: 'Query not found',
+      });
+    }
+
+    await Response.deleteMany({ query_id: id });
+
+    await Query.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Query deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete query',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getEscalatedQueries,
   approvePeerResponse,
@@ -587,4 +616,5 @@ module.exports = {
   clearAllData,
   warnUser,
   getSpoiledUsers,
+  deleteQuery,
 };

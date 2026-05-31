@@ -27,6 +27,7 @@ const {
   clearAllData,
   warnUser,
   getSpoiledUsers,
+  deleteQuery,
 } = require('../controllers/adminController');
 
 router.use(protect);
@@ -40,5 +41,6 @@ router.post('/override', overrideWithAdminResponse);
 router.post('/create-faq', createFAQFromQuery);
 router.post('/clear-all-data', clearAllData);
 router.post('/warn-user', warnUser);
+router.delete('/query/:id', deleteQuery);
 
 module.exports = router;

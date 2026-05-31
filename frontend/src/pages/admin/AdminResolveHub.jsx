@@ -20,6 +20,7 @@ const AdminResolveHub = () => {
 
   const sections = [
     { id: 'pending', label: 'Pending Resolution', count: 0 },
+    { id: 'ambiguous', label: 'Ambiguous Queries', count: 0 },
     { id: 'stagnant', label: 'Stagnant (0 answers)', count: 0 },
     { id: 'unanswered', label: 'Unanswered', count: 0 },
     { id: 'low_rated', label: 'Low-Rated', count: 0 },
@@ -43,10 +44,11 @@ const AdminResolveHub = () => {
   const categorized = {
     pending: queries.filter(q => {
       if (q.status === 'Resolved') return false;
-      if (q.status === 'Ambiguous') return true;
+      if (q.status === 'Ambiguous') return false;
       const hasHighRating = q.responses?.some(r => r.rating >= 4);
       return hasHighRating;
     }),
+    ambiguous: queries.filter(q => q.status === 'Ambiguous'),
     stagnant: queries.filter(q => q.status !== 'Resolved' && q.is_locked && (!q.responses || q.responses.length === 0)),
     unanswered: queries.filter(q => q.status !== 'Resolved' && (!q.responses || q.responses.length === 0)),
     low_rated: queries.filter(q => {
@@ -104,6 +106,11 @@ const AdminResolveHub = () => {
                       </div>
                     </div>
                     <div className="text-right text-sm text-text-muted">
+                      {activeSection === 'ambiguous' && (
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 mr-2">
+                          {query.ambiguous_count || 0}/3 strikes
+                        </span>
+                      )}
                       {query.responses?.length || 0} responses
                     </div>
                   </div>
@@ -187,6 +194,21 @@ const QueryDetailPanel = ({ query, onClose }) => {
     } catch (err) {
       console.error('Failed to send warning', err);
       alert(err.response?.data?.error || 'Failed to send warning');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteQuery = async () => {
+    if (!confirm('Are you sure you want to delete this query? This action cannot be undone.')) return;
+    setLoading(true);
+    try {
+      await api.delete(`/admin/query/${query._id}`);
+      onClose();
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to delete query', err);
+      alert(err.response?.data?.error || 'Failed to delete query');
     } finally {
       setLoading(false);
     }
@@ -276,6 +298,15 @@ const QueryDetailPanel = ({ query, onClose }) => {
                   >
                     ⚠️ Send Warning
                   </button>
+                  {query.status === 'Ambiguous' && (
+                    <button
+                      onClick={handleDeleteQuery}
+                      disabled={loading}
+                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400"
+                    >
+                      🗑️ Remove Query
+                    </button>
+                  )}
                 </div>
               </>
             )}
