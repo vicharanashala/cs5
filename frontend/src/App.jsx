@@ -22,7 +22,6 @@ import AdminAmbiguous from './pages/admin/AdminAmbiguous';
 import AdminResolveHub from './pages/admin/AdminResolveHub';
 import ModeratorOverview from './pages/moderator/ModeratorOverview';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
-import ModeratorQueries from './pages/moderator/ModeratorQueries';
 import ModeratorHighRated from './pages/moderator/ModeratorHighRated';
 import ModeratorAmbiguous from './pages/moderator/ModeratorAmbiguous';
 import ModeratorResolveHub from './pages/moderator/ModeratorResolveHub';
@@ -129,15 +128,6 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['moderator']}>
               <ModeratorDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/moderator/queries"
-          element={
-            <ProtectedRoute allowedRoles={['moderator']}>
-              <ModeratorQueries />
             </ProtectedRoute>
           }
         />
