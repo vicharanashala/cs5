@@ -360,21 +360,22 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
               </div>
             </>
           ) : (
-            <div className="bg-gray-50 p-4 rounded border border-border-subtle">
-              <div className="font-medium text-black">{query.query_text}</div>
-              <div className="text-sm text-text-muted mt-2">
-                From: {query.intern_id?.email} • Status: {query.status}
-              </div>
-              {query.intern_id?.warning_count > 0 && (
-                <div className="mt-2">
-                  <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
-                    ⚠️ {query.intern_id.warning_count} warning{query.intern_id.warning_count > 1 ? 's' : ''}
-                  </span>
+            <>
+              <div className="bg-gray-50 p-4 rounded border border-border-subtle">
+                <div className="font-medium text-black">{query.query_text}</div>
+                <div className="text-sm text-text-muted mt-2">
+                  From: {query.intern_id?.email} • Status: {query.status}
                 </div>
-              )}
-            </div>
+                {query.intern_id?.warning_count > 0 && (
+                  <div className="mt-2">
+                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                      ⚠️ {query.intern_id.warning_count} warning{query.intern_id.warning_count > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
+              </div>
 
-            <div>
+              <div>
               <div className="text-sm font-medium text-black mb-3">
                 {isArchiveSection ? 'Approved Response' : isHighRatedSection ? 'High-Rated Responses (4-5★)' : isLowRatedSection ? 'Low-Rated Responses (1-3★)' : 'Peer Responses'}
               </div>
@@ -458,7 +459,9 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
                 </button>
               )}
             </div>
+            </>
           )}
+        </div>
 
         {showWarnModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

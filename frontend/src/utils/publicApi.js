@@ -17,9 +17,10 @@
 import axios from 'axios';
 
 const publicApi = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true', // Bypasses ngrok's free tier warning page
   },
 });
 

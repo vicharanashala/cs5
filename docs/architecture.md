@@ -116,7 +116,6 @@ frontend/src/
 /admin/faqs              → AdminFaqEditor (admin only)
 /admin/ambiguous         → AdminAmbiguous (admin only)
 /admin/resolve           → AdminResolveHub (admin only)
-/admin/suggestions       → AdminSuggestions (admin only)
 
 # Moderator Pages
 /moderator               → ModeratorOverview (protected, moderator+)

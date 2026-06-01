@@ -12,8 +12,15 @@ http://localhost:5000/api
 
 All protected endpoints require JWT token in the `Authorization` header:
 
-```
 Authorization: Bearer <your_jwt_token>
+```
+
+### Internet Testing (Ngrok)
+
+When testing the API over the internet using Ngrok, you must include the following header in your requests to bypass the Ngrok browser warning page:
+
+```
+ngrok-skip-browser-warning: true
 ```
 
 ---

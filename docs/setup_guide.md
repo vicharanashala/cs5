@@ -132,6 +132,32 @@ Open browser to: `http://localhost:5173`
 
 ---
 
+## 4.5 Internet Testing with ngrok (Optional)
+
+To test the application over the internet or with mobile devices, use ngrok to create secure tunnels.
+
+### 4.5.1 Start Backend Tunnel
+```bash
+ngrok http 5000
+```
+Note the `https://...ngrok-free.app` URL provided for the backend.
+
+### 4.5.2 Update Frontend Environment
+In `frontend/.env`, set `VITE_API_URL` to the backend ngrok URL:
+```env
+VITE_API_URL=https://your-backend-url.ngrok-free.app/api
+```
+
+### 4.5.3 Start Frontend Tunnel
+```bash
+ngrok http 5173
+```
+Note the `https://...ngrok-free.app` URL provided for the frontend. Share this URL with your testers.
+
+*Note: The backend CORS and Vite configuration are already set up to allow ngrok hosts (`server.allowedHosts: true` in vite.config.js).*
+
+---
+
 ## 5. Test Accounts
 
 | Role | Email | Password |
@@ -279,7 +305,7 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 
 ## 10. Resolve Hub Sections
 
-The Admin/Moderator Resolve Hub presents 5 sections for query resolution:
+The Admin/Moderator Resolve Hub presents 6 sections for query resolution:
 
 | Section | Filter |
 |---------|--------|
@@ -288,6 +314,7 @@ The Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 | Stagnant (Locked, 24h+) | 1-4 responses, ALL 1-3★, created 24+ hours ago |
 | Low-Rated | 5 responses, all rating < 4 |
 | Archive | status = 'Resolved' |
+| Moderator Suggested | Pending FAQ suggestions from moderators |
 
 ---
 

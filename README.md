@@ -28,138 +28,140 @@
 
 ## Core Workflow
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           QUERY LIFECYCLE                                    │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-  STEP 0: AUTO-COMPLETE (as user types)
-  │
-  ├─ User types in AskAI input
-  ├─ debounce 300ms → GET /api/ask/autocomplete?q=...
-  ├─ RAG keyword search on FAQ keywords, tags, search_text
-  ├─ Returns up to 5 matching FAQs
-  └─ User selects → instant resolution (source: 'autocomplete')
-
-  STEP 1: RAG SEARCH (on submit)
-  │
-  ├─ User submits full question → POST /api/ask
-  ├─ RAG keyword matching (search_text, tags, keywords)
-  ├─ Match confidence > 50%?
-  │   ├─ YES → Return FAQ answer for upvote/downvote
-  │   │       ├─ UPVOTE → Resolution logged (RAG_RESOLVED), query ends
-  │   │       └─ DOWNVOTE → Go to STEP 2 (LLM Fallback)
-  │   └─ NO → Go to STEP 2 (LLM Fallback)
-
-  STEP 2: LLM FALLBACK (Gemini → Groq)
-  │
-  ├─ Gemini 3.5-flash → synthesize context from matching FAQs
-  ├─ If fails → try next model (3.1-pro, 3.1-flash-lite, 2.5-flash, 2.5-pro)
-  ├─ All Gemini models fail → try Groq (llama-3.3-70b → llama-3.1-8b → ...)
-  ├─ LLM returns answer → user sees answer with upvote/downvote buttons
-  │   ├─ UPVOTE → Resolution logged (LLM_RESOLVED), query ends
-  │   └─ DOWNVOTE → Go to STEP 3 (Peer Escalation)
-
-  STEP 3: PEER ESCALATION (if LLM fails or downvoted)
-  │
-  ├─ Check active query cap (max 5 unresolved per intern)
-  ├─ Check for similar query spam
-  ├─ Create Query document (status: 'Pending')
-  ├─ Track in NoFaq collection (for FAQ suggestions)
-  └─ Query enters Peer Queue
-
-  STEP 4: PEER ANSWERS (max 5 peers)
-  │
-  ├─ Other interns see query in Peer Queue
-  ├─ Intern submits answer → POST /api/peer/answer
-  ├─ Query status changes: 'Pending' → 'Peer Answered'
-  ├─ Notification sent to query author (peer_answer)
-  └─ Query author rates the response (1-5 stars)
-
-  STEP 5: RATING & LOCKING
-  │
-  ├─ 4 stars (HIGH) → Query escalates to Highly-Rated Queue (NOT locked)
-  ├─ 5 stars → Query immediately locked, escalates to Highly-Rated Queue
-  ├─ 1-3 stars (LOW) + 5 responses filled → Query locked, escalates to Low-Rated Queue
-  └─ Ambiguous: 3 different peers mark query as ambiguous
-      └─ Query status → 'Ambiguous', is_locked: true
-      └─ Intern notified: "Your query was unclear. Please rephrase."
-
-  STEP 6: ADMIN RESOLUTION
-  │
-  ├─ Admin views escalated queries (Resolve Hub)
-  ├─ Options:
-  │   ├─ APPROVE PEER RESPONSE → Query resolved (peer_approved)
-  │   ├─ ADMIN OVERRIDE → Query resolved (admin_override)
-  │   ├─ SEND WARNING → Warning sent to intern (warning_count++)
-  │   └─ ADD TO FAQ → Creates permanent FAQ entry
-  └─ Notification sent to intern (query_resolved)
-
-  STEP 7: RESOLVED (Terminal State)
-  │
-  └─ Query marked as 'Resolved', is_locked: true
-  └─ "Add to FAQ" button available for knowledge base expansion
-  └─ Intern sees "Approved" badge for both peer_approved and admin_override
-```
-
----
-
-## Resolution Flow (Admin/Moderator)
-
-```
-                    ┌─────────────┐
-                    │   PENDING   │ ← Initial state after LLM downvote
-                    └──────┬──────┘
-                           │
-               ┌───────────┴───────────┐
-               │                       │
-               ▼                       ▼
-        ┌───────────┐          ┌─────────────┐
-        │  3-STRIKE  │          │  PEER        │
-        │  AMBIGUOUS │          │  ANSWERED    │
-        └─────┬─────┘          └──────┬──────┘
-              │                      │
-              ▼                      ▼
-       ┌──────────┐         ┌──────────────┐
-       │ AMBIGUOUS│         │    RATING    │
-       │ (locked) │         └───────┬──────┘
-       └──────────┘                 │
-                                     │
-                    ┌────────────────┴────────────────┐
-                    │                                 │
-                    ▼                                 ▼
-           ┌───────────────┐                  ┌───────────────┐
-           │  rating = 4   │                  │  rating = 5   │
-           │  (HIGH RATED │                  │  (IMMEDIATE    │
-           │   NOT locked)│                  │    LOCK)      │
-           └───────┬───────┘                  └───────┬───────┘
-                   │                                │
-                   │         ┌─────────────────────┘
-                   │         │
-                   │         ▼              5 responses
-                   │  ┌───────────────┐   all < 4 stars
-                   │  │ is_locked=true│──────────┐
-                   │  └───────┬───────┘          │
-                   │          │                  ▼
-                   │          │          ┌───────────────┐
-                   │          │          │  LOW-RATED    │
-                   │          │          │    QUEUE      │
-                   │          │          └───────┬───────┘
-                   │          │                │
-                   └──────────┴────────────────┘
-                            │
-               ┌────────────┴────────────┐
-               │                         │
-               ▼                         ▼
-        ┌─────────────────────────────┐
-        │     ADMIN RESOLUTION        │
-        │  (approve, override, warn)  │
-        └─────────────┬───────────────┘
-                      │
-                      ▼
-                ┌──────────┐
-                │ APPROVED │ ← Both peer_approved and admin_override
-                └──────────┘   show "Approved" badge to intern
+```mermaid
+graph TD
+    %% ========================================
+    %% 1. AUTHENTICATION & NAVIGATION
+    %% ========================================
+    Start[User visits Query.in] --> Login{Authenticated?}
+    Login -- No --> LoginPage[Login Page]
+    LoginPage --> AuthCheck{Check Role JWT}
+    Login -- Yes --> AuthCheck
+    
+    AuthCheck -- Intern --> InternDash[Intern Dashboard]
+    AuthCheck -- Moderator --> ModDash[Moderator Dashboard]
+    AuthCheck -- Admin --> AdminDash[Admin Dashboard]
+    
+    %% ========================================
+    %% 2. EXPLORE FAQS
+    %% ========================================
+    InternDash --> ExploreFAQ[Explore FAQs Page]
+    ExploreFAQ --> CategoryFilter[Filter by Category / Global Search]
+    CategoryFilter --> ReadFAQ[Read FAQ / Query Deflected]
+    
+    %% ========================================
+    %% 3. ASK AI & SANITY CHECKS
+    %% ========================================
+    InternDash --> AskAI[Ask AI Portal]
+    AskAI --> TypeQuery[User Types Question]
+    TypeQuery --> Debounce[Debounced Auto-Complete Search]
+    Debounce --> SuggestionMatch{RAG Match?}
+    
+    SuggestionMatch -- "Yes (clicks suggestion)" --> ReadFAQ
+    
+    SuggestionMatch -- "No (clicks submit)" --> SubmitQuery[Submit Full Question]
+    SubmitQuery --> SanityCheck{Input Valid? <br/>Length > 2, No Garbage}
+    SanityCheck -- No --> RejectGarbage[Reject: 400 Bad Request]
+    SanityCheck -- Yes --> RAGSearch[Backend RAG Search Index]
+    
+    %% ========================================
+    %% 4. AI MODERATION PIPELINE
+    %% ========================================
+    RAGSearch --> RAGMatch{Confidence > 50%?}
+    RAGMatch -- Yes --> ReturnFAQ[Return Internal FAQ Answer]
+    ReturnFAQ --> VoteFAQ{Intern Upvote?}
+    VoteFAQ -- Yes --> Resolved1[Status: RAG Resolved]
+    VoteFAQ -- No --> LLM
+    
+    RAGMatch -- No --> LLM[LLM Pipeline Triggered]
+    LLM --> Gemini[Query Gemini 3.5-flash]
+    Gemini --> GeminiCheck{Fails/Timeout?}
+    GeminiCheck -- Yes --> Groq[Fallback to Groq LLaMA]
+    GeminiCheck -- No --> ShowAnswer[Show AI Generated Answer]
+    Groq --> ShowAnswer
+    ShowAnswer --> VoteAI{Intern Upvote?}
+    
+    VoteAI -- Yes --> Resolved2[Status: LLM Resolved]
+    VoteAI -- No --> SpamCheck
+    
+    %% ========================================
+    %% 5. ESCALATION & SPAM PREVENTION
+    %% ========================================
+    SpamCheck{Similar Query<br/>Already in Queue?}
+    SpamCheck -- Yes --> BlockSpam[Block: Duplicate Query Detected]
+    SpamCheck -- No --> CheckCap{Active Queries >= 5?}
+    
+    CheckCap -- Yes --> BlockCap[Block: Escalation Limit Reached]
+    CheckCap -- No --> AddToQueue[Added to Peer Queue<br/>Status: Pending]
+    
+    AddToQueue --> NoFaqTracking[Log in NoFaq Tracking Collection]
+    NoFaqTracking --> NoFaqCount{Hits 10 Occurrences?}
+    NoFaqCount -- Yes --> AlertAdmin[AI Suggestion:<br/>Alert Admin to Create FAQ]
+    NoFaqCount -- No --> WaitPeer[Query Visible to Peer Crowd]
+    
+    %% ========================================
+    %% 6. CROWD-SOURCED PEER QUEUE
+    %% ========================================
+    WaitPeer --> PeerAnswers[Peers Submit Answers]
+    PeerAnswers --> MaxPeers{Max 5 Peers Reached?}
+    MaxPeers -- No --> MorePeers[Accept More Answers]
+    MaxPeers -- Yes --> WaitRating[Lock to New Answers]
+    
+    WaitPeer --> AuthorRates[Query Author Reviews & Rates]
+    AuthorRates --> RatingValue{Rating / Flags}
+    
+    %% Rating Logic
+    RatingValue -- "5 Stars" --> Lock5[Lock Query Instantly]
+    Lock5 --> AdminHigh[Admin: Pending Resolution Queue]
+    
+    RatingValue -- "4 Stars" --> AdminHigh
+    
+    RatingValue -- "1-3 Stars" --> Check5[Has 5 Low Responses?]
+    Check5 -- Yes --> LockLow[Lock Query]
+    LockLow --> AdminLow[Admin: Low-Rated Queue]
+    Check5 -- No --> TimeCheck[24 hours passed?]
+    TimeCheck -- Yes --> AdminStagnant[Admin: Stagnant Queue]
+    
+    %% Ambiguous Logic
+    RatingValue -- "Mark Ambiguous" --> StrikeCheck{3 Peers Marked?}
+    StrikeCheck -- Yes --> LockAmb[Lock Query: 3-Strike]
+    LockAmb --> NotifyAuthor[Notify Intern to Rephrase]
+    LockAmb --> AdminAmb[Admin: Ambiguous Queue]
+    
+    %% ========================================
+    %% 7. ADMIN / MODERATOR RESOLVE HUB
+    %% ========================================
+    AdminHigh --> AdminResolveHub[Admin/Moderator Resolve Hub]
+    AdminLow --> AdminResolveHub
+    AdminStagnant --> AdminResolveHub
+    AdminAmb --> AdminResolveHub
+    
+    AdminResolveHub --> HubAction{Action Taken}
+    
+    HubAction -- "Warn Intern" --> IssueWarning[Add Strike to Warning System]
+    IssueWarning --> DisableCheck{5 Warnings?}
+    DisableCheck -- Yes --> BanUser[Disable User Account]
+    
+    HubAction -- "Delete" --> Trash[Delete Query Permanently]
+    
+    HubAction -- "Approve / Override" --> Terminal[Status: Resolved]
+    
+    %% ========================================
+    %% 8. TERMINAL STATE & FAQ CREATION
+    %% ========================================
+    Terminal --> CheckRole{User Role?}
+    
+    CheckRole -- "Admin" --> AdminAddFAQ{Click 'Add to FAQ'?}
+    AdminAddFAQ -- "Yes" --> CreateFAQ[New Knowledge Base Entry Created]
+    AdminAddFAQ -- "No" --> End[Flow Complete]
+    
+    CheckRole -- "Moderator" --> ModSuggestFAQ{Click 'Suggest FAQ'?}
+    ModSuggestFAQ -- "Yes" --> ModSuggestQ[Admin: Moderator Suggested Queue]
+    ModSuggestFAQ -- "No" --> End
+    
+    ModSuggestQ --> AdminFinalReview{Admin Final Review}
+    AdminFinalReview -- "Approve" --> CreateFAQ
+    AdminFinalReview -- "Dismiss" --> End
 ```
 
 ---
@@ -198,9 +200,14 @@
 
 | Document | Description |
 |----------|-------------|
+| [query.pdf](./query.pdf) | Minimum Viable Product (MVP) specifications and initial requirements |
+| [transcript.pdf](./transcript.pdf) | Team discussion and brainstorming transcript |
+| [context.md](./context.md) | Complete project context, resolved issues, and development logs |
+| [./docs/workflow_chart.md](./docs/workflow_chart.md) | End-to-end user journey and system workflow Mermaid flowchart |
 | [./docs/FEATURES.md](./docs/FEATURES.md) | Complete feature breakdown with flagship highlights |
 | [./docs/setup_guide.md](./docs/setup_guide.md) | Installation, configuration, and startup instructions |
 | [./docs/architecture.md](./docs/architecture.md) | System architecture, React/Vite, Express routing, Socket.IO |
+| [./docs/representation.md](./docs/representation.md) | System flow charts and state machine visual representations |
 | [./docs/api_docs.md](./docs/api_docs.md) | REST API endpoint reference with request/response formats |
 | [./docs/database_schema.md](./docs/database_schema.md) | Mongoose model reference with ObjectId relationships |
 
@@ -219,6 +226,8 @@ cd frontend
 npm install
 npm run dev
 ```
+
+*For instructions on how to share your local environment for internet testing using Ngrok, see the [Setup Guide](docs/setup_guide.md#45-internet-testing-with-ngrok-optional).*
 
 ---
 
@@ -322,6 +331,10 @@ All query resolutions are tracked with ResolutionType:
 | 67 | Archive section showed all responses | When viewing resolved queries in Archive, all responses were shown instead of just approved | Filter Archive section to only show `approval === true` response |
 | 68 | "Add to FAQ Database" too basic | Simple confirm() dialog didn't allow customization of tags, keywords, priority, category | Replaced with full modal form with category dropdown, tags, keywords, priority fields |
 | 69 | Category dropdown hardcoded | Category list was hardcoded in frontend instead of using existing database categories | Added GET /api/faqs/categories endpoint, dropdown dynamically populated from database |
+| 75 | Show password toggle missing | No way to see password while typing | Added show/hide password toggle with eye icons on Landing page login form |
+| 76 | Login page refreshes on wrong password | 401 interceptor redirected to /login on all 401 errors including login attempts | Modified api.js to skip redirect when URL contains `/auth/login` |
+| 77 | Demo credentials visible on login card | Security risk - credentials shown publicly | Removed demo credentials section from Landing page login card |
+| 78 | Login card missing border | Explore FAQs card had border but Login card didn't | Added `border border-gray-200` to Login card for consistency |
 
 ---
 
@@ -379,14 +392,12 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 | Page | Route | Purpose |
 |------|-------|---------|
-| Dashboard | /admin | Overview with navigation cards (7 cards) |
+| Dashboard | /admin | Overview with navigation cards (5 cards) |
 | User Management | /admin/users | Combined: Registration, User list with warnings (0=green, 1+=yellow, 5=red), Active/Inactive toggle (green/red) |
 | Announcements | /admin/announcement | Publish announcements |
-| Query Monitor | /admin/queries | Master query feed |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
-| Resolve Hub | /admin/resolve | Resolution queue (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive) |
+| Query Management | /admin/resolve | Resolution queue (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested) |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions |
-| Ambiguous | /admin/ambiguous | Queries marked unclear by 3 peers |
 
 ## Moderator Dashboard Pages
 
@@ -398,9 +409,9 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 ---
 
-## 5-Section Admin Resolution Hub
+## 6-Section Admin Resolution Hub
 
-The Admin Dashboard presents 5 sections for managing escalated queries:
+The Admin Dashboard presents 6 sections for managing escalated queries:
 
 | Section | Condition |
 |---------|-----------|
@@ -409,6 +420,7 @@ The Admin Dashboard presents 5 sections for managing escalated queries:
 | Stagnant (Locked, 24h+) | Queries with 1-4 low-rated responses (all 1-3★), created 24+ hours ago |
 | Low-Rated | Queries with 5+ responses ALL rated < 4 stars. **All responses shown (sorted 3★→1★) with Approve button** |
 | Archive | status = 'Resolved' |
+| Moderator Suggested | Pending FAQ suggestions from moderators. Admin can Add to FAQ or Dismiss |
 
 **FAQ Creation Bridge:** Admin can click "+ Add to FAQ Database" on any resolved query to create a permanent FAQ entry.
 

@@ -281,6 +281,14 @@ STEP 7: RESOLVED (Terminal State)
 | 68 | "Add to FAQ Database" too basic | Simple confirm() dialog didn't allow customization of tags, keywords, priority, category | Replaced with full modal form with category dropdown, tags, keywords, priority fields |
 | 69 | Category dropdown hardcoded | Category list was hardcoded in frontend instead of using existing database categories | Added GET /api/faqs/categories endpoint, dropdown dynamically populated from database |
 | 70 | Moderator couldn't suggest archived queries for FAQ | No way for moderator to suggest useful queries from Archive for FAQ database | Added "Suggest for FAQ Database" button in Moderator Resolve Hub Archive section; Admin sees suggestions in "Moderator Suggested" section with "Add to FAQ" and "Dismiss" options |
+| 71 | Missing closing div in AdminResolveHub | `vite` server threw `[PARSE_ERROR] Unexpected token` in `AdminResolveHub.jsx` | Fixed missing `</div>` tag |
+| 72 | Ngrok CORS blocked by backend | Non-localhost ngrok origins were blocked | Updated `cors` config with `origin: true` |
+| 73 | Ngrok free tier browser warning | Free tier ngrok requires a specific header | Added `ngrok-skip-browser-warning: true` header in `api.js` and `publicApi.js` |
+| 74 | Vite blocking ngrok hosts | `Invalid Host header` from Vite when accessed via ngrok | Added `server.allowedHosts: true` to `vite.config.js` |
+| 75 | Show password toggle missing | No way to see password while typing | Added show/hide password toggle with eye icons on Landing page login form |
+| 76 | Login page refreshes on wrong password | 401 interceptor redirected to /login on all 401 errors including login attempts | Modified api.js to skip redirect when URL contains `/auth/login` |
+| 77 | Demo credentials visible on login card | Security risk - credentials shown publicly | Removed demo credentials section from Landing page login card |
+| 78 | Login card missing border | Explore FAQs card had border but Login card didn't | Added `border border-gray-200` to Login card for consistency |
 
 ---
 

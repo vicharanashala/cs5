@@ -85,9 +85,9 @@ Background cron job runs every 15 minutes to enforce SLA timeouts:
 
 ---
 
-### 5-Section Admin/Moderator Resolve Hub
+### 6-Section Admin/Moderator Resolve Hub
 
-Admin/Moderator Resolve Hub presents 5 sections for query resolution:
+Admin/Moderator Resolve Hub presents 6 sections for query resolution:
 
 | Section | Condition | Response Display |
 |---------|-----------|------------------|
@@ -96,6 +96,7 @@ Admin/Moderator Resolve Hub presents 5 sections for query resolution:
 | Stagnant (Locked, 24h+) | 1-4 responses, ALL 1-3★, created 24+ hours ago | All responses shown (sorted 3★→1★) |
 | Low-Rated | 5+ responses, ALL < 4 stars | All responses shown (sorted 3★→1★), Approve button available |
 | Archive | status = 'Resolved' | All responses shown |
+| Moderator Suggested | Pending FAQ suggestions from moderators | Shows suggested question and answer |
 
 ---
 
@@ -241,7 +242,7 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **User Management** - Sortable/filterable user table with warning levels and status
 - **Query Monitor** - Status filter, date sort, thread drawer
 - **FAQ Editor** - Full CRUD on FAQ collection
-- **Resolve Hub** - 5-section queue: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive
+- **Resolve Hub** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested
 
   - **Resolve Hub** - 4-section queue: Pending Resolution, Stagnant, Low-Rated, Archive
 

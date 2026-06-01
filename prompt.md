@@ -1069,3 +1069,84 @@ stagnant: queries.filter(q => {
 **Files modified:**
 - `frontend/src/pages/admin/AdminResolveHub.jsx`
 - `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
+
+---
+
+### Prompt 72: Ngrok Configuration & Vite Proxy Fixes
+**Prompt:** "give me step to start ngrok server to share this website for testing to otheres", "there is no .env in frontend", "Blocked request. This host is not allowed.", "Failed to load resource: the server responded with a status of 404 ()", "update all the doc folder files including readme, api_doc, database_schema, features, representation, setup, context.md and prompt.md"
+
+**Response:**
+Configured the application to support external internet testing via Ngrok tunnels and updated all documentation.
+
+**Fix 1 - AdminResolveHub.jsx Syntax Error:**
+- Fixed `[PARSE_ERROR] Unexpected token` caused by a missing closing `</div>` tag in `AdminResolveHub.jsx`.
+
+**Fix 2 - Frontend .env and dynamic API URL:**
+- Created `.env` file in frontend.
+- Updated `VITE_API_URL` to support dynamic Ngrok URLs instead of hardcoded localhost.
+- Updated `api.js` and `publicApi.js` to use `import.meta.env.VITE_API_URL` and added the `ngrok-skip-browser-warning: true` header to bypass the Ngrok warning screen.
+
+**Fix 3 - Backend CORS Policy:**
+- Updated `backend/server.js` `cors` configuration to `origin: true` (allows all origins, including Ngrok dynamic hosts) and added `ngrok-skip-browser-warning` to `allowedHeaders`.
+
+**Fix 4 - Vite allowedHosts:**
+- Updated `vite.config.js` with `server.allowedHosts: true` to prevent Vite from blocking Ngrok host tunnels.
+
+**Fix 5 - Documentation Updates:**
+- Updated all files in `docs/` folder, `README.md`, `context.md`, and `prompt.md` to reflect the Ngrok configuration, 6-section Resolve Hub, and Moderator FAQ Suggestion workflows.
+
+---
+
+### Prompt 75: Add Show Password Toggle to Login Page
+**Prompt:** Add show password option in the login page while logging in so that the user can see the password they are entering.
+
+**Response:**
+Updated `Landing.jsx`:
+1. Added `showPassword` state to toggle visibility
+2. Added eye/eye-off icons in password field
+3. Toggle button on right side of input
+4. Input type switches between `password` and `text`
+
+**Files modified:**
+- `frontend/src/pages/Landing.jsx`
+
+---
+
+### Prompt 76: Fix Login Page Refresh on Wrong Password
+**Prompt:** it is refreshing every time i enter a wrong password but it should say wrong credentials and then after re entering right it should login
+
+**Response:**
+Updated `api.js`:
+1. Added check in 401 interceptor to skip redirect for login requests
+2. Changed from `window.location.href = '/login'` to only redirect when `!isLoginRoute`
+3. Now wrong credentials show error message on same page without refresh
+4. Correct credentials login successfully
+
+**Files modified:**
+- `frontend/src/utils/api.js`
+
+---
+
+### Prompt 77: Remove Demo Credentials from Login Card
+**Prompt:** remove demo credentials line in landing page in login card there is admin id and password are written
+
+**Response:**
+Updated `Landing.jsx`:
+1. Removed the demo credentials section (lines with "Demo credentials: admin@query.in / Admin@1234")
+2. Removed the border-top and text below the login form
+
+**Files modified:**
+- `frontend/src/pages/Landing.jsx`
+
+---
+
+### Prompt 78: Add Consistent Borders to Landing Page Cards
+**Prompt:** add borders to the "explore FAQs" card similar to the "welcome back" card
+
+**Response:**
+Updated `Landing.jsx`:
+1. Added `border border-gray-200` to the Login card (Welcome back card)
+2. Both cards now have consistent styling with border-gray-200
+
+**Files modified:**
+- `frontend/src/pages/Landing.jsx`

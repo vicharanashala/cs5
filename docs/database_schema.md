@@ -360,7 +360,7 @@ AMBIGUOUS ◄──────────────────────�
 | Ambiguous | No | No (locked) |
 | Resolved | No | No (locked) |
 
-### Admin/Moderator Resolution Queues (5-Section)
+### Admin/Moderator Resolution Queues (6-Section)
 
 | Queue | Condition | Response Display |
 |-------|-----------|------------------|
@@ -369,6 +369,7 @@ AMBIGUOUS ◄──────────────────────�
 | Stagnant (Locked, 24h+) | 1-4 responses, ALL 1-3★, created 24+ hours ago | All responses shown (sorted 3★→1★) |
 | Low-Rated | 5 responses, all < 4 stars | All responses shown (sorted 3★→1★), Approve button available |
 | Archive | status = 'Resolved' | All responses shown |
+| Moderator Suggested | Moderator suggested FAQs from Archived queries | Shows suggested question/answer, Admin can Add to FAQ or Dismiss |
 
 ---
 
