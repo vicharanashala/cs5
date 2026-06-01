@@ -296,7 +296,12 @@ const QueryDrawer = ({ query, onClose }) => {
                     <div className="text-black">{resp.response_text}</div>
                     {resp.peer_note && (
                       <div className="mt-2 text-sm text-text-muted italic bg-yellow-50 p-2 rounded">
-                        Note: {resp.peer_note}
+                        Peer Note: {resp.peer_note}
+                      </div>
+                    )}
+                    {resp.rater_note && (
+                      <div className="mt-2 text-sm text-text-muted italic bg-blue-50 p-2 rounded border-l-2 border-blue-400">
+                        Author's Review Note: {resp.rater_note}
                       </div>
                     )}
                     {query.status === 'Peer Answered' && !query.is_locked && (
@@ -898,7 +903,12 @@ const QueryDetailPanel = ({ query, onClose }) => {
                     <div className="text-black">{resp.response_text}</div>
                     {resp.peer_note && (
                       <div className="mt-2 text-sm italic text-text-muted bg-yellow-50 p-2 rounded">
-                        Internal Note: {resp.peer_note}
+                        Peer Note: {resp.peer_note}
+                      </div>
+                    )}
+                    {resp.rater_note && (
+                      <div className="mt-2 text-sm text-text-muted italic bg-blue-50 p-2 rounded border-l-2 border-blue-400">
+                        Author's Review Note: {resp.rater_note}
                       </div>
                     )}
                     {resp.rating >= 4 && query.status === 'Peer Answered' && (

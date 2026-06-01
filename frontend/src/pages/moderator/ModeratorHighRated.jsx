@@ -138,6 +138,16 @@ const QueryDetailPanel = ({ query, onClose }) => {
                       {resp.rating && <span className="text-yellow-500">★ {resp.rating}/5</span>}
                     </div>
                     <div className="text-black">{resp.response_text}</div>
+                    {resp.peer_note && (
+                      <div className="mt-2 text-sm text-text-muted italic bg-yellow-50 p-2 rounded">
+                        Peer Note: {resp.peer_note}
+                      </div>
+                    )}
+                    {resp.rater_note && (
+                      <div className="mt-2 text-sm text-text-muted italic bg-blue-50 p-2 rounded border-l-2 border-blue-400">
+                        Author's Review Note: {resp.rater_note}
+                      </div>
+                    )}
                     {resp.rating >= 4 && query.status === 'Peer Answered' && (
                       <button
                         onClick={() => handleApprove(resp._id)}

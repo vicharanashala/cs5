@@ -55,10 +55,23 @@ const Announcements = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {announcements.map((ann) => (
+            {announcements.map((ann) => {
+              const priorityColors = {
+                high: 'bg-red-600 text-white',
+                medium: 'bg-yellow-400 text-black',
+                low: 'bg-green-800 text-white',
+              };
+              return (
               <Card key={ann._id} className="border-2 border-black rounded-lg p-5 hover:shadow-lg hover:scale-[1.01] transition-all duration-200 cursor-pointer">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs text-text-muted uppercase tracking-wider">Admin</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-text-muted uppercase tracking-wider">Admin</span>
+                    {ann.priority && (
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${priorityColors[ann.priority]}`}>
+                        {ann.priority.charAt(0).toUpperCase() + ann.priority.slice(1)}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-sm text-text-muted">
                     {new Date(ann.createdAt).toLocaleDateString()}
                   </span>
@@ -66,7 +79,8 @@ const Announcements = () => {
                 <h3 className="text-lg font-bold text-black mb-3">{ann.heading}</h3>
                 <p className="text-sm text-text-secondary whitespace-pre-wrap">{ann.content}</p>
               </Card>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>

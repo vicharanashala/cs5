@@ -112,7 +112,6 @@ const SingleUserForm = ({ onSuccess }) => {
           >
             <option value="intern">Intern</option>
             <option value="moderator">Moderator</option>
-            <option value="admin">Admin</option>
           </select>
         </div>
       </div>

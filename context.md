@@ -292,6 +292,11 @@ STEP 7: RESOLVED (Terminal State)
 | 79 | Moderator response shown as "Admin" in intern's MyEscalations | Backend didn't populate resolved_by for admin/moderator approval | Added populate('resolved_by', 'email role') in getMyEscalations; Response badges now show Admin/Moderator Approved vs Override based on approval flag and resolved_by.role |
 | 80 | Duplicate "Approved" badge on responses | Redundant badge showing for approved responses | Removed duplicate badge; first badge now correctly shows "Admin Approved", "Moderator Approved", or "Admin/Moderator Override" |
 | 81 | Database schema not updated with response approval states | Missing documentation for response_type and approval combinations | Added Response Type & Approval States table in database_schema.md |
+| 82 | peer_note not visible in AdminResolveHub | Response detail panel didn't show internal note | Added peer_note display in AdminResolveHub.jsx with "Peer Note:" label |
+| 83 | Announcement priority missing | No way to set urgency level for announcements | Added priority field (low/medium/high) with color coding: dark green/yellow/red |
+| 84 | Admin dropdown included Admin role | Only one admin should exist per application | Removed Admin option from role dropdown in user registration page |
+| 85 | Moderator suggestion didn't show sender | Admin couldn't see which moderator suggested FAQ | Added "From: {email} ({role})" display in moderator suggestion header and response section |
+| 86 | rater_note not visible in admin query views | Admin couldn't see intern's review note when approving responses | Added "Author's Review Note:" display with blue styling in all admin/moderator query detail views |
 
 ---
 
@@ -317,6 +322,11 @@ STEP 7: RESOLVED (Terminal State)
 - **Yellow Alert:** Admin notified when NoFaq hits 10 occurrences
 - **FAQ Added:** All interns notified when admin creates new FAQ
 - **Intern Warning:** Interns notified when they receive a warning for misuse
+
+### Announcement System
+- **Priority Levels:** Admin can set Low (dark green), Medium (yellow), or High (red) priority for announcements
+- **Visual Indicators:** Color-coded badges on announcement cards
+- **Backend Support:** Announcement model includes priority field with enum validation
 
 ### Query Input Sanity Check
 - **Frontend + Backend validation** before RAG/LLM processing

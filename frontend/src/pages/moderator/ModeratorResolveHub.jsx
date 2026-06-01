@@ -267,6 +267,16 @@ const QueryDetailPanel = ({ query, activeSection, onClose }) => {
                       {resp.approval && <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Approved</span>}
                     </div>
                     <div className="text-black">{resp.response_text}</div>
+                    {resp.peer_note && (
+                      <div className="mt-2 text-sm text-text-muted italic bg-yellow-50 p-2 rounded">
+                        Peer Note: {resp.peer_note}
+                      </div>
+                    )}
+                    {resp.rater_note && (
+                      <div className="mt-2 text-sm text-text-muted italic bg-blue-50 p-2 rounded border-l-2 border-blue-400">
+                        Author's Review Note: {resp.rater_note}
+                      </div>
+                    )}
                     {!isArchiveSection && (resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
                       <button
                         onClick={() => handleApprove(resp._id)}

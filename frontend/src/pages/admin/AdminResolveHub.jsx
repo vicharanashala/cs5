@@ -301,7 +301,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
         <div className="p-6 border-b border-black flex justify-between items-start">
           <div>
             <h3 className="text-lg font-bold text-black">{isSuggestionMode ? 'Moderator FAQ Suggestion' : 'Query Details'}</h3>
-            <p className="text-text-muted text-sm">{isSuggestionMode ? 'Suggested by Moderator' : `ID: ${query._id}`}</p>
+            <p className="text-text-muted text-sm">{isSuggestionMode ? `From: ${query.suggested_by?.email || 'Unknown'} (${query.suggested_by?.role || 'moderator'})` : `ID: ${query._id}`}</p>
           </div>
           <button onClick={onClose} className="text-2xl text-black hover:text-gray-600">&times;</button>
         </div>
@@ -323,8 +323,8 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
                 <div className="text-sm font-medium text-black mb-3">Suggested Answer (from approved response):</div>
                 <div className="border border-black rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-gray-600 text-white">moderator</span>
-                    <span className="text-sm">{query.suggested_by?.email}</span>
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-gray-600 text-white">{query.suggested_by?.role || 'moderator'}</span>
+                    <span className="text-sm">From: {query.suggested_by?.email}</span>
                   </div>
                   <div className="text-black">{query.suggested_answer}</div>
                 </div>
@@ -392,6 +392,16 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
                         {resp.approval && <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Approved</span>}
                       </div>
                       <div className="text-black">{resp.response_text}</div>
+                      {resp.peer_note && (
+                        <div className="mt-2 text-sm text-gray-600 italic border-l-2 border-gray-300 pl-2">
+                          Peer Note: {resp.peer_note}
+                        </div>
+                      )}
+                      {resp.rater_note && (
+                        <div className="mt-2 text-sm text-text-muted italic bg-blue-50 p-2 rounded border-l-2 border-blue-400">
+                          Author's Review Note: {resp.rater_note}
+                        </div>
+                      )}
                       {!isArchiveSection && (resp.rating >= 4 || isLowRatedSection) && query.status === 'Peer Answered' && (
                         <button
                           onClick={() => handleApprove(resp._id)}

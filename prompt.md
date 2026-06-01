@@ -1205,3 +1205,104 @@ Added "Response Type & Approval States" table to `docs/database_schema.md` docum
 
 **Files modified:**
 - `docs/database_schema.md`
+
+---
+
+### Prompt 82: Add peer_note Visibility in Admin Query Views
+**Prompt:** make sure that the admin is able to view the note provided by other users for a question asked by a intern
+
+**Response:**
+Added `peer_note` display in all admin/moderator query detail views:
+- `AdminResolveHub.jsx` - Shows "Peer Note:" with border-left styling
+- `AdminDashboard.jsx` - Both Peer Response Carousel and Peer Context Stream sections
+- `AdminQueries.jsx` - Query detail panel
+- `ModeratorDashboard.jsx` - Both sections
+- `ModeratorQueries.jsx` - Query detail panel
+- `ModeratorHighRated.jsx` - Query detail panel
+- `ModeratorResolveHub.jsx` - Query detail panel
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+- `frontend/src/pages/admin/AdminDashboard.jsx`
+- `frontend/src/pages/admin/AdminQueries.jsx`
+- `frontend/src/pages/moderator/ModeratorDashboard.jsx`
+- `frontend/src/pages/moderator/ModeratorQueries.jsx`
+- `frontend/src/pages/moderator/ModeratorHighRated.jsx`
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
+
+---
+
+### Prompt 83: Add Announcement Priority Levels
+**Prompt:** while adding an anouncement, the admin should have an option of adding 3 priorities as "Low","Medium","High" with red highlight for high priority, yellow for medium and dark green for low priority.
+
+**Response:**
+Added priority field to Announcement model and UI:
+
+**Backend changes:**
+- `backend/models/Announcement.js` - Added `priority` field with enum: ['low', 'medium', 'high'], default: 'medium'
+- `backend/controllers/announcementController.js` - Updated createAnnouncement to accept and store priority
+
+**Frontend changes:**
+- `AdminAnnouncement.jsx` - Added 3 priority buttons (Low/Medium/High) with color coding:
+  - Low: dark green (bg-green-800 text-white)
+  - Medium: yellow (bg-yellow-400 text-black)
+  - High: red (bg-red-600 text-white)
+- `Announcements.jsx` (intern) - Added priority badge display with same color scheme
+
+**Files modified:**
+- `backend/models/Announcement.js`
+- `backend/controllers/announcementController.js`
+- `frontend/src/pages/admin/AdminAnnouncement.jsx`
+- `frontend/src/pages/intern/Announcements.jsx`
+
+---
+
+### Prompt 84: Remove Admin from Role Dropdown
+**Prompt:** from the user registration page of the admin, remove "Admin" from the dropdown menu for role as there can be only one admin for the entire application.
+
+**Response:**
+Removed "Admin" option from the role dropdown in `AdminUserManagement.jsx` SingleUserForm. Only "Intern" and "Moderator" options remain.
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminUserManagement.jsx`
+
+---
+
+### Prompt 85: Add Moderator Name to FAQ Suggestion
+**Prompt:** for the query suggested by the moderator to the admin, it is not showing which moderator send the suggestion to the admin, so add a From space which shows which moderator suggested the query to the admin
+
+**Response:**
+Updated `AdminResolveHub.jsx` moderator suggestion panel:
+- Header now shows: `From: {email} ({role})` instead of hardcoded "Suggested by Moderator"
+- Response section shows moderator badge with actual role and "From: {email}" display
+
+The backend already populated `suggested_by` with email and role in `getModeratorSuggestions`.
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+
+---
+
+### Prompt 86: Add rater_note Visibility in Admin Query Views
+**Prompt:** note which is ask to author of query while taking review is not added in query drawer where it can approve in in query manager
+
+**Response:**
+Added `rater_note` (Author's Review Note) display in all admin/moderator query detail views:
+- `AdminResolveHub.jsx` - Blue background (bg-blue-50) with left border (border-blue-400)
+- `AdminDashboard.jsx` - Both sections with blue styling
+- `AdminQueries.jsx` - Query detail panel
+- `ModeratorDashboard.jsx` - Both sections
+- `ModeratorQueries.jsx` - Query detail panel
+- `ModeratorHighRated.jsx` - Query detail panel
+- `ModeratorResolveHub.jsx` - Query detail panel
+
+Display format: "Author's Review Note: {rater_note}" with blue background to distinguish from peer_note (yellow).
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+- `frontend/src/pages/admin/AdminDashboard.jsx`
+- `frontend/src/pages/admin/AdminQueries.jsx`
+- `frontend/src/pages/moderator/ModeratorDashboard.jsx`
+- `frontend/src/pages/moderator/ModeratorQueries.jsx`
+- `frontend/src/pages/moderator/ModeratorHighRated.jsx`
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx`

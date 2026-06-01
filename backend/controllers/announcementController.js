@@ -31,7 +31,7 @@ const getAllAnnouncements = async (req, res) => {
 
 const createAnnouncement = async (req, res) => {
   try {
-    const { heading, content } = req.body;
+    const { heading, content, priority } = req.body;
     const admin_id = req.user.userId;
 
     if (!heading || !content) {
@@ -45,6 +45,7 @@ const createAnnouncement = async (req, res) => {
       admin_id,
       heading,
       content,
+      priority: priority || 'medium',
     });
 
     res.status(201).json({

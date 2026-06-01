@@ -232,8 +232,9 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **Response Length** - Logs character count
 
 ### Announcements
-- **Create Announcement** - Admin broadcast
-- **View Announcements** - Intern dashboard
+- **Create Announcement** - Admin broadcast with priority levels (Low/Medium/High)
+- **View Announcements** - Intern dashboard with color-coded priority badges
+- **Priority Levels** - Red (high), Yellow (medium), Dark Green (low)
 
 ### Admin Dashboard (Page-Based Layout)
 - **Dashboard Overview** - Navigation cards to all sections

@@ -1175,6 +1175,7 @@ Get all announcements (public for active users).
       "_id": "64abc123...",
       "heading": "System Maintenance",
       "content": "Scheduled maintenance on Saturday...",
+      "priority": "high",
       "admin_id": { "email": "admin@query.in" },
       "createdAt": "2026-05-28T..."
     }
@@ -1194,9 +1195,23 @@ Create announcement (admin only).
 ```json
 {
   "heading": "New Feature Released",
-  "content": "We've added dark mode to the dashboard..."
+  "content": "We've added dark mode to the dashboard...",
+  "priority": "medium"
 }
 ```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `heading` | string | Yes | Announcement title (max 200 chars) |
+| `content` | string | Yes | Announcement body text |
+| `priority` | string | No | Priority level: `low`, `medium`, `high` (default: `medium`) |
+
+**Priority Colors:**
+| Priority | Badge Color |
+|----------|-------------|
+| `high` | Red (bg-red-600) |
+| `medium` | Yellow (bg-yellow-400) |
+| `low` | Dark Green (bg-green-800) |
 
 **Response (201):**
 ```json
@@ -1204,7 +1219,8 @@ Create announcement (admin only).
   "success": true,
   "message": "Announcement created",
   "data": {
-    "_id": "64abc123..."
+    "_id": "64abc123...",
+    "priority": "medium"
   }
 }
 ```

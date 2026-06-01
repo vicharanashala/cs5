@@ -30,6 +30,11 @@ const announcementSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Content is required'],
     },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
+    },
   },
   { timestamps: true }
 );

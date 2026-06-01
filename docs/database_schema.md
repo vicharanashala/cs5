@@ -198,10 +198,18 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
   admin_id: ObjectId,       // Ref: User (required)
   heading: String,          // Required, max 200 chars
   content: String,          // Required
+  priority: String,         // enum: 'low' | 'medium' | 'high', default: 'medium'
   createdAt: Date,
   updatedAt: Date
 }
 ```
+
+**Priority Levels:**
+| Priority | Color | Description |
+|----------|-------|-------------|
+| `high` | Red (#DC2626) | Critical announcements requiring immediate attention |
+| `medium` | Yellow (#FFD000) | Standard announcements |
+| `low` | Dark Green (#166534) | Informational announcements |
 
 **Indexes:**
 - `createdAt`: -1 (newest first)
