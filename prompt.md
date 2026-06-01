@@ -1150,3 +1150,58 @@ Updated `Landing.jsx`:
 
 **Files modified:**
 - `frontend/src/pages/Landing.jsx`
+
+---
+
+### Prompt 79: Moderator Response Shown as "Admin" in Intern's MyEscalations
+**Prompt:** when a moderator answers the query, on the response page of the intern it should show response by moderator and not by admin as currently it is showing the moderator response as admin's response
+
+**Response:**
+Updated `MyEscalations.jsx` to correctly distinguish between moderator and admin responses:
+
+1. **Backend change** - Added `populate('resolved_by', 'email role')` in `getMyEscalations` in `peerController.js`
+
+2. **Frontend badge logic:**
+   - For `response_type === 'admin'`: Shows "Admin Approved" (if approval=true) or "Admin Override" (if approval=false)
+   - For `response_type === 'moderator'`: Shows "Moderator Approved" (if approval=true) or "Moderator Override" (if approval=false)
+   - For `response_type === 'peer'` with `approval=true`: Shows "Admin Approved" or "Moderator Approved" based on `query.resolved_by?.role`
+
+3. **Removed duplicate badge** - The second "Approved" badge was redundant since the first badge now correctly indicates who approved
+
+**Files modified:**
+- `backend/controllers/peerController.js` - Added populate for resolved_by
+- `frontend/src/pages/intern/MyEscalations.jsx` - Updated badge logic
+- `docs/database_schema.md` - Added Response Type & Approval States table
+
+---
+
+### Prompt 80: Remove Duplicate "Approved" Badge on Responses
+**Prompt:** (part of Prompt 79) - also mentioned that moderator approved should show which peer answer was approved before approver, and for admin same
+
+**Response:**
+Implemented complete badge system for all response/approval combinations:
+
+| response_type | approval | Badge Display |
+|---------------|----------|---------------|
+| admin | true | "Admin Approved" |
+| admin | false | "Admin Override" |
+| moderator | true | "Moderator Approved" |
+| moderator | false | "Moderator Override" |
+| peer | false | "Peer" |
+| peer | true | "Admin Approved" or "Moderator Approved" (based on resolved_by.role) |
+
+Removed the redundant second "Approved" badge that was showing alongside the first badge.
+
+**Files modified:**
+- `frontend/src/pages/intern/MyEscalations.jsx`
+
+---
+
+### Prompt 81: Add Response Type & Approval States to Database Schema
+**Prompt:** add this in database schema too
+
+**Response:**
+Added "Response Type & Approval States" table to `docs/database_schema.md` documenting the complete matrix of response_type and approval combinations and their meanings.
+
+**Files modified:**
+- `docs/database_schema.md`

@@ -113,6 +113,21 @@ MongoDB Atlas cluster with 7 collections. Mongoose ODM used for schema validatio
 }
 ```
 
+**Response Type & Approval States:**
+
+| response_type | approval | Meaning | Badge Display |
+|---------------|----------|---------|---------------|
+| `admin` | true | Admin approved a peer response | "Admin Approved" |
+| `admin` | false | Admin wrote their own override answer | "Admin Override" |
+| `moderator` | true | Moderator approved a peer response | "Moderator Approved" |
+| `moderator` | false | Moderator wrote their own override answer | "Moderator Override" |
+| `peer` | false | Peer submitted a response (awaiting rating) | "Peer" |
+| `peer` | true | Peer response that was approved by admin/moderator | "Admin Approved" or "Moderator Approved" (based on resolved_by.role) |
+
+**Note:** When a peer response is approved, the `approval` flag is set to `true` and the `query.resolved_by` field indicates who approved it. This allows distinguishing between:
+- A moderator approving a peer's answer (peer response with approval=true, resolved_by.role=moderator)
+- An admin approving a peer's answer (peer response with approval=true, resolved_by.role=admin)
+
 **Indexes:**
 - `query_id`: 1
 - `author_id`: 1

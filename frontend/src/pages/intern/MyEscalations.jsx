@@ -217,8 +217,14 @@ const MyEscalations = () => {
                           <div key={response._id} className="p-5 bg-gray-50 rounded-xl border border-gray-100">
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-3">
-                                <Badge variant={response.response_type === 'admin' ? 'highlight' : 'outline'} size="sm">
-                                  {response.response_type}
+                                <Badge variant="filled" size="sm">
+                                  {response.response_type === 'admin'
+                                    ? (response.approval ? 'Admin Approved' : 'Admin Override')
+                                    : response.response_type === 'moderator'
+                                    ? (response.approval ? 'Moderator Approved' : 'Moderator Override')
+                                    : response.response_type === 'peer' && response.approval
+                                    ? (query.resolved_by?.role === 'moderator' ? 'Moderator Approved' : 'Admin Approved')
+                                    : 'Peer'}
                                 </Badge>
                                 <span className="text-sm text-gray-600">
                                   {response.author_id?.email || 'Anonymous'}
@@ -236,9 +242,6 @@ const MyEscalations = () => {
                                       </span>
                                     ))}
                                   </div>
-                                  {response.approval && (
-                                    <Badge variant="highlight" size="sm">Approved</Badge>
-                                  )}
                                 </div>
                               )}
                             </div>

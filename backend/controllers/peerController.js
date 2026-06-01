@@ -109,6 +109,7 @@ const getMyEscalations = async (req, res) => {
   try {
     const queries = await Query.find({ intern_id: req.user.userId })
       .populate('responses')
+      .populate('resolved_by', 'email role')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
