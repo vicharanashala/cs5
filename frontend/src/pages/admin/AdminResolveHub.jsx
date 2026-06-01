@@ -120,9 +120,15 @@ const AdminResolveHub = () => {
                 >
                   <div className="flex justify-between">
                     <div>
-                      <div className="font-medium text-black">{query.query_text}</div>
+                      <div className="font-medium text-black">
+                        {activeSection === 'moderator_suggested' ? query.question_text : query.query_text}
+                      </div>
                       <div className="text-sm text-text-muted mt-1">
-                        From: {query.intern_id?.email} • Status: {query.status}
+                        {activeSection === 'moderator_suggested' ? (
+                          <>From: {query.suggested_by?.email} ({query.suggested_by?.role || 'moderator'})</>
+                        ) : (
+                          <>From: {query.intern_id?.email} • Status: {query.status}</>
+                        )}
                       </div>
                     </div>
                     <div className="text-right text-sm text-text-muted">
@@ -131,7 +137,13 @@ const AdminResolveHub = () => {
                           {query.ambiguous_count || 0}/3 strikes
                         </span>
                       )}
-                      {query.responses?.length || 0} responses
+                      {activeSection === 'moderator_suggested' ? (
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-gray-200 text-black">
+                          Suggested by {query.suggested_by?.role || 'moderator'}
+                        </span>
+                      ) : (
+                        `${query.responses?.length || 0} responses`
+                      )}
                     </div>
                   </div>
                 </div>

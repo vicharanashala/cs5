@@ -1306,3 +1306,18 @@ Display format: "Author's Review Note: {rater_note}" with blue background to dis
 - `frontend/src/pages/moderator/ModeratorQueries.jsx`
 - `frontend/src/pages/moderator/ModeratorHighRated.jsx`
 - `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
+
+---
+
+### Prompt 87: Add "From" Field to Moderator Suggested Query List
+**Prompt:** In the query management page of the admin, for the queries under the "Moderator Suggested" category, add a "From" field which should contain the details of that particular moderator who sent the query as a suggestion so that it becomes easy for the admin to identify which moderator suggested which query.
+
+**Response:**
+Updated `AdminResolveHub.jsx` to show moderator details in the query list for the Moderator Suggested section:
+
+1. **Display question_text** instead of the suggestion object's generic text
+2. **Show "From: {email} ({role})"** to identify the moderator in the list view
+3. **Role badge** replaces response count for moderator suggestions
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
