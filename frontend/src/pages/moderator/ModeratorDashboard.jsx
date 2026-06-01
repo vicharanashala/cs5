@@ -674,25 +674,17 @@ const ModeratorDashboard = () => {
         {/* Card 1: Announcements */}
         <AnnouncementsCard />
 
-        {/* Card 2: Master Query Monitor */}
-        <Card
-          title="Platform Queries Feed"
-          subtitle="Central control grid for tracking and addressing active user tickets"
-        >
-          <QueryMonitor />
-        </Card>
-
-        {/* Card 3: Highly Rated Queries (First Priority) */}
+        {/* Card 2: Highly Rated Queries (First Priority) */}
         <Card title="Highly Rated Queries" subtitle="Queries with 4-5 star ratings requiring urgent attention">
           <ModeratorHighlyRatedQueries />
         </Card>
 
-        {/* Card 4: Ambiguous Queries (3-Strike Rule) */}
+        {/* Card 3: Ambiguous Queries (3-Strike Rule) */}
         <Card title="Ambiguous Queries" subtitle="Queries marked unclear by 3 different peers">
           <ModeratorAmbiguousQueries />
         </Card>
 
-        {/* Card 5: Resolve Query Hub */}
+        {/* Card 4: Resolve Query Hub */}
         <Card
           title="System Query Resolution Hub"
           subtitle="Central command terminal for reviewing, approving, or overriding escalated queries"
