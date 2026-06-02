@@ -12,14 +12,39 @@ import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
 import { formatDate } from '../../utils/dateFormat';
+import { useNotifications } from '../../context/NotificationContext';
 
 const Announcements = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { socket } = useNotifications();
 
   useEffect(() => {
     fetchAnnouncements();
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewAnnouncement = (notification) => {
+      if (notification.type === 'announcement') {
+        const newAnnouncement = {
+          _id: notification.link_id,
+          heading: notification.title,
+          content: notification.message,
+          priority: 'medium',
+          createdAt: notification.createdAt || new Date().toISOString(),
+        };
+        setAnnouncements(prev => [newAnnouncement, ...prev]);
+      }
+    };
+
+    socket.on('new_notification', handleNewAnnouncement);
+
+    return () => {
+      socket.off('new_notification', handleNewAnnouncement);
+    };
+  }, [socket]);
 
   const fetchAnnouncements = async () => {
     try {

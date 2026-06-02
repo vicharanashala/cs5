@@ -476,6 +476,7 @@ const createFAQFromQuery = async (req, res) => {
     }
 
     const FAQ = require('../models/FAQ');
+    const ModeratorFaqSuggestion = require('../models/ModeratorFaqSuggestion');
     const clean_question = query.query_text.trim();
     const search_text = `${clean_question} ${answerText}`;
     const keywords = tags.length > 0 ? tags : [];
@@ -493,6 +494,12 @@ const createFAQFromQuery = async (req, res) => {
     });
 
     await newFAQ.save();
+
+    await ModeratorFaqSuggestion.findOneAndUpdate(
+      { query_id, status: 'pending' },
+      { status: 'approved' },
+      { new: true }
+    );
 
     res.status(201).json({
       success: true,

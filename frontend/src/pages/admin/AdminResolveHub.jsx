@@ -166,6 +166,10 @@ const AdminResolveHub = () => {
                 setModeratorSuggestions(prev => prev.filter(s => s._id !== selectedQuery._id));
                 onClose();
               }}
+              onSuggestionApproved={() => {
+                setModeratorSuggestions(prev => prev.filter(s => s._id !== selectedQuery._id));
+                onClose();
+              }}
             />
           )}
         </div>
@@ -174,7 +178,7 @@ const AdminResolveHub = () => {
   );
 };
 
-const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed }) => {
+const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed, onSuggestionApproved }) => {
   const [overrideText, setOverrideText] = useState('');
   const [loading, setLoading] = useState(false);
   const [showWarnModal, setShowWarnModal] = useState(false);
@@ -268,7 +272,11 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
         priority: Number(faqForm.priority) || 0,
       });
       setShowFaqModal(false);
-      alert('FAQ created successfully!');
+      if (isSuggestionMode) {
+        onSuggestionApproved();
+      } else {
+        alert('FAQ created successfully!');
+      }
     } catch (err) {
       console.error('Failed to create FAQ', err);
       alert(err.response?.data?.error || 'Failed to create FAQ');

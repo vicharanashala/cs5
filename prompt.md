@@ -235,6 +235,57 @@ Created frontend intern pages:
 | 39 | 4-star rating locks query immediately | Query should stay open on 4-star, only 5-star locks | Changed MIN_HIGH_RATING from 4 to 5 for locking; 4 stars = Highly-Rated Queue (not locked) |
 | 40 | Ambiguous marked query still visible in peer queue | getPeerQueue only excluded answered queries, not ambiguous-marked | Added ambiguous_marked_by filter to exclude queries user marked ambiguous |
 | 41 | 3-strike ambiguous query shows "Pending" status on MyEscalations | markAmbiguous sent notification but no socket event to refresh frontend | Added `query_resolved` socket emit when query becomes Ambiguous |
+| 42 | Approved queries still visible in High Rated/Ambiguous pages | Pages queried same data but didn't filter resolved queries | High Rated and Ambiguous now part of Resolve Hub "Pending Resolution" section |
+| 43 | Approve/Override doesn't remove query from admin view | No page refresh after action | Added `window.location.reload()` after approve/override |
+| 44 | MyEscalations shows "Resolved" instead of "Approved" | No distinction between resolution types | Shows "Approved" badge when `resolution_type === 'peer_approved'` |
+| 45 | High Rated card shown separately in Admin dashboard | Redundant with Resolve Hub | Removed separate High Rated card from Admin/Moderator Overview |
+| 46 | No warning system for intern misuse | No way to warn or disable misbehaving users | Added warning_count and is_disabled to User model, warnIntern endpoint, intern_warning notification, Spoiled Users page |
+| 47 | Failed to send warning (500 error) | Notification model enum missing 'intern_warning' type | Added 'intern_warning' to Notification type enum |
+| 48 | MyEscalations shows "Resolved" instead of "Approved" | Only peer_approved showed "Approved", admin_override showed "Resolved" | Changed to show "Approved" for ALL resolved queries regardless of resolution_type |
+| 49 | Sidebar shows only current page nav items | Each page defined its own navItems subset | Created centralized navConfig.jsx, DashboardLayout auto-detects nav items by user role |
+| 50 | Intern dashboard stats incorrect | Active queries showed all queries not just user's, peer responses included skipped/ambiguous | Created GET /api/peer/stats endpoint with accurate counts, Active Queries and Resolved cards now link to My Escalations |
+| 51 | Ask AI page input limitations | Single-line input couldn't handle multiline questions; "Get Answer" button separate from input | Replaced input with textarea (Shift+Enter for new line, Enter to submit), replaced bulb icon with send button (right arrow) on input bar |
+| 52 | Auto-complete suggestions dropdown stays open on Enter | handleKeyDown didn't close suggestions when Enter was pressed | Added setShowSuggestions(false) and setSuggestions([]) in handleKeyDown, added e.stopPropagation() |
+| 53 | Thumbs up/down icons improper on Ask AI page | Old SVG paths were broken/not proper | Replaced with clean, proper thumbs up/down Material Design icons |
+| 54 | Browse FAQs button not properly styled | Button had border-white making it invisible on black background | Changed to variant="secondary" with proper black border |
+| 55 | Question mark icon not centered in Explore FAQs card | Icon was slightly off-center visually | Adjusted icon size to w-12 h-12, reduced strokeWidth to 1.75, proper viewBox alignment |
+| 56 | Ask AI and Browse FAQs buttons lacked hover effect | No visual feedback on mouse hover | Added hover:scale-105 transition-transform for tactile feedback |
+| 57 | Multiple pages lacked hover effects | Cards, buttons, and inputs felt static | Added hover effects across pages - scale, shadow, and background transitions |
+| 58 | Read-only stars shown when not rated yet | View-only stars displayed for unrated responses | Wrapped read-only stars in `response.rating !== null` condition |
+| 59 | Suggestions dropdown stays open after submit | Debounced search could fire after submit | Added cancelDebounce() to clear pending timeout on submit |
+| 60 | Escalated/Resolved cards had yellow checkmark and button | Color scheme inconsistent with success state | Changed to green checkmark (bg-green-500) and black button (variant="primary") |
+| 61 | Star ratings and status badges had inconsistent colors | text-yellow-600 hardcoded, no color-coded status | Changed to text-yellow-500, added pending (blue) and peer (yellow) badge variants |
+| 62 | Separate User Registration, User Management, and Spoiled Users pages | Three different pages for related functionality | Combined into single AdminUserManagement page with registration accordion, user table with warnings column, and 3-dot menu for active/inactive toggle |
+| 63 | Pending Resolution showed all responses | Low-rated responses (1-3★) were visible in Pending Resolution section | Filter to show only 4-5★ responses in Pending Resolution, sorted 5★ first |
+| 64 | Low-Rated queue showed mixed queries | Queries with some high ratings were shown in Low-Rated queue | Low-Rated now shows only queries with ALL responses rated 1-3★, responses sorted descending with Approve button |
+| 65 | "Stagnant" category misleading name and criteria | Named "Stagnant (0 answers)" but new criteria is different | Renamed to "Stagnant (Locked, 24h+)", now requires 1-4 low-rated responses (1-3★) AND 24+ hours old |
+| 66 | "Unanswered" category redundant | Unanswered and Stagnant were overlapping/confusing | Removed "Unanswered" category |
+| 67 | Archive section showed all responses | When viewing resolved queries in Archive, all responses were shown instead of just approved | Filter Archive section to only show `approval === true` response |
+| 68 | "Add to FAQ Database" too basic | Simple confirm() dialog didn't allow customization of tags, keywords, priority, category | Replaced with full modal form with category dropdown, tags, keywords, priority fields |
+| 69 | Category dropdown hardcoded | Category list was hardcoded in frontend instead of using existing database categories | Added GET /api/faqs/categories endpoint, dropdown dynamically populated from database |
+| 70 | Moderator couldn't suggest archived queries for FAQ | No way for moderator to suggest useful queries from Archive for FAQ database | Added "Suggest for FAQ Database" button in Moderator Resolve Hub Archive section; Admin sees suggestions in "Moderator Suggested" section with "Add to FAQ" and "Dismiss" options |
+| 71 | Missing closing div in AdminResolveHub | `vite` server threw `[PARSE_ERROR] Unexpected token` in `AdminResolveHub.jsx` | Fixed missing `</div>` tag |
+| 72 | Ngrok CORS blocked by backend | Non-localhost ngrok origins were blocked | Updated `cors` config with `origin: true` |
+| 73 | Ngrok free tier browser warning | Free tier ngrok requires a specific header | Added `ngrok-skip-browser-warning: true` header in `api.js` and `publicApi.js` |
+| 74 | Vite blocking ngrok hosts | `Invalid Host header` from Vite when accessed via ngrok | Added `server.allowedHosts: true` to `vite.config.js` |
+| 75 | Show password toggle missing | No way to see password while typing | Added show/hide password toggle with eye icons on Landing page login form |
+| 76 | Login page refreshes on wrong password | 401 interceptor redirected to /login on all 401 errors including login attempts | Modified api.js to skip redirect when URL contains `/auth/login` |
+| 77 | Demo credentials visible on login card | Security risk - credentials shown publicly | Removed demo credentials section from Landing page login card |
+| 78 | Login card missing border | Explore FAQs card had border but Login card didn't | Added `border border-gray-200` to Login card for consistency |
+| 79 | Moderator response shown as "Admin" in intern's MyEscalations | Backend didn't populate resolved_by for admin/moderator approval | Added populate('resolved_by', 'email role') in getMyEscalations; Response badges now show Admin/Moderator Approved vs Override based on approval flag and resolved_by.role |
+| 80 | Duplicate "Approved" badge on responses | Redundant badge showing for approved responses | Removed duplicate badge; first badge now correctly shows "Admin Approved", "Moderator Approved", or "Admin/Moderator Override" |
+| 81 | Database schema not updated with response approval states | Missing documentation for response approval states | Added Response Type & Approval States table in database_schema.md |
+| 82 | peer_note not visible in AdminResolveHub | Response detail panel didn't show internal note | Added peer_note display in AdminResolveHub.jsx with "Peer Note:" label |
+| 83 | Announcement priority missing | No way to set urgency level for announcements | Added priority field (low/medium/high) with color coding: dark green/yellow/red |
+| 84 | Admin dropdown included Admin role | Only one admin should exist per application | Removed Admin option from role dropdown in user registration page |
+| 85 | Moderator suggestion didn't show sender | Admin couldn't see which moderator suggested FAQ | Added "From: {email} ({role})" display in moderator suggestion header and response section |
+| 86 | rater_note not visible in admin query views | Admin couldn't see intern's review note when approving responses | Added "Author's Review Note:" display with blue styling in all admin/moderator query detail views |
+| 87 | Moderator Suggested list missing "From" field | Admin couldn't identify moderator from query list, only in detail panel | Added "From: {email} ({role})" display in query list items, shows question_text instead of suggestion text, role badge instead of response count |
+| 88 | Query Monitor still in moderator dashboard | Query Monitor route and card still existed after removal attempt | Completely removed Query Monitor: deleted ModeratorQueries component, route, nav card, and overview card |
+| 89 | Stagnant queries with 0 responses not appearing in Stagnant tab | Stagnant filter excluded queries with 0 responses (required responses.length >= 1 and all low-rated) | Fixed filter to handle 0 responses case: if no responses and 24+ hours old, query is stagnant |
+| 90 | Similar query blocking doesn't notify interested interns | When intern A's similar query is blocked, they aren't notified when intern B's query is resolved | Added SimilarQueryInterest model, track interests on block, create shadow query and notify when original query is resolved |
+| 91 | Announcements page not dynamic | Announcements page only fetched on mount, didn't show new announcements without refresh | Added Socket.IO listener for 'new_notification' events with type 'announcement', new announcements prepend to list |
+| 92 | Moderator suggested query not removed after FAQ creation | After adding moderator suggestion to FAQ database, it remained in "Moderator Suggested" list | Backend now updates ModeratorFaqSuggestion status to 'approved' after FAQ creation; frontend removes suggestion from list after successful FAQ creation |
 
 ---
 
@@ -1422,3 +1473,33 @@ Updated all documentation files:
    - Reflected the 6-section Resolve Hub structure
    - Moderator FAQ Suggestion workflow
    - Similar Query Interest Tracking feature
+
+---
+
+### Prompt 92: Fix Announcements Dynamic Updates & Moderator Suggestion FAQ Removal
+**Prompt:** Fix two issues:
+1. The announcements page for intern should be dynamic - if any new announcement is added, it should be displayed without the need of refreshing.
+2. After adding the moderator suggested query to the FAQ database, it should be removed from the "Moderator Suggested" category on admin's Query Management page.
+
+**Response:**
+Fixed both issues:
+
+**Fix 1 - Dynamic Announcements Page:**
+Updated `frontend/src/pages/intern/Announcements.jsx`:
+- Added `useNotifications` hook import from NotificationContext
+- Added new `useEffect` hook that listens for `new_notification` Socket.IO events
+- When an announcement notification arrives (type === 'announcement'), it prepends the new announcement to the list without page refresh
+
+**Fix 2 - Remove Moderator Suggestion After FAQ Creation:**
+1. Updated `backend/controllers/adminController.js`:
+   - After successfully creating FAQ from a query, the `createFAQFromQuery` function now updates the corresponding `ModeratorFaqSuggestion` with status 'pending' to 'approved'
+
+2. Updated `frontend/src/pages/admin/AdminResolveHub.jsx`:
+   - Added `onSuggestionApproved` callback prop to `QueryDetailPanel`
+   - Parent component passes `onSuggestionApproved` which filters out the approved suggestion from the list
+   - `handleFaqSubmit` now calls `onSuggestionApproved()` when in suggestion mode after successful FAQ creation
+
+**Files modified:**
+- `frontend/src/pages/intern/Announcements.jsx` - Added Socket.IO listener for real-time announcement updates
+- `backend/controllers/adminController.js` - Added ModeratorFaqSuggestion status update to 'approved'
+- `frontend/src/pages/admin/AdminResolveHub.jsx` - Added onSuggestionApproved callback to remove suggestion from list
