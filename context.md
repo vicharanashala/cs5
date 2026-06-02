@@ -299,6 +299,8 @@ STEP 7: RESOLVED (Terminal State)
 | 86 | rater_note not visible in admin query views | Admin couldn't see intern's review note when approving responses | Added "Author's Review Note:" display with blue styling in all admin/moderator query detail views |
 | 87 | Moderator Suggested list missing "From" field | Admin couldn't identify moderator from query list, only in detail panel | Added "From: {email} ({role})" display in query list items, shows question_text instead of suggestion text, role badge instead of response count |
 | 88 | Query Monitor still in moderator dashboard | Query Monitor route and card still existed after removal attempt | Completely removed Query Monitor: deleted ModeratorQueries component, route, nav card, and overview card |
+| 89 | Stagnant queries with 0 responses not appearing in Stagnant tab | Stagnant filter excluded queries with 0 responses (required responses.length >= 1 and all low-rated) | Fixed filter to handle 0 responses case: if no responses and 24+ hours old, query is stagnant |
+| 90 | Similar query blocking doesn't notify interested interns | When intern A's similar query is blocked, they aren't notified when intern B's query is resolved | Added SimilarQueryInterest model, track interests on block, create shadow query and notify when original query is resolved |
 
 ---
 
@@ -316,6 +318,7 @@ STEP 7: RESOLVED (Terminal State)
 - **Active Query Cap:** Max 5 unresolved queries per intern
 - **Spam Prevention:** Similar query detection via regex before peer escalation
 - **5-Answer Lock:** Max 5 peer responses per query
+- **Similar Query Interest Tracking:** When intern A tries to submit similar query to intern B's pending query, intern A is tracked. When intern B's query is resolved, intern A is notified and gets a shadow query in their "My Escalations" page.
 
 ### Notification System
 - **Hybrid Model:** Socket.IO for real-time + MongoDB for persistence

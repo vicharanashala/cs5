@@ -1321,3 +1321,50 @@ Updated `AdminResolveHub.jsx` to show moderator details in the query list for th
 
 **Files modified:**
 - `frontend/src/pages/admin/AdminResolveHub.jsx`
+
+---
+
+### Prompt 88: Fix Stagnant Queries Not Appearing in Stagnant Tab
+**Prompt:** High Priority Fix: In the Intern2 account, all escalations are currently locked and show 0 responses, indicating they have exceeded the 24-hour threshold and should be classified as Stagnant. However, on the Admin Dashboard → Query Management → Stagnant tab, none of these escalations are appearing.
+
+Investigate and fix the underlying issue. Verify the logic used to determine stagnant queries, including time-based filtering, lock status checks, response count conditions, query visibility rules, database queries, and any backend/frontend filtering that could prevent valid stagnant escalations from being displayed.
+
+**Root Cause:** The Stagnant filter in both `AdminResolveHub.jsx` and `ModeratorResolveHub.jsx` had incorrect logic that excluded queries with 0 responses. The filter required `responses.length >= 1` AND all responses to be low-rated.
+
+**Fix:** Updated the Stagnant filter to handle 0-response queries:
+- Before: `if (!q.responses || q.responses.length === 0) return false;` (rejected 0 responses)
+- After: If 0 responses AND 24+ hours old → stagnant. If 1-4 responses (all low-rated) AND 24+ hours old → stagnant.
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminResolveHub.jsx`
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx`
+
+---
+
+### Prompt 89: Similar Query Interest Tracking & Notification
+**Prompt:** Fix: if an intern A asks a similar query as asked by another intern B, the system says that similar query is already in peer queue, also add a line saying that the intern A will be notified when the asked query will be approved by the admin. When that query is resolved for intern B, Intern A should also be notified for the approved response of the query and also it should be added in intern A's "My escalation" page showing that the query is approved by the admin along with the correct response.
+
+**Response:**
+Implemented Similar Query Interest Tracking:
+
+1. **New Model `SimilarQueryInterest.js`:**
+   - Tracks `original_query_id`, `interested_intern_id`, `query_text`, `notified`
+   - Unique compound index on `original_query_id + interested_intern_id`
+
+2. **Updated `askAIController.js`:**
+   - Added `trackSimilarQueryInterest()` helper function
+   - All 3 similar query detection blocks now:
+     - Track interest in `SimilarQueryInterest` collection
+     - Return enhanced error: "Similar query already in peer queue. You will be notified when the existing query is resolved."
+
+3. **Updated `adminController.js`:**
+   - Added `notifyInterestedInterns()` helper that:
+     - Finds all interested interns for the resolved query
+     - Sends `query_resolved` notification
+     - Emits socket event for real-time update
+     - Creates Shadow Query for each interested intern (appears in their My Escalations as "Approved")
+
+**Files modified:**
+- `backend/models/SimilarQueryInterest.js` (new)
+- `backend/controllers/askAIController.js`
+- `backend/controllers/adminController.js`
