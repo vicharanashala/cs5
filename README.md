@@ -372,6 +372,8 @@ Announcements support three priority levels with color-coded badges:
 | 97 | Cascading deletion incomplete on escalation delete | SimilarQueryInterest and Notification records left orphaned when escalation deleted | deleteEscalation now deletes related Response, SimilarQueryInterest, and Notification records; emits escalation_deleted socket event |
 | 98 | Deletion UI missing immediate feedback | UI didn't update across connected clients after deletion | Added optimistic removal from local state, socket event handling in MyEscalations and NotificationContext for instant sync |
 | 99 | No timestamp display on escalation cards | Date only shown, not time | Added full timestamp display with date AND time in My Escalations and Peer Queue pages |
+| 100 | Cannot remove warnings from user | Admin could not reset warning_count | Added "Remove Warnings" option in User Management dropdown, resets warning_count to 0 and re-enables disabled accounts |
+| 101 | Disabled/inactive users not logged out immediately | Account disabled but session continued until manual logout | protect middleware now checks is_disabled and isActive on every API call; returns 403 which triggers immediate logout on frontend |
 
 ---
 

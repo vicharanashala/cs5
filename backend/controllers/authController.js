@@ -387,4 +387,59 @@ const toggleUserStatus = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe, bulkRegister, getAllUsers, toggleUserStatus };
+/**
+ * removeWarnings
+ * PATCH /api/auth/users/:id/remove-warnings
+ * Resets warning_count to 0 and re-enables disabled accounts. Admin cannot modify self or other admins.
+ */
+const removeWarnings = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user.userId;
+
+    if (id === adminId) {
+      return res.status(400).json({
+        success: false,
+        error: 'You cannot remove your own warnings',
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot remove warnings of an admin user',
+      });
+    }
+
+    user.warning_count = 0;
+    user.is_disabled = false;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Warnings removed for ${user.email}. Account has been ${user.is_disabled ? 'disabled' : 'enabled'}.`,
+      data: {
+        id: user._id,
+        email: user.email,
+        warning_count: user.warning_count,
+        is_disabled: user.is_disabled,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to remove warnings',
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { login, register, getMe, bulkRegister, getAllUsers, toggleUserStatus, removeWarnings };

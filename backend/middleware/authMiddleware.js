@@ -20,6 +20,7 @@
  */
 
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
 
@@ -31,13 +32,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
  * 1. Extract token from "Bearer <token>" in Authorization header
  * 2. Verify token signature using JWT_SECRET
  * 3. Decode payload and attach to req.user
- * 4. Pass control to next middleware/handler
+ * 4. Check if user is disabled or inactive - return 403 if so
+ * 5. Pass control to next middleware/handler
  *
  * @param {Object} req - Express request
  * @param {Object} res - Express response
  * @param {Function} next - Express next()
  */
-const protect = (req, res, next) => {
+const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -57,6 +59,29 @@ const protect = (req, res, next) => {
         email: decoded.email,
         role: decoded.role,
       };
+
+      const user = await User.findById(decoded.userId);
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not found.',
+        });
+      }
+
+      if (user.is_disabled) {
+        return res.status(403).json({
+          success: false,
+          error: 'Your account has been disabled. Contact an administrator.',
+        });
+      }
+
+      if (user.isActive === false) {
+        return res.status(403).json({
+          success: false,
+          error: 'Your account has been deactivated. Contact an administrator.',
+        });
+      }
+
       next();
     } catch (err) {
       return res.status(401).json({

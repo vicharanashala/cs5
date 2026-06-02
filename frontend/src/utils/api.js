@@ -41,6 +41,14 @@ api.interceptors.response.use(
         window.location.href = '/';
       }
     }
+    if (error.response?.status === 403) {
+      const errorMsg = error.response?.data?.error || '';
+      if (errorMsg.includes('disabled') || errorMsg.includes('deactivated') || errorMsg.includes('account has been disabled')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      }
+    }
     return Promise.reject(error);
   }
 );

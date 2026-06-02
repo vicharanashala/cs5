@@ -174,6 +174,18 @@ const UserListTable = () => {
     }
   };
 
+  const handleRemoveWarnings = async (userId) => {
+    if (!confirm('Are you sure you want to remove all warnings for this user?')) return;
+    try {
+      const res = await api.patch(`/auth/users/${userId}/remove-warnings`);
+      setUsers(users.map(u => u._id === userId ? { ...u, warning_count: res.data.data.warning_count, is_disabled: res.data.data.is_disabled } : u));
+      setMenuOpenId(null);
+    } catch (err) {
+      console.error('Failed to remove warnings', err);
+      alert(err.response?.data?.error || 'Failed to remove warnings');
+    }
+  };
+
   const filteredUsers = users
     .filter(u => roleFilter === 'all' || u.role === roleFilter)
     .filter(u => {
@@ -295,13 +307,21 @@ const UserListTable = () => {
                               </svg>
                             </button>
                             {menuOpenId === user._id && (
-                              <div className="absolute right-0 mt-1 w-40 bg-white border border-black rounded-lg shadow-lg z-10">
+                              <div className="absolute right-0 mt-1 w-48 bg-white border border-black rounded-lg shadow-lg z-10">
                                 <button
                                   onClick={() => handleToggleStatus(user._id, user.isActive)}
                                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded-t-lg"
                                 >
                                   {user.isActive === false ? 'Activate User' : 'Deactivate User'}
                                 </button>
+                                {user.warning_count > 0 && (
+                                  <button
+                                    onClick={() => handleRemoveWarnings(user._id)}
+                                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                                  >
+                                    Remove Warnings
+                                  </button>
+                                )}
                               </div>
                             )}
                           </div>

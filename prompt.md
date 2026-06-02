@@ -1590,3 +1590,69 @@ Updated My Escalations and Peer Queue pages with full timestamp display:
 - `frontend/src/pages/intern/PeerQueue.jsx` - Added timestamp to query info
 - `context.md` - Added issues #97-99
 - `README.md` - Added issues #97-99 to Recent Fixes table
+
+---
+
+### Prompt 101: Add "Remove Warnings" Option in User Management
+
+**Prompt:** Under the "Actions" section of the User management page, add an option as "Remove Warnings" so that the warning count becomes 0 and the disabled account automatically gets enabled.
+
+**Response:**
+Added "Remove Warnings" functionality to User Management:
+
+**Backend Changes:**
+1. **authController.js** - Added `removeWarnings` function:
+   - Resets `warning_count` to 0
+   - Sets `is_disabled` to false
+   - Validates: cannot remove own warnings, cannot modify admin users
+
+2. **authRoutes.js** - Added `PATCH /api/auth/users/:id/remove-warnings` route (admin only)
+
+**Frontend Changes:**
+1. **AdminUserManagement.jsx** - Added:
+   - `handleRemoveWarnings` function to call the API
+   - "Remove Warnings" button in the dropdown menu (shown only when `warning_count > 0`)
+   - Button styled in red text for visibility
+   - Confirmation dialog before removal
+
+**Files modified:**
+- `backend/controllers/authController.js` - Added removeWarnings function
+- `backend/routes/authRoutes.js` - Added route
+- `frontend/src/pages/admin/AdminUserManagement.jsx` - Added dropdown option and handler
+
+---
+
+### Prompt 102: Auto-Logout Disabled/Inactive Users
+
+**Prompt:** When an intern was disabled due to 5 warnings and same for when admin set a user inactive, he was still able to perform functions on the dashboard, only when he logout of the session, it showed that the account is disabled. Make sure that once disabled, an intern should immediately be logged out of his session automatically.
+
+**Response:**
+Implemented immediate logout for disabled/inactive accounts:
+
+**Backend Changes:**
+1. **authMiddleware.js** - Updated `protect` middleware:
+   - Made it `async` to allow database queries
+   - After JWT verification, queries User collection
+   - Returns 403 immediately if `user.is_disabled === true` or `user.isActive === false`
+   - User is logged out on ANY API call, not just login
+
+**Frontend Changes:**
+2. **api.js** - Updated axios interceptor:
+   - Added 403 response handling
+   - Checks if error message contains "disabled", "deactivated", or "account has been disabled"
+   - Clears localStorage and redirects to `/` (landing page)
+
+**How it works:**
+1. Admin disables user or sets them inactive, or auto-disable at 5 warnings
+2. The next time that user makes ANY API request
+3. `protect` middleware detects `is_disabled === true` or `isActive === false`
+4. Returns 403 with appropriate error message
+5. Frontend interceptor catches 403, sees the error message
+6. Immediately clears token/user from localStorage and redirects to `/`
+7. User is automatically logged out
+
+**Files modified:**
+- `backend/middleware/authMiddleware.js` - Added is_disabled and isActive checks
+- `frontend/src/utils/api.js` - Added 403 error handling for auto-logout
+- `context.md` - Added issues #100-101
+- `prompt.md` - Added Prompts 101-102
