@@ -184,7 +184,7 @@ const AdminAnnouncement = () => {
           </form>
         </Card>
 
-        <Card title="All Announcements" subtitle="Manage existing announcements">
+        <Card title="All Announcements" subtitle={`${announcements.length} total announcement${announcements.length !== 1 ? 's' : ''}`}>
           {loading ? (
             <div className="text-center py-8 text-text-muted">Loading...</div>
           ) : announcements.length === 0 ? (

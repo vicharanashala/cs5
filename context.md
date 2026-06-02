@@ -313,6 +313,11 @@ STEP 7: RESOLVED (Terminal State)
 | 100 | Cannot remove warnings from user | Admin could not reset warning_count | Added "Remove Warnings" option in User Management dropdown, resets warning_count to 0 and re-enables disabled accounts |
 | 101 | Disabled/inactive users not logged out immediately | Account disabled but session continued until manual logout | protect middleware now checks is_disabled and isActive on every API call; returns 403 which triggers immediate logout on frontend |
 | 102 | Skipped queries reappear after refresh | skipQuery didn't persist skip state, queries reappeared after page refresh | Added skipped_by array to Query model, skipQuery now adds intern to skipped_by, getPeerQueue excludes queries where skipped_by contains current user |
+| 103 | No Edit User option in User Management | Admin could not edit user email or role | Added PATCH /api/auth/users/:id endpoint, Edit User modal in AdminUserManagement.jsx |
+| 104 | No Remove User option in User Management | Admin could not permanently delete user accounts | Added DELETE /api/auth/users/:id endpoint, "Remove User" option in 3-dot menu with confirmation |
+| 105 | Bulk JSON Upload not functional | Clicking Bulk JSON Upload tab did nothing | Replaced with Bulk CSV Upload with proper CSV parser (requires email,password,role columns) |
+| 106 | AI Suggestions card and page still in admin dashboard | Navigation still showed AI Suggestions after removal attempt | Removed NavCard from AdminOverview.jsx, removed nav item from adminNavItems in navConfig.jsx, removed route from App.jsx |
+| 107 | Announcements page missing count | No total count displayed on All Announcements card | Added `{count} total announcements` subtitle to AdminAnnouncement page |
 
 ---
 
@@ -435,6 +440,8 @@ query.in/
 - `GET /api/auth/users` - Get all users (admin)
 - `PATCH /api/auth/users/:id/toggle-status` - Toggle user active/inactive (admin)
 - `PATCH /api/auth/users/:id/remove-warnings` - Remove all warnings from user, re-enable if disabled (admin)
+- `PATCH /api/auth/users/:id` - Update user email and/or role (admin)
+- `DELETE /api/auth/users/:id` - Permanently delete user (admin)
 
 ### FAQs
 - `GET /api/faqs` - Get all FAQs
@@ -522,12 +529,12 @@ query.in/
 
 | Page | Route | Purpose |
 |------|-------|---------|
-| Dashboard | /admin | Overview with navigation cards |
-| User Management | /admin/users | Combined: Registration, User list with warnings (0=green, 1+=yellow, 5=red), Active/Inactive toggle (green/red) |
-| Announcements | /admin/announcement | Publish announcements |
+| Dashboard | /admin | Overview with navigation cards (4 cards - AI Suggestions removed) |
+| User Management | /admin/users | Combined: Registration (Single + Bulk CSV upload), User list with Edit/Remove/Activate/Remove Warnings, warnings display |
+| Announcements | /admin/announcement | Publish announcements with total count display |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
 | Query Management | /admin/resolve | Resolution queue (6 sections: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested) |
-| AI Suggestions | /admin/suggestions | FAQ gap suggestions |
+| AI Suggestions | /admin/suggestions | FAQ gap suggestions (REMOVED) |
 
 ## Moderator Dashboard Pages
 

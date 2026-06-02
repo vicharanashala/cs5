@@ -13,7 +13,6 @@ import FAQs from './pages/FAQs';
 
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOverview from './pages/admin/AdminOverview';
-import AdminSuggestions from './pages/admin/AdminSuggestions';
 import AdminUserManagement from './pages/admin/AdminUserManagement';
 import AdminAnnouncement from './pages/admin/AdminAnnouncement';
 import AdminQueries from './pages/admin/AdminQueries';
@@ -228,15 +227,6 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['intern']}>
               <AllNotifications />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/suggestions"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminSuggestions />
             </ProtectedRoute>
           }
         />

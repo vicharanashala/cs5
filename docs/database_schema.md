@@ -313,40 +313,6 @@ MongoDB Atlas cluster with 8 collections. Mongoose ODM used for schema validatio
 
 ---
 
-## SimilarQueryInterests (Similar Query Interest Tracking)
-
-```javascript
-{
-  _id: ObjectId,           // Primary key
-  original_query_id: ObjectId, // Ref: Query (the query that Intern B submitted)
-  interested_intern_id: ObjectId, // Ref: User (Intern A who tried similar query)
-  query_text: String,      // The text Intern A tried to submit
-  notified: Boolean,       // Default: false (whether intern has been notified)
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-**Indexes:**
-- `original_query_id`: 1, `interested_intern_id`: 1 (unique compound)
-- `interested_intern_id`: 1
-- `notified`: 1
-
-**Workflow:**
-1. Intern A submits query similar to Intern B's pending query
-2. System blocks submission, saves interest in SimilarQueryInterest
-3. Admin resolves Intern B's query (approve or override)
-4. All interested interns are notified with "Similar Query Resolved" notification
-5. Shadow Query created for each interested intern (appears in their My Escalations as "Approved")
-
-**Shadow Query Behavior:**
-- When original query is resolved, a shadow Query document is created for each interested intern
-- Shadow query contains the intern's original query text, links to the approved response
-- Shows in intern's "My Escalations" page as resolved/approved
-- Allows interested interns to benefit from resolutions without resubmitting
-
----
-
 ## Relationship Diagram
 
 ```

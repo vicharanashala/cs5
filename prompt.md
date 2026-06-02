@@ -286,6 +286,11 @@ Created frontend intern pages:
 | 90 | Similar query blocking doesn't notify interested interns | When intern A's similar query is blocked, they aren't notified when intern B's query is resolved | Added SimilarQueryInterest model, track interests on block, create shadow query and notify when original query is resolved |
 | 91 | Announcements page not dynamic | Announcements page only fetched on mount, didn't show new announcements without refresh | Added Socket.IO listener for 'new_notification' events with type 'announcement', new announcements prepend to list |
 | 92 | Moderator suggested query not removed after FAQ creation | After adding moderator suggestion to FAQ database, it remained in "Moderator Suggested" list | Backend now updates ModeratorFaqSuggestion status to 'approved' after FAQ creation; frontend removes suggestion from list after successful FAQ creation |
+| 103 | No Edit User option in User Management | Admin could not edit user email or role | Added PATCH /api/auth/users/:id endpoint, Edit User modal in AdminUserManagement.jsx |
+| 104 | No Remove User option in User Management | Admin could not permanently delete user accounts | Added DELETE /api/auth/users/:id endpoint, "Remove User" option in 3-dot menu with confirmation |
+| 105 | Bulk JSON Upload not functional | Clicking Bulk JSON Upload tab did nothing | Replaced with Bulk CSV Upload with proper CSV parser (requires email,password,role columns) |
+| 106 | AI Suggestions card and page still in admin dashboard | Navigation still showed AI Suggestions after removal attempt | Removed NavCard from AdminOverview.jsx, removed nav item from adminNavItems in navConfig.jsx, removed route from App.jsx |
+| 107 | Announcements page missing count | No total count displayed on All Announcements card | Added `{count} total announcements` subtitle to AdminAnnouncement page |
 
 ---
 

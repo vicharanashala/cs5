@@ -442,4 +442,121 @@ const removeWarnings = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe, bulkRegister, getAllUsers, toggleUserStatus, removeWarnings };
+/**
+ * deleteUser
+ * DELETE /api/auth/users/:id
+ * Permanently deletes a user account. Admin cannot delete themselves or other admins.
+ */
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user.userId;
+
+    if (id === adminId) {
+      return res.status(400).json({
+        success: false,
+        error: 'You cannot delete your own account',
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot delete an admin user',
+      });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: `User ${user.email} has been deleted`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete user',
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * updateUser
+ * PATCH /api/auth/users/:id
+ * Updates user email and/or role. Admin cannot change their own role or email.
+ */
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user.userId;
+    const { email, role } = req.body;
+
+    if (id === adminId) {
+      return res.status(400).json({
+        success: false,
+        error: 'You cannot edit your own account',
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot edit an admin user',
+      });
+    }
+
+    if (email) {
+      const existingUser = await User.findOne({ email: email.toLowerCase(), _id: { $ne: id } });
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          error: 'Email already in use',
+        });
+      }
+      user.email = email.toLowerCase();
+    }
+
+    if (role && ['moderator', 'intern'].includes(role)) {
+      user.role = role;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'User updated successfully',
+      data: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        warning_count: user.warning_count,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update user',
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { login, register, getMe, bulkRegister, getAllUsers, toggleUserStatus, removeWarnings, deleteUser, updateUser };

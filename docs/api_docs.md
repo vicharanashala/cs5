@@ -190,6 +190,85 @@ Toggle a user's `isActive` status (admin only). Cannot toggle self or other admi
 
 ---
 
+### PATCH /auth/users/:id
+
+Update user email and/or role (admin only). Admin cannot edit themselves or other admins.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "email": "newemail@example.com",
+  "role": "moderator"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "User updated successfully",
+  "data": {
+    "id": "64abc123...",
+    "email": "newemail@example.com",
+    "role": "moderator",
+    "isActive": true,
+    "warning_count": 0
+  }
+}
+```
+
+**Response (400) - Cannot edit self:**
+```json
+{
+  "success": false,
+  "error": "You cannot edit your own account"
+}
+```
+
+**Response (400) - Cannot edit admin:**
+```json
+{
+  "success": false,
+  "error": "Cannot edit an admin user"
+}
+```
+
+---
+
+### DELETE /auth/users/:id
+
+Permanently delete a user account (admin only). Admin cannot delete themselves or other admins.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "User intern1@query.in has been deleted"
+}
+```
+
+**Response (400) - Cannot delete self:**
+```json
+{
+  "success": false,
+  "error": "You cannot delete your own account"
+}
+```
+
+**Response (400) - Cannot delete admin:**
+```json
+{
+  "success": false,
+  "error": "Cannot delete an admin user"
+}
+```
+
+---
+
 ## FAQs
 
 ### GET /faqs
