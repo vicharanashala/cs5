@@ -1503,3 +1503,44 @@ Updated `frontend/src/pages/intern/Announcements.jsx`:
 - `frontend/src/pages/intern/Announcements.jsx` - Added Socket.IO listener for real-time announcement updates
 - `backend/controllers/adminController.js` - Added ModeratorFaqSuggestion status update to 'approved'
 - `frontend/src/pages/admin/AdminResolveHub.jsx` - Added onSuggestionApproved callback to remove suggestion from list
+
+---
+
+### Prompt 96: Allow Interns to Delete Own Escalations
+**Prompt:** Add this - Allow every intern to delete only their own escalations. Add a delete option for escalations created by the currently logged-in intern, ensuring proper ownership validation and access control. Interns must not be able to delete escalations submitted by other users
+
+**Response:**
+Implemented ability for interns to delete only their own escalations with full ownership validation:
+
+**Backend Changes:**
+1. **peerController.js** - Added `deleteEscalation` function with ownership validation:
+   - Verifies the query exists
+   - Verifies `intern_id` matches the requesting user
+   - Prevents deletion of Resolved or Ambiguous queries
+   - Prevents deletion if query has any approved responses
+   - Deletes associated Response documents
+   - Deletes the Query document
+
+2. **peerRoutes.js** - Added `DELETE /api/peer/:query_id` route with intern authorization
+
+**Frontend Changes:**
+1. **MyEscalations.jsx** - Added:
+   - `deleteModal` state for confirmation dialog
+   - `deleting` state for loading indicator
+   - `handleDeleteEscalation` function to call API
+   - `canDeleteQuery` function to determine if query is deletable
+   - Delete button (red text, appears on hover) next to status badge
+   - Confirmation modal with query preview and delete/cancel buttons
+
+**Validation Rules:**
+- Only the query author can delete
+- Cannot delete Resolved or Ambiguous queries
+- Cannot delete queries with approved responses
+- Associated responses are cascade deleted
+
+**Files modified:**
+- `backend/controllers/peerController.js` - Added deleteEscalation function
+- `backend/routes/peerRoutes.js` - Added DELETE route
+- `frontend/src/pages/intern/MyEscalations.jsx` - Added delete button and modal
+- `docs/api_docs.md` - Added DELETE /peer/:query_id endpoint documentation
+- `context.md` - Added issue #96 to Resolved Issues table

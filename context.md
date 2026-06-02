@@ -306,6 +306,7 @@ STEP 7: RESOLVED (Terminal State)
 | 93 | AdminResolveHub onClose ReferenceError | onClose called in onSuggestionDismissed/onSuggestionApproved but wasn't in scope | Passed onClose as parameter to suggestion callbacks, fixed scope issue |
 | 94 | AdminFaqEditor missing search bar | No way to search through FAQ entries | Added search bar with same logic as ViewFAQs, filters by question/answer/tags/category |
 | 95 | AdminFaqEditor category hardcoded | Category input was text field, not a dropdown | Replaced with dropdown populated from database categories + "Other" option with custom input |
+| 96 | Own escalation deletion not allowed | Interns could not delete their own pending queries | Added DELETE /api/peer/:query_id endpoint with ownership validation - interns can delete only their own Pending/Peer Answered escalations that have no approved responses |
 
 ---
 
@@ -461,6 +462,7 @@ query.in/
 - `POST /api/peer/answer` - Submit answer
 - `POST /api/peer/skip` - Skip query
 - `POST /api/peer/ambiguous` - Mark ambiguous (3-strike rule)
+- `DELETE /api/peer/:query_id` - Delete own escalation (ownership validated)
 
 ### Ratings
 - `POST /api/ratings/:id` - Rate response (1-5 stars)

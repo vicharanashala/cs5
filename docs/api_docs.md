@@ -638,6 +638,38 @@ Mark a query as ambiguous (3 peers = auto-escalate). When 3rd strike is reached,
 
 ---
 
+### DELETE /peer/:query_id
+
+Delete an escalation created by the current intern. Only the query author can delete their own escalation. Cannot delete queries that are Resolved, Ambiguous, or have approved responses.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Escalation deleted successfully"
+}
+```
+
+**Response (403) - Not owner:**
+```json
+{
+  "success": false,
+  "error": "You can only delete your own escalations"
+}
+```
+
+**Response (400) - Cannot delete:**
+```json
+{
+  "success": false,
+  "error": "Cannot delete resolved queries"
+}
+```
+
+---
+
 ## Ratings
 
 ### POST /ratings/:id

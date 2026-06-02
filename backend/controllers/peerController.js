@@ -488,6 +488,82 @@ const getInternStats = async (req, res) => {
   }
 };
 
+/**
+ * deleteEscalation
+ * ---------------
+ * Allows an intern to delete their own escalation.
+ * Only the query author can delete their query.
+ * Cannot delete queries that have been resolved, approved, or have approved responses.
+ *
+ * @async
+ * @function deleteEscalation
+ * @param {Object} req - Express request (params: query_id)
+ * @param {Object} res - Express response
+ */
+const deleteEscalation = async (req, res) => {
+  try {
+    const { query_id } = req.params;
+    const user_id = req.user.userId;
+
+    if (!query_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'query_id is required',
+      });
+    }
+
+    const query = await Query.findById(query_id);
+
+    if (!query) {
+      return res.status(404).json({
+        success: false,
+        error: 'Query not found',
+      });
+    }
+
+    if (query.intern_id.toString() !== user_id) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only delete your own escalations',
+      });
+    }
+
+    if (query.status === 'Resolved' || query.status === 'Ambiguous') {
+      return res.status(400).json({
+        success: false,
+        error: `Cannot delete ${query.status.toLowerCase()} queries`,
+      });
+    }
+
+    const hasApprovedResponse = await Response.findOne({
+      query_id: query._id,
+      approval: true,
+    });
+
+    if (hasApprovedResponse) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot delete queries with approved responses',
+      });
+    }
+
+    await Response.deleteMany({ query_id: query._id });
+
+    await Query.findByIdAndDelete(query_id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Escalation deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete escalation',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getPeerQueue,
   getMyEscalations,
@@ -495,4 +571,5 @@ module.exports = {
   submitAnswer,
   skipQuery,
   markAmbiguous,
+  deleteEscalation,
 };

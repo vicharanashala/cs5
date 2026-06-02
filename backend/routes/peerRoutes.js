@@ -26,6 +26,7 @@ const {
   submitAnswer,
   skipQuery,
   markAmbiguous,
+  deleteEscalation,
 } = require('../controllers/peerController');
 
 router.use(protect);
@@ -36,5 +37,6 @@ router.get('/stats', authorizeRoles('intern'), getInternStats);
 router.post('/answer', authorizeRoles('intern'), submitAnswer);
 router.post('/skip', authorizeRoles('intern'), skipQuery);
 router.post('/ambiguous', authorizeRoles('intern', 'moderator', 'admin'), markAmbiguous);
+router.delete('/:query_id', authorizeRoles('intern'), deleteEscalation);
 
 module.exports = router;
