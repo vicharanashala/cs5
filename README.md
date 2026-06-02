@@ -365,6 +365,9 @@ Announcements support three priority levels with color-coded badges:
 | 90 | Similar query blocking doesn't notify interested interns | When intern A's similar query is blocked, they aren't notified when intern B's query is resolved | Added SimilarQueryInterest model, track interests on block, create shadow query and notify when original query is resolved |
 | 91 | Announcements page not dynamic | Announcements page only fetched on mount, didn't show new announcements without refresh | Added Socket.IO listener for 'new_notification' events with type 'announcement', new announcements prepend to list |
 | 92 | Moderator suggested query not removed after FAQ creation | After adding moderator suggestion to FAQ database, it remained in "Moderator Suggested" list | Backend now updates ModeratorFaqSuggestion status to 'approved' after FAQ creation; frontend removes suggestion from list after successful FAQ creation |
+| 93 | AdminResolveHub onClose ReferenceError | onClose called in onSuggestionDismissed/onSuggestionApproved but wasn't in scope | Passed onClose as parameter to suggestion callbacks, fixed scope issue |
+| 94 | AdminFaqEditor missing search bar | No way to search through FAQ entries | Added search bar with same logic as ViewFAQs, filters by question/answer/tags/category |
+| 95 | AdminFaqEditor category hardcoded | Category input was text field, not a dropdown | Replaced with dropdown populated from database categories + "Other" option with custom input |
 
 ---
 
