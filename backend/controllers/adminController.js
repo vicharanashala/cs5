@@ -20,6 +20,7 @@ const Query = require('../models/Query');
 const Response = require('../models/Response');
 const User = require('../models/User');
 const ModeratorFaqSuggestion = require('../models/ModeratorFaqSuggestion');
+const SimilarQueryInterest = require('../models/SimilarQueryInterest');
 const { createNotification, warnIntern } = require('./notificationController');
 
 let getIO;
@@ -28,6 +29,61 @@ try {
 } catch (e) {
   getIO = null;
 }
+
+const notifyInterestedInterns = async (resolvedQuery, approvedResponse, resolutionType, resolverId) => {
+  try {
+    const interestedInterns = await SimilarQueryInterest.find({
+      original_query_id: resolvedQuery._id,
+      notified: false,
+    }).populate('interested_intern_id', 'email');
+
+    for (const interest of interestedInterns) {
+      const interestedIntern = interest.interested_intern_id;
+      if (!interestedIntern) continue;
+
+      await createNotification({
+        recipient_id: interestedIntern._id,
+        type: 'query_resolved',
+        title: 'Similar Query Resolved',
+        message: `The query you were interested in has been resolved. "${resolvedQuery.query_text.substring(0, 50)}${resolvedQuery.query_text.length > 50 ? '...' : ''}"`,
+        link_id: resolvedQuery._id,
+        link_type: 'query',
+        created_by: resolverId,
+      });
+
+      if (getIO) {
+        const io = getIO();
+        io.to(`user:${interestedIntern._id.toString()}`).emit('query_resolved', {
+          query_id: resolvedQuery._id,
+          query_text: resolvedQuery.query_text,
+          resolution_type: resolutionType,
+          resolved_by: resolverId,
+        });
+      }
+
+      const shadowQuery = new Query({
+        intern_id: interestedIntern._id,
+        query_text: interest.query_text,
+        status: 'Resolved',
+        responses: approvedResponse ? [approvedResponse._id] : [],
+        resolved_by: resolverId,
+        resolved_at: new Date(),
+        resolution_type: resolutionType,
+        is_locked: true,
+      });
+      await shadowQuery.save();
+
+      interest.notified = true;
+      await interest.save();
+    }
+
+    if (interestedInterns.length > 0) {
+      console.log(`[Admin] Notified ${interestedInterns.length} interested interns about query ${resolvedQuery._id} resolution`);
+    }
+  } catch (error) {
+    console.error('[Admin] Failed to notify interested interns:', error.message);
+  }
+};
 
 /**
  * getEscalatedQueries
@@ -194,6 +250,8 @@ const approvePeerResponse = async (req, res) => {
       });
     }
 
+    await notifyInterestedInterns(query, response, 'peer_approved', admin_id);
+
     res.status(200).json({
       success: true,
       message: 'Peer response approved. Query resolved.',
@@ -302,6 +360,8 @@ const overrideWithAdminResponse = async (req, res) => {
         resolved_by: admin_id,
       });
     }
+
+    await notifyInterestedInterns(query, adminResponse, 'admin_override', admin_id);
 
     res.status(201).json({
       success: true,

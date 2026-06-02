@@ -14,10 +14,31 @@
 
 const FAQ = require('../models/FAQ');
 const Query = require('../models/Query');
+const SimilarQueryInterest = require('../models/SimilarQueryInterest');
 const { trackNoFaqQuery, trackResolution, ResolutionType } = require('./analyticsController');
 const { getGrokResponse } = require('../services/grokService');
 
 const MAX_UNRESOLVED_QUERIES = 5;
+
+const trackSimilarQueryInterest = async (similarQuery, intern_id, query_text) => {
+  try {
+    await SimilarQueryInterest.findOneAndUpdate(
+      {
+        original_query_id: similarQuery._id,
+        interested_intern_id: intern_id,
+      },
+      {
+        original_query_id: similarQuery._id,
+        interested_intern_id: intern_id,
+        query_text,
+        notified: false,
+      },
+      { upsert: true, new: true }
+    );
+  } catch (error) {
+    console.error('Failed to track similar query interest:', error.message);
+  }
+};
 
 const validateQuery = (text) => {
   const trimmed = text.trim();
@@ -204,10 +225,11 @@ const askAI = async (req, res) => {
         });
 
         if (similarQuery) {
+          await trackSimilarQueryInterest(similarQuery, intern_id, query);
           await trackResolution(intern_id, ResolutionType.SPAM_BLOCKED, { query, similar_id: similarQuery._id });
           return res.status(429).json({
             success: false,
-            error: 'Similar query already in peer queue.',
+            error: 'Similar query already in peer queue. You will be notified when the existing query is resolved.',
             code: 'SIMILAR_QUERY_EXISTS',
           });
         }
@@ -262,10 +284,11 @@ const askAI = async (req, res) => {
       });
 
       if (similarQuery) {
+        await trackSimilarQueryInterest(similarQuery, intern_id, query);
         await trackResolution(intern_id, ResolutionType.SPAM_BLOCKED, { query, similar_id: similarQuery._id });
         return res.status(429).json({
           success: false,
-          error: 'Similar query already in peer queue.',
+          error: 'Similar query already in peer queue. You will be notified when the existing query is resolved.',
           code: 'SIMILAR_QUERY_EXISTS',
         });
       }
@@ -337,10 +360,11 @@ const askAI = async (req, res) => {
       });
 
       if (similarQuery) {
+        await trackSimilarQueryInterest(similarQuery, intern_id, query);
         await trackResolution(intern_id, ResolutionType.SPAM_BLOCKED, { query, similar_id: similarQuery._id });
         return res.status(429).json({
           success: false,
-          error: 'Similar query already in peer queue.',
+          error: 'Similar query already in peer queue. You will be notified when the existing query is resolved.',
           code: 'SIMILAR_QUERY_EXISTS',
         });
       }
