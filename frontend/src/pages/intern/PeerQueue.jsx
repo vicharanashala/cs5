@@ -70,15 +70,24 @@ const PeerQueue = () => {
     }
   };
 
-  const handleSkip = () => {
-    if (currentIndex < queries.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setAnswerText('');
-      setMessage('');
-      setMessageType('');
-    } else {
-      setMessage('No more queries in queue');
-      setMessageType('info');
+  const handleSkip = async () => {
+    if (currentIndex >= queries.length) return;
+    const query = queries[currentIndex];
+
+    try {
+      await api.post('/peer/skip', { query_id: query._id });
+      if (currentIndex < queries.length - 1) {
+        setCurrentIndex((prev) => prev + 1);
+        setAnswerText('');
+        setMessage('');
+        setMessageType('');
+      } else {
+        setMessage('Query skipped. No more queries in queue.');
+        setMessageType('info');
+      }
+    } catch (err) {
+      setMessage(err.response?.data?.error || 'Failed to skip query');
+      setMessageType('error');
     }
   };
 

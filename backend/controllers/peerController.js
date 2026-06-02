@@ -74,6 +74,7 @@ const getPeerQueue = async (req, res) => {
       intern_id: { $ne: currentUserId },
       _id: { $nin: myAnsweredQueryIds },
       ambiguous_marked_by: { $ne: currentUserId },
+      skipped_by: { $ne: currentUserId },
     })
       .populate('intern_id', '_id email role warning_count')
       .sort({ createdAt: 1 })
@@ -285,6 +286,14 @@ const submitAnswer = async (req, res) => {
 const skipQuery = async (req, res) => {
   try {
     const { query_id } = req.body;
+    const user_id = req.user.userId;
+
+    if (!query_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'query_id is required',
+      });
+    }
 
     const query = await Query.findById(query_id);
 
@@ -295,16 +304,34 @@ const skipQuery = async (req, res) => {
       });
     }
 
-    if (query.status !== 'Pending') {
+    if (query.status !== 'Pending' && query.status !== 'Peer Answered') {
       return res.status(400).json({
         success: false,
         error: 'Can only skip pending queries',
       });
     }
 
+    if (query.intern_id.toString() === user_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'You cannot skip your own query',
+      });
+    }
+
+    if (query.skipped_by.map(id => id.toString()).includes(user_id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'You have already skipped this query',
+      });
+    }
+
+    await Query.findByIdAndUpdate(query_id, {
+      $addToSet: { skipped_by: user_id },
+    });
+
     res.status(200).json({
       success: true,
-      message: 'Query skipped. Fetch next from queue.',
+      message: 'Query skipped. It will not appear again.',
     });
   } catch (error) {
     res.status(500).json({

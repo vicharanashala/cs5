@@ -71,6 +71,7 @@ MongoDB Atlas cluster with 8 collections. Mongoose ODM used for schema validatio
   responses: [ObjectId],  // Ref: Response (max 5 peer responses)
   ambiguous_count: Number, // Default: 0, max: 3
   ambiguous_marked_by: [ObjectId], // Ref: User (unique peers)
+  skipped_by: [ObjectId], // Ref: User (interns who skipped this query)
   resolved_by: ObjectId,  // Ref: User (nullable)
   resolved_at: Date,      // Nullable
   resolution_type: String, // enum: 'peer_approved' | 'admin_override' | 'moderator_override' | 'auto_ambiguous'

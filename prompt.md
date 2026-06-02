@@ -1656,3 +1656,33 @@ Implemented immediate logout for disabled/inactive accounts:
 - `frontend/src/utils/api.js` - Added 403 error handling for auto-logout
 - `context.md` - Added issues #100-101
 - `prompt.md` - Added Prompts 101-102
+
+---
+
+### Prompt 103: Skipped Queries Reappear After Refresh
+
+**Prompt:** Once an intern skips a query on the "Peer Answer Queue", that same query shouldn't be displayed again to that intern even after refreshing the page or logging in again.
+
+**Response:**
+Implemented persistent skip tracking for peer queue:
+
+**Backend Changes:**
+1. **Query model** - Added `skipped_by` array field to track interns who have skipped a query
+
+2. **peerController.js - skipQuery:**
+   - Added ownership validation (cannot skip own query)
+   - Added duplicate skip prevention (already skipped = error)
+   - Now persists skip by adding user_id to query's `skipped_by` array using `$addToSet`
+   - Returns clear message: "Query skipped. It will not appear again."
+
+3. **peerController.js - getPeerQueue:**
+   - Added `skipped_by: { $ne: currentUserId }` filter to exclude skipped queries
+   - Skipped queries are now permanently hidden from that intern
+
+**Files modified:**
+- `backend/models/Query.js` - Added `skipped_by` field
+- `backend/controllers/peerController.js` - Updated `skipQuery` to track skips, `getPeerQueue` to filter skipped
+- `docs/database_schema.md` - Added `skipped_by` field documentation
+- `context.md` - Added issue #102
+- `README.md` - Added issue #102 to Recent Fixes table
+- `prompt.md` - Added Prompt 103

@@ -75,6 +75,11 @@ const querySchema = new mongoose.Schema(
       ref: 'User',
       default: [],
     },
+    skipped_by: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'User',
+      default: [],
+    },
     resolved_by: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

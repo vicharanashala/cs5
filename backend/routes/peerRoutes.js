@@ -9,7 +9,7 @@
  * GET  /api/peer/queue        - Get pending queries for peer answering
  * GET  /api/peer/my-escalations - Get queries I submitted
  * POST /api/peer/answer       - Submit an answer to a query
- * POST /api/peer/skip         - Skip a query (no-op on DB)
+ * POST /api/peer/skip         - Skip a query (persists skip state to DB)
  * POST /api/peer/ambiguous    - Mark a query as ambiguous (3-strike rule)
  *
  * @module routes/peerRoutes

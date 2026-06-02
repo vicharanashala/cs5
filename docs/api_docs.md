@@ -578,7 +578,7 @@ Submit a peer answer.
 
 ### POST /peer/skip
 
-Skip a query (no penalty).
+Skip a query. The query is permanently hidden from the intern's peer queue (even after refresh or re-login). Each intern can only skip a query once.
 
 **Headers:** `Authorization: Bearer <token>`
 
@@ -593,7 +593,15 @@ Skip a query (no penalty).
 ```json
 {
   "success": true,
-  "message": "Query skipped"
+  "message": "Query skipped. It will not appear again."
+}
+```
+
+**Response (400) - Already skipped:**
+```json
+{
+  "success": false,
+  "error": "You have already skipped this query"
 }
 ```
 
