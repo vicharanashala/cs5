@@ -17,26 +17,26 @@ import Card from '../../components/Card';
 import Badge from '../../components/Badge';
 import Button from '../../components/Button';
 import api from '../../utils/api';
+import { formatDateTime } from '../../utils/dateFormat';
 
 /* ============================================================================
  * Card 1: Announcements (View-Only for Moderators)
- * Yellow alert state when new announcements exist
+ * Red dot indicator when new announcements exist
  * ============================================================================ */
 const AnnouncementsCard = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasNew, setHasNew] = useState(false);
-  const [viewed, setViewed] = useState(false);
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
         const res = await api.get('/announcements');
         const data = res.data.data || [];
-        setAnnouncements(data);
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const hasNewAnnouncements = data.some(a => new Date(a.createdAt) > oneDayAgo);
-        setHasNew(hasNewAnnouncements && !viewed);
+        setAnnouncements(data);
+        setHasNew(hasNewAnnouncements);
       } catch (err) {
         console.error('Failed to fetch announcements', err);
       } finally {
@@ -44,24 +44,25 @@ const AnnouncementsCard = () => {
       }
     };
     fetchAnnouncements();
-  }, [viewed]);
+  }, []);
 
   const handleOpen = () => {
-    setViewed(true);
     setHasNew(false);
   };
 
-  const cardClass = hasNew
-    ? 'bg-yellow-50 border-yellow-400 border-2'
-    : 'border border-black';
-
   return (
     <Card
-      className={cardClass}
       title={
         <div className="flex items-center justify-between">
-          <span>Platform Announcements</span>
-          {hasNew && <span className="bg-yellow-400 text-black text-xs px-2 py-1 rounded animate-pulse">NEW</span>}
+          <div className="flex items-center gap-2">
+            <span>Platform Announcements</span>
+            {hasNew && (
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+              </span>
+            )}
+          </div>
         </div>
       }
       subtitle="System-wide broadcasts from administrators"
@@ -74,15 +75,25 @@ const AnnouncementsCard = () => {
             No announcements at this time
           </div>
         ) : (
-          announcements.slice(0, 5).map(ann => (
-            <div key={ann._id} className="border border-black rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
-              <div className="font-medium text-black">{ann.heading}</div>
-              <div className="text-sm text-text-secondary mt-1 line-clamp-2">{ann.content}</div>
-              <div className="text-xs text-text-muted mt-2">
-                {new Date(ann.createdAt).toLocaleString()}
+          announcements.slice(0, 5).map(ann => {
+            const priorityDotColors = {
+              high: 'bg-red-600',
+              medium: 'bg-yellow-400',
+              low: 'bg-green-800',
+            };
+            return (
+              <div key={ann._id} className="border border-black rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${priorityDotColors[ann.priority]}`}></span>
+                  <div className="font-medium text-black">{ann.heading}</div>
+                </div>
+                <div className="text-sm text-text-secondary mt-1 line-clamp-2 ml-4">{ann.content}</div>
+                <div className="text-xs text-text-muted mt-2 ml-4">
+                  {formatDateTime(ann.createdAt)}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </Card>

@@ -11,6 +11,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Toast from './Toast';
 
 const NotificationBell = () => {
@@ -22,6 +23,7 @@ const NotificationBell = () => {
     markAllAsRead,
     removeToast,
   } = useNotifications();
+  const { user } = useAuth();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -46,7 +48,11 @@ const NotificationBell = () => {
     if (notification.link_type === 'query') {
       navigate('/intern/my-queries');
     } else if (notification.link_type === 'announcement') {
-      navigate('/intern/announcements');
+      if (user?.role === 'moderator') {
+        navigate('/moderator/announcements');
+      } else {
+        navigate('/intern/announcements');
+      }
     } else if (notification.link_type === 'faq') {
       navigate('/admin/suggestions');
     }

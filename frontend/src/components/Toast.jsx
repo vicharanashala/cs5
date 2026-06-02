@@ -74,7 +74,7 @@ const Toast = ({ notification, onClose, onClick }) => {
   return (
     <div
       className={`
-        fixed bottom-6 right-6 w-96 bg-white rounded-xl shadow-xl border border-gray-200
+        fixed top-24 right-6 w-96 bg-white rounded-xl shadow-xl border border-gray-200
         transform transition-all duration-300 ease-out z-50 overflow-hidden
         ${isVisible && !isLeaving ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
       `}

@@ -299,6 +299,11 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 | /admin/faqs | FAQ editor |
 | /admin/resolve | Resolve hub (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive) |
 
+**Moderator Pages:**
+| Route | Purpose |
+|-------|---------|
+| /moderator | Dashboard overview |
+| /moderator/announcements | View announcements with priority indicators |
 | /moderator/resolve | Resolve hub (includes Pending Resolution, Stagnant, Low-Rated, Archive) |
 
 ---

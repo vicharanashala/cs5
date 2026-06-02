@@ -310,7 +310,7 @@ const emitAdminYellowAlert = async (suggestion) => {
 /**
  * broadcastAnnouncement
  * --------------------
- * Sends announcement notification to all interns.
+ * Sends announcement notification to all interns and moderators.
  *
  * @async
  * @function broadcastAnnouncement
@@ -318,11 +318,11 @@ const emitAdminYellowAlert = async (suggestion) => {
  * @param {ObjectId} adminId - Admin who created it
  */
 const broadcastAnnouncement = async (announcement, adminId) => {
-  const interns = await User.find({ role: 'intern' }).select('_id');
+  const recipients = await User.find({ role: { $in: ['intern', 'moderator'] } }).select('_id');
 
-  for (const intern of interns) {
+  for (const recipient of recipients) {
     await Notification.create({
-      recipient_id: intern._id,
+      recipient_id: recipient._id,
       type: 'announcement',
       title: announcement.heading,
       message: announcement.content.length > 200
@@ -342,8 +342,8 @@ const broadcastAnnouncement = async (announcement, adminId) => {
       content: announcement.content,
     });
 
-    for (const intern of interns) {
-      io.to(`user:${intern._id.toString()}`).emit('new_notification', {
+    for (const recipient of recipients) {
+      io.to(`user:${recipient._id.toString()}`).emit('new_notification', {
         type: 'announcement',
         title: announcement.heading,
         message: announcement.content.substring(0, 200) + (announcement.content.length > 200 ? '...' : ''),

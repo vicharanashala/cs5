@@ -233,8 +233,9 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 
 ### Announcements
 - **Create Announcement** - Admin broadcast with priority levels (Low/Medium/High)
-- **View Announcements** - Intern dashboard with color-coded priority badges
+- **View Announcements** - All roles can view announcements with color-coded priority badges
 - **Priority Levels** - Red (high), Yellow (medium), Dark Green (low)
+- **Moderator Announcements** - Dedicated `/moderator/announcements` page for moderators to view admin broadcasts
 
 ### Admin Dashboard (Page-Based Layout)
 - **Dashboard Overview** - Navigation cards to all sections

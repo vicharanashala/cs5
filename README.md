@@ -281,6 +281,23 @@ All query resolutions are tracked with ResolutionType:
 
 ---
 
+## Announcement Priority System
+
+Announcements support three priority levels with color-coded badges:
+
+| Priority | Badge Color | Description |
+|----------|-------------|-------------|
+| `high` | Red (#DC2626) | Critical announcements requiring immediate attention |
+| `medium` | Yellow (#FFD000) | Standard announcements |
+| `low` | Dark Green (#166534) | Informational announcements |
+
+**User Roles:**
+- **Admin**: Can create announcements with priority levels at `/admin/announcement`
+- **Moderator**: Can view announcements with priority at `/moderator/announcements`
+- **Intern**: Can view announcements at `/intern/announcements`
+
+---
+
 ## Recent Fixes
 
 | # | Issue | Fix |
@@ -346,7 +363,6 @@ All query resolutions are tracked with ResolutionType:
 | 88 | Query Monitor still in moderator dashboard | Query Monitor route and card still existed after removal attempt | Completely removed Query Monitor: deleted ModeratorQueries component, route, nav card, and overview card |
 | 89 | Stagnant queries with 0 responses not appearing in Stagnant tab | Stagnant filter excluded queries with 0 responses | Fixed filter to handle 0 responses case: if no responses and 24+ hours old, query is stagnant |
 | 90 | Similar query blocking doesn't notify interested interns | When intern A's similar query is blocked, they aren't notified when intern B's query is resolved | Added SimilarQueryInterest model, track interests on block, create shadow query and notify when original query is resolved |
-| 81 | Database schema not updated with response approval states | Missing documentation for response_type and approval combinations | Added Response Type & Approval States table in database_schema.md |
 
 ---
 
@@ -416,6 +432,7 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 | Page | Route | Purpose |
 |------|-------|---------|
 | Dashboard | /moderator | Overview with navigation cards |
+| Announcements | /moderator/announcements | View announcements with priority indicators |
 | Resolve Hub | /moderator/resolve | Resolution queue (includes Pending Resolution, Stagnant, Low-Rated, Archive) |
 
 ---

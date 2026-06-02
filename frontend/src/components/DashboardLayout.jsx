@@ -13,16 +13,47 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
 import { getNavItemsByRole } from '../utils/navConfig';
+import api from '../utils/api';
 
 const DashboardLayout = ({ children, navItems: propNavItems }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [hasUnreadAnnouncement, setHasUnreadAnnouncement] = useState(false);
   const userMenuRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   const navItems = propNavItems || getNavItemsByRole(user?.role);
+
+  const isAnnouncementPath = (path) => {
+    return path && (
+      path === '/intern/announcements' ||
+      path === '/moderator/announcements' ||
+      path === '/admin/announcement'
+    );
+  };
+
+  const getLastViewedKey = () => `announcements_last_viewed_${user?.role}`;
+
+  const checkUnreadAnnouncements = async () => {
+    try {
+      const res = await api.get('/announcements');
+      const data = res.data.data || [];
+      const lastViewedStr = localStorage.getItem(getLastViewedKey());
+      const lastViewed = lastViewedStr ? new Date(parseInt(lastViewedStr)) : new Date(0);
+      const hasUnread = data.some(a => new Date(a.createdAt) > lastViewed);
+      setHasUnreadAnnouncement(hasUnread);
+    } catch (err) {
+      console.error('Failed to check announcements:', err);
+    }
+  };
+
+  useEffect(() => {
+    checkUnreadAnnouncements();
+    const interval = setInterval(checkUnreadAnnouncements, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -33,6 +64,13 @@ const DashboardLayout = ({ children, navItems: propNavItems }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isAnnouncementPath(location.pathname)) {
+      localStorage.setItem(getLastViewedKey(), Date.now().toString());
+      setHasUnreadAnnouncement(false);
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -75,6 +113,7 @@ const DashboardLayout = ({ children, navItems: propNavItems }) => {
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.path;
+            const isAnnouncement = isAnnouncementPath(item.path);
             return (
               <Link
                 key={item.path}
@@ -82,15 +121,24 @@ const DashboardLayout = ({ children, navItems: propNavItems }) => {
                 onClick={() => setSidebarOpen(false)}
                 className={`
                   flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg
-                  transition-all duration-150
+                  transition-all duration-150 relative
                   ${isActive
                     ? 'bg-black text-white shadow-md'
                     : 'text-gray-700 hover:bg-gray-100 hover:text-black'
                   }
+                  ${hasUnreadAnnouncement && isAnnouncement && !isActive ? 'bg-red-50 text-red-700 hover:bg-red-100' : ''}
                 `}
               >
                 <span className={isActive ? 'text-white' : 'text-gray-500'}>{item.icon}</span>
                 <span>{item.label}</span>
+                {hasUnreadAnnouncement && isAnnouncement && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                    </span>
+                  </span>
+                )}
               </Link>
             );
           })}

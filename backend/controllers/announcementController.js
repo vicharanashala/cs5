@@ -8,6 +8,7 @@
  */
 
 const Announcement = require('../models/Announcement');
+const { broadcastAnnouncement } = require('./notificationController');
 
 const getAllAnnouncements = async (req, res) => {
   try {
@@ -48,6 +49,8 @@ const createAnnouncement = async (req, res) => {
       priority: priority || 'medium',
     });
 
+    await broadcastAnnouncement(announcement, admin_id);
+
     res.status(201).json({
       success: true,
       data: announcement,
@@ -61,7 +64,66 @@ const createAnnouncement = async (req, res) => {
   }
 };
 
+const updateAnnouncement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { heading, content, priority } = req.body;
+
+    const announcement = await Announcement.findById(id);
+    if (!announcement) {
+      return res.status(404).json({
+        success: false,
+        error: 'Announcement not found',
+      });
+    }
+
+    if (heading) announcement.heading = heading;
+    if (content) announcement.content = content;
+    if (priority) announcement.priority = priority;
+
+    await announcement.save();
+
+    res.status(200).json({
+      success: true,
+      data: announcement,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update announcement',
+      message: error.message,
+    });
+  }
+};
+
+const deleteAnnouncement = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const announcement = await Announcement.findByIdAndDelete(id);
+    if (!announcement) {
+      return res.status(404).json({
+        success: false,
+        error: 'Announcement not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Announcement deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete announcement',
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllAnnouncements,
   createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
 };

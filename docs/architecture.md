@@ -119,6 +119,7 @@ frontend/src/
 
 # Moderator Pages
 /moderator               → ModeratorOverview (protected, moderator+)
+/moderator/announcements → ModeratorAnnouncements (moderator only) - View announcements with priority
 /moderator/queries       → ModeratorQueries (moderator only)
 /moderator/resolve       → ModeratorResolveHub (moderator only)
 

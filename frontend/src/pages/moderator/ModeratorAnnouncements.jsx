@@ -1,19 +1,20 @@
 /**
  * =============================================================================
- * QUERY.IN - ANNOUNCEMENTS PAGE (Intern)
+ * QUERY.IN - ANNOUNCEMENTS PAGE (Moderator)
  * =============================================================================
- * Displays announcements from admins/moderators to interns.
+ * Displays announcements from admins to moderators.
  *
- * @module pages/intern/Announcements
+ * @module pages/moderator/ModeratorAnnouncements
  */
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
 import { formatDate } from '../../utils/dateFormat';
 
-const Announcements = () => {
+const ModeratorAnnouncements = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,9 +37,17 @@ const Announcements = () => {
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-black">Announcements</h1>
-          <p className="text-text-secondary mt-1">Official updates from the administration</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-black">Announcements</h1>
+            <p className="text-text-secondary mt-1">Official updates from the administration</p>
+          </div>
+          <Link
+            to="/moderator/dashboard"
+            className="text-sm text-black hover:text-gray-600 underline"
+          >
+            ← Back to Dashboard
+          </Link>
         </div>
 
         {loading ? (
@@ -63,10 +72,12 @@ const Announcements = () => {
                 low: 'bg-green-800 text-white',
               };
               return (
-              <Card key={ann._id} className="border-2 border-black rounded-lg p-5 hover:shadow-lg hover:scale-[1.01] transition-all duration-200 cursor-pointer">
+              <Card key={ann._id} className="border-2 border-black rounded-lg p-5 hover:shadow-lg hover:scale-[1.01] transition-all duration-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-text-muted uppercase tracking-wider">Admin</span>
+                    <span className="text-xs text-text-muted uppercase tracking-wider">
+                      {ann.admin_id?.role === 'admin' ? 'Admin' : ann.admin_id?.role || 'Admin'}
+                    </span>
                     {ann.priority && (
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${priorityColors[ann.priority]}`}>
                         {ann.priority.charAt(0).toUpperCase() + ann.priority.slice(1)}
@@ -89,4 +100,4 @@ const Announcements = () => {
   );
 };
 
-export default Announcements;
+export default ModeratorAnnouncements;

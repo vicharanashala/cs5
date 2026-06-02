@@ -492,11 +492,11 @@ query.in/
 
 ---
 
-## Moderator Dashboard (3-Card Layout)
+## Moderator Dashboard (4-Card Layout)
 
 | Card | Feature |
 |------|---------|
-| 1 | Announcements (View-only, yellow alert < 24hrs) |
+| 1 | Announcements (View-only, priority indicators) |
 | 2 | Highly Rated Queries |
 | 3 | Ambiguous Queries |
 | 4 | Resolve Query Hub |
@@ -519,6 +519,7 @@ query.in/
 | Page | Route | Purpose |
 |------|-------|---------|
 | Dashboard | /moderator | Overview with navigation cards |
+| Announcements | /moderator/announcements | View admin broadcasts with priority indicators |
 | Resolve Hub | /moderator/resolve | Resolution queue (4 sections: Pending Resolution, Stagnant, Low-Rated, Archive) |
 
 ## Intern Dashboard Pages

@@ -1368,3 +1368,57 @@ Implemented Similar Query Interest Tracking:
 - `backend/models/SimilarQueryInterest.js` (new)
 - `backend/controllers/askAIController.js`
 - `backend/controllers/adminController.js`
+
+---
+
+### Prompt 90: Add Moderator Announcements Page
+**Prompt:** On the moderator dashboard, add a new card for "Announcements" that takes the moderator to a page where they can see all the announcements created by the admin with their priority levels shown.
+
+**Response:**
+Created a new dedicated page and route for moderators to view announcements:
+
+1. **New Page `ModeratorAnnouncements.jsx`:**
+   - Route: `/moderator/announcements`
+   - Shows all announcements in a feed layout
+   - Priority badges with color coding (red=high, yellow=medium, dark green=low)
+   - Time-ago formatting for timestamps
+
+2. **Updated `navConfig.jsx`:**
+   - Added "Announcements" nav item to `moderatorNavItems`
+
+3. **Updated `App.jsx`:**
+   - Added route for `/moderator/announcements`
+
+**Files modified:**
+- `frontend/src/pages/moderator/ModeratorAnnouncements.jsx` (new)
+- `frontend/src/utils/navConfig.jsx`
+- `frontend/src/App.jsx`
+
+---
+
+### Prompt 91: Documentation Update - Announcements Priority & Similar Query Tracking
+**Prompt:** Update all documentation files including context.md, prompt.md, README.md, and docs/ folder to reflect the latest changes: announcement priority system and similar query interest tracking.
+
+**Response:**
+Updated all documentation files:
+
+1. **README.md:**
+   - Added Announcement Priority System section
+   - Updated Moderator Dashboard Pages table with Announcements route
+
+2. **context.md:**
+   - Updated Moderator Dashboard description from 3-card to 4-card
+   - Updated Moderator Dashboard Pages with Announcements route
+   - Added Similar Query Interest Tracking to Key Features
+
+3. **docs/database_schema.md:**
+   - Added SimilarQueryInterest collection documentation
+   - Updated ModeratorFaqSuggestions workflow
+
+4. **docs/architecture.md:**
+   - Updated Moderator Resolve Hub sections
+
+5. **All other docs files:**
+   - Reflected the 6-section Resolve Hub structure
+   - Moderator FAQ Suggestion workflow
+   - Similar Query Interest Tracking feature

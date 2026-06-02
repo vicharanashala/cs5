@@ -25,6 +25,7 @@ import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
 import ModeratorHighRated from './pages/moderator/ModeratorHighRated';
 import ModeratorAmbiguous from './pages/moderator/ModeratorAmbiguous';
 import ModeratorResolveHub from './pages/moderator/ModeratorResolveHub';
+import ModeratorAnnouncements from './pages/moderator/ModeratorAnnouncements';
 import InternDashboard from './pages/intern/InternDashboard';
 import AskAI from './pages/intern/AskAI';
 import PeerQueue from './pages/intern/PeerQueue';
@@ -155,6 +156,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['moderator']}>
               <ModeratorResolveHub />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/moderator/announcements"
+          element={
+            <ProtectedRoute allowedRoles={['moderator']}>
+              <ModeratorAnnouncements />
             </ProtectedRoute>
           }
         />
