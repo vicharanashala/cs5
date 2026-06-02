@@ -61,6 +61,9 @@ const ModeratorResolveHub = () => {
     socket.on('escalation_deleted', () => {
       fetchQueries();
     });
+    
+    socket.on('query_state_changed', fetchQueries);
+    socket.on('new_query_in_queue', fetchQueries);
 
     return () => {
       socket.disconnect();

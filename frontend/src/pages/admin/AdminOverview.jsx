@@ -14,11 +14,10 @@ import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const AdminOverview = () => {
-  const { token } = useAuth();
+  const { socket } = useNotifications();
   const [stats, setStats] = useState({
     totalUsers: 0,
     pendingQueries: 0,
@@ -63,27 +62,22 @@ const AdminOverview = () => {
   }, [fetchStats]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('new_notification', () => {
-      fetchStats();
-    });
-
-    socket.on('escalation_deleted', () => {
-      fetchStats();
-    });
+    socket.on('new_notification', fetchStats);
+    socket.on('escalation_deleted', fetchStats);
+    socket.on('users_updated', fetchStats);
+    socket.on('query_state_changed', fetchStats);
+    socket.on('announcements_updated', fetchStats);
 
     return () => {
-      socket.disconnect();
+      socket.off('new_notification', fetchStats);
+      socket.off('escalation_deleted', fetchStats);
+      socket.off('users_updated', fetchStats);
+      socket.off('query_state_changed', fetchStats);
+      socket.off('announcements_updated', fetchStats);
     };
-  }, [token, fetchStats]);
+  }, [socket, fetchStats]);
 
   return (
     <DashboardLayout>

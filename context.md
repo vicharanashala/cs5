@@ -318,6 +318,10 @@ STEP 7: RESOLVED (Terminal State)
 | 105 | Bulk JSON Upload not functional | Clicking Bulk JSON Upload tab did nothing | Replaced with Bulk CSV Upload with proper CSV parser (requires email,password,role columns) |
 | 106 | AI Suggestions card and page still in admin dashboard | Navigation still showed AI Suggestions after removal attempt | Removed NavCard from AdminOverview.jsx, removed nav item from adminNavItems in navConfig.jsx, removed route from App.jsx |
 | 107 | Announcements page missing count | No total count displayed on All Announcements card | Added `{count} total announcements` subtitle to AdminAnnouncement page |
+| 108 | Intern Announcements ReferenceError | `fetchAnnouncements` was used before initialization in useEffect | Wrapped in `useCallback` and hoisted above `useEffect` |
+| 109 | Real-time page updates failing | Pages got toast notifications but content didn't refresh | `NotificationContext` failed to export `socket`; exported `socket` so all pages can attach listeners |
+| 110 | "WebSocket is closed" console errors | `ModeratorAnnouncements` and `MyEscalations` created duplicate `io()` instances | Refactored to use shared `socket` from `useNotifications()`, eliminating duplicate connections and race conditions |
+| 111 | Missing FAQ real-time updates | Intern Dashboard didn't refresh popular FAQs when Admin updated them | Added `faq_updated` and `faq_deleted` listeners to Intern Dashboard |
 
 ---
 

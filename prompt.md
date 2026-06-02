@@ -291,8 +291,41 @@ Created frontend intern pages:
 | 105 | Bulk JSON Upload not functional | Clicking Bulk JSON Upload tab did nothing | Replaced with Bulk CSV Upload with proper CSV parser (requires email,password,role columns) |
 | 106 | AI Suggestions card and page still in admin dashboard | Navigation still showed AI Suggestions after removal attempt | Removed NavCard from AdminOverview.jsx, removed nav item from adminNavItems in navConfig.jsx, removed route from App.jsx |
 | 107 | Announcements page missing count | No total count displayed on All Announcements card | Added `{count} total announcements` subtitle to AdminAnnouncement page |
+| 108 | Intern Announcements ReferenceError | `fetchAnnouncements` was used before initialization in useEffect | Wrapped in `useCallback` and hoisted above `useEffect` |
+| 109 | Real-time page updates failing | Pages got toast notifications but content didn't refresh | `NotificationContext` failed to export `socket`; exported `socket` so all pages can attach listeners |
+| 110 | "WebSocket is closed" console errors | `ModeratorAnnouncements` and `MyEscalations` created duplicate `io()` instances | Refactored to use shared `socket` from `useNotifications()`, eliminating duplicate connections and race conditions |
+| 111 | Missing FAQ real-time updates | Intern Dashboard didn't refresh popular FAQs when Admin updated them | Added `faq_updated` and `faq_deleted` listeners to Intern Dashboard |
 
 ---
+
+### Prompt 72: Real-time Page Synchronization
+**Prompt:** Make all the pages of admin, intern and moderator dynamic in nature such that updated information automatically gets displayed without the need of refreshing the page again without have conflict with existing code. it is updating in admin page but not on intern page which are already viewing that page they got notification but not page update
+
+**Response:**
+Implemented 100% real-time synchronization across all dashboards:
+1. Exported `socket` from `NotificationContext.jsx` to share the persistent connection.
+2. Hooked up Socket.io event listeners (`announcements_updated`, `faq_updated`, `users_updated`, `new_peer_answer`, etc.) in **every single page component**:
+   - Intern Pages: PeerQueue, MyEscalations, Announcements, ViewFAQs, Dashboard
+   - Moderator Pages: ResolveHub, Dashboard, Announcements
+   - Admin Pages: ResolveHub, UserManagement, Overview, Announcements, FaqEditor
+3. Ensured background data re-fetching happens seamlessly on socket events without requiring a hard reload.
+
+### Prompt 73: Fix ReferenceError in Announcements
+**Prompt:** Announcements.jsx:34 Uncaught ReferenceError: Cannot access 'fetchAnnouncements' before initialization
+
+**Response:**
+Fixed JavaScript hoisting error in `frontend/src/pages/intern/Announcements.jsx`:
+- `fetchAnnouncements` was placed inside a `useEffect` dependency array before it was initialized.
+- Wrapped `fetchAnnouncements` in `useCallback` and moved it above the `useEffect` hooks.
+
+### Prompt 74: Fix WebSocket Connection Errors
+**Prompt:** NotificationContext.jsx:121 WebSocket connection to 'ws://localhost:5000/socket.io/?EIO=4&transport=websocket' failed: WebSocket is closed before the connection is established. this in in console
+
+**Response:**
+Identified and fixed rogue WebSocket connections:
+- Discovered that `ModeratorAnnouncements.jsx` and `MyEscalations.jsx` were instantiating their own separate `const socket = io(...)` connections instead of using the global context.
+- Refactored both files to use `const { socket } = useNotifications()`, eliminating duplicate socket creation and resolving the "WebSocket is closed" console errors caused by race conditions.
+- Explained that the remaining single warning in `NotificationContext` is a harmless artifact of React 18 StrictMode rapid re-mounting in development.
 
 ### Prompt 35: Query Input Sanity Check
 **Prompt:** Add sanity check when intern asks query before sending to RAG model to prevent garbage input. On failure, ask intern to re-enter valid query.

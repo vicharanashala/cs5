@@ -18,6 +18,13 @@ const SimilarQueryInterest = require('../models/SimilarQueryInterest');
 const { trackNoFaqQuery, trackResolution, ResolutionType } = require('./analyticsController');
 const { getGrokResponse } = require('../services/grokService');
 
+let getIO;
+try {
+  getIO = require('../config/socket').getIO;
+} catch (e) {
+  getIO = null;
+}
+
 const MAX_UNRESOLVED_QUERIES = 5;
 
 const trackSimilarQueryInterest = async (similarQuery, intern_id, query_text) => {
@@ -240,6 +247,13 @@ const askAI = async (req, res) => {
           status: 'Pending',
         });
         await newQuery.save();
+        
+        if (getIO) {
+          const io = getIO();
+          io.to('room:admins').emit('query_state_changed');
+          io.to('room:moderators').emit('query_state_changed');
+          io.emit('new_query_in_queue');
+        }
 
         await trackNoFaqQuery(query, intern_id);
         await trackResolution(intern_id, ResolutionType.ESCALATED, { query_id: newQuery._id });
@@ -299,6 +313,13 @@ const askAI = async (req, res) => {
         status: 'Pending',
       });
       await newQuery.save();
+
+      if (getIO) {
+        const io = getIO();
+        io.to('room:admins').emit('query_state_changed');
+        io.to('room:moderators').emit('query_state_changed');
+        io.emit('new_query_in_queue');
+      }
 
       await trackNoFaqQuery(query, intern_id);
       await trackResolution(intern_id, ResolutionType.ESCALATED, { query_id: newQuery._id });
@@ -375,6 +396,13 @@ const askAI = async (req, res) => {
         status: 'Pending',
       });
       await newQuery.save();
+
+      if (getIO) {
+        const io = getIO();
+        io.to('room:admins').emit('query_state_changed');
+        io.to('room:moderators').emit('query_state_changed');
+        io.emit('new_query_in_queue');
+      }
 
       await trackNoFaqQuery(query, intern_id);
       await trackResolution(intern_id, ResolutionType.ESCALATED, { query_id: newQuery._id });

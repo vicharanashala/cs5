@@ -11,13 +11,14 @@
  * @module pages/moderator/ModeratorDashboard
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Badge from '../../components/Badge';
 import Button from '../../components/Button';
 import api from '../../utils/api';
 import { formatDateTime } from '../../utils/dateFormat';
+import { useNotifications } from '../../context/NotificationContext';
 
 /* ============================================================================
  * Card 1: Announcements (View-Only for Moderators)
@@ -28,23 +29,31 @@ const AnnouncementsCard = () => {
   const [loading, setLoading] = useState(true);
   const [hasNew, setHasNew] = useState(false);
 
-  useEffect(() => {
-    const fetchAnnouncements = async () => {
-      try {
-        const res = await api.get('/announcements');
-        const data = res.data.data || [];
-        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        const hasNewAnnouncements = data.some(a => new Date(a.createdAt) > oneDayAgo);
-        setAnnouncements(data);
-        setHasNew(hasNewAnnouncements);
-      } catch (err) {
-        console.error('Failed to fetch announcements', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAnnouncements();
+  const { socket } = useNotifications();
+  const fetchAnnouncements = useCallback(async () => {
+    try {
+      const res = await api.get('/announcements');
+      const data = res.data.data || [];
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const hasNewAnnouncements = data.some(a => new Date(a.createdAt) > oneDayAgo);
+      setAnnouncements(data);
+      setHasNew(hasNewAnnouncements);
+    } catch (err) {
+      console.error('Failed to fetch announcements', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [fetchAnnouncements]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('announcements_updated', fetchAnnouncements);
+    return () => socket.off('announcements_updated', fetchAnnouncements);
+  }, [socket, fetchAnnouncements]);
 
   const handleOpen = () => {
     setHasNew(false);
@@ -110,19 +119,33 @@ const QueryMonitor = () => {
   const [sortOrder, setSortOrder] = useState('desc');
   const [selectedQuery, setSelectedQuery] = useState(null);
 
-  useEffect(() => {
-    const fetchQueries = async () => {
-      try {
-        const res = await api.get('/admin/escalated?type=all');
-        setQueries(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch queries', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQueries();
+  const { socket } = useNotifications();
+  const fetchQueries = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/escalated?type=all');
+      setQueries(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch queries', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchQueries();
+  }, [fetchQueries]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('query_state_changed', fetchQueries);
+    socket.on('new_query_in_queue', fetchQueries);
+    socket.on('escalation_deleted', fetchQueries);
+    return () => {
+      socket.off('query_state_changed', fetchQueries);
+      socket.off('new_query_in_queue', fetchQueries);
+      socket.off('escalation_deleted', fetchQueries);
+    };
+  }, [socket, fetchQueries]);
 
   const filteredQueries = queries
     .filter(q => statusFilter === 'all' || q.status.toLowerCase().replace(' ', '_') === statusFilter.toLowerCase())
@@ -321,19 +344,33 @@ const ModeratorHighlyRatedQueries = () => {
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchQueries = async () => {
-      try {
-        const res = await api.get('/admin/escalated?type=high');
-        setQueries(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch highly rated queries', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQueries();
+  const { socket } = useNotifications();
+  const fetchQueries = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/escalated?type=high');
+      setQueries(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch highly rated queries', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchQueries();
+  }, [fetchQueries]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('query_state_changed', fetchQueries);
+    socket.on('new_query_in_queue', fetchQueries);
+    socket.on('escalation_deleted', fetchQueries);
+    return () => {
+      socket.off('query_state_changed', fetchQueries);
+      socket.off('new_query_in_queue', fetchQueries);
+      socket.off('escalation_deleted', fetchQueries);
+    };
+  }, [socket, fetchQueries]);
 
   return (
     <div className="space-y-4">
@@ -384,19 +421,33 @@ const ModeratorAmbiguousQueries = () => {
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchQueries = async () => {
-      try {
-        const res = await api.get('/admin/escalated?type=ambiguous');
-        setQueries(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch ambiguous queries', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQueries();
+  const { socket } = useNotifications();
+  const fetchQueries = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/escalated?type=ambiguous');
+      setQueries(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch ambiguous queries', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchQueries();
+  }, [fetchQueries]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('query_state_changed', fetchQueries);
+    socket.on('new_query_in_queue', fetchQueries);
+    socket.on('escalation_deleted', fetchQueries);
+    return () => {
+      socket.off('query_state_changed', fetchQueries);
+      socket.off('new_query_in_queue', fetchQueries);
+      socket.off('escalation_deleted', fetchQueries);
+    };
+  }, [socket, fetchQueries]);
 
   return (
     <div className="space-y-4">
@@ -453,19 +504,33 @@ const ResolveQueryHub = () => {
     { id: 'archive', label: 'Archive', count: 0 },
   ];
 
-  useEffect(() => {
-    const fetchQueries = async () => {
-      try {
-        const res = await api.get('/admin/escalated?type=all');
-        setQueries(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQueries();
+  const { socket } = useNotifications();
+  const fetchQueries = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/escalated?type=all');
+      setQueries(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchQueries();
+  }, [fetchQueries]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('query_state_changed', fetchQueries);
+    socket.on('new_query_in_queue', fetchQueries);
+    socket.on('escalation_deleted', fetchQueries);
+    return () => {
+      socket.off('query_state_changed', fetchQueries);
+      socket.off('new_query_in_queue', fetchQueries);
+      socket.off('escalation_deleted', fetchQueries);
+    };
+  }, [socket, fetchQueries]);
 
   const categorized = {
     master: queries.filter(q => q.status !== 'Resolved'),

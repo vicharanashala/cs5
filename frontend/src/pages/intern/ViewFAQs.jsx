@@ -16,11 +16,10 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const ViewFAQs = () => {
-  const { token } = useAuth();
+  const { socket } = useNotifications();
   const [searchParams] = useSearchParams();
   const highlightId = searchParams.get('highlight');
   const [faqs, setFaqs] = useState([]);
@@ -53,29 +52,30 @@ const ViewFAQs = () => {
   }, [fetchFaqs]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('faq_added', () => {
+    const handleFaqAdded = () => {
       fetchFaqs();
-    });
+    };
 
-    socket.on('new_notification', (notification) => {
+    const handleNewNotification = (notification) => {
       if (notification.type === 'faq_added') {
         fetchFaqs();
       }
-    });
+    };
+
+    socket.on('faq_added', handleFaqAdded);
+    socket.on('faq_updated', fetchFaqs);
+    socket.on('faq_deleted', fetchFaqs);
+    socket.on('new_notification', handleNewNotification);
 
     return () => {
-      socket.disconnect();
+      socket.off('faq_added', handleFaqAdded);
+      socket.off('faq_updated', fetchFaqs);
+      socket.off('faq_deleted', fetchFaqs);
+      socket.off('new_notification', handleNewNotification);
     };
-  }, [token, fetchFaqs]);
+  }, [socket, fetchFaqs]);
 
   useEffect(() => {
     if (highlightId && faqs.length > 0) {

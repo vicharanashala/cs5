@@ -17,7 +17,7 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const AdminUserManagement = () => {
   const [showRegistration, setShowRegistration] = useState(false);
@@ -261,7 +261,7 @@ const BulkCsvUploadForm = ({ onSuccess }) => {
 };
 
 const UserListTable = () => {
-  const { token } = useAuth();
+  const { socket } = useNotifications();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState('all');
@@ -304,23 +304,18 @@ const UserListTable = () => {
   }, [fetchUsers]);
 
   useEffect(() => {
-    if (!token) return;
-
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
+    if (!socket) return;
 
     socket.on('new_notification', () => {
       fetchUsers();
     });
+    socket.on('users_updated', fetchUsers);
 
     return () => {
-      socket.disconnect();
+      socket.off('new_notification');
+      socket.off('users_updated', fetchUsers);
     };
-  }, [token, fetchUsers]);
+  }, [socket, fetchUsers]);
 
   const handleToggleStatus = async (userId, currentStatus) => {
     try {

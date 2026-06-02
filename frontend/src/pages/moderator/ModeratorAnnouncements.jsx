@@ -15,7 +15,7 @@ import Card from '../../components/Card';
 import api from '../../utils/api';
 import { formatDate } from '../../utils/dateFormat';
 import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const ModeratorAnnouncements = () => {
   const { token } = useAuth();
@@ -38,30 +38,17 @@ const ModeratorAnnouncements = () => {
     fetchAnnouncements();
   }, [fetchAnnouncements]);
 
+  const { socket } = useNotifications();
+
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('new_notification', (notification) => {
-      if (notification.type === 'announcement') {
-        fetchAnnouncements();
-      }
-    });
-
-    socket.on('announcement_created', () => {
-      fetchAnnouncements();
-    });
+    socket.on('announcements_updated', fetchAnnouncements);
 
     return () => {
-      socket.disconnect();
+      socket.off('announcements_updated', fetchAnnouncements);
     };
-  }, [token, fetchAnnouncements]);
+  }, [socket, fetchAnnouncements]);
 
   return (
     <DashboardLayout>

@@ -11,6 +11,12 @@
 
 const FAQ = require('../models/FAQ');
 const { broadcastFAQAdded } = require('./notificationController');
+let getIO;
+try {
+  getIO = require('../config/socket').getIO;
+} catch (e) {
+  getIO = null;
+}
 
 /**
  * Fetches all FAQs from the database, ordered by priority descending.
@@ -157,6 +163,11 @@ const updateFAQ = async (req, res) => {
       });
     }
 
+    if (getIO) {
+      const io = getIO();
+      io.emit('faq_updated');
+    }
+
     res.status(200).json({
       success: true,
       message: 'FAQ updated successfully',
@@ -191,6 +202,11 @@ const deleteFAQ = async (req, res) => {
         success: false,
         error: 'FAQ not found',
       });
+    }
+
+    if (getIO) {
+      const io = getIO();
+      io.emit('faq_deleted');
     }
 
     res.status(200).json({

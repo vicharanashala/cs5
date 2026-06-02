@@ -13,11 +13,10 @@ import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const AdminFaqEditor = () => {
-  const { token } = useAuth();
+  const { socket } = useNotifications();
   const [faqs, setFaqs] = useState([]);
   const [filteredFaqs, setFilteredFaqs] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -48,23 +47,18 @@ const AdminFaqEditor = () => {
   useEffect(() => { loadFaqs(); }, [loadFaqs]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('faq_added', () => {
-      loadFaqs();
-    });
+    socket.on('faq_added', loadFaqs);
+    socket.on('faq_updated', loadFaqs);
+    socket.on('faq_deleted', loadFaqs);
 
     return () => {
-      socket.disconnect();
+      socket.off('faq_added', loadFaqs);
+      socket.off('faq_updated', loadFaqs);
+      socket.off('faq_deleted', loadFaqs);
     };
-  }, [token, loadFaqs]);
+  }, [socket, loadFaqs]);
 
   useEffect(() => {
     if (search.trim()) {

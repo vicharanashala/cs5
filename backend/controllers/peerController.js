@@ -246,6 +246,8 @@ const submitAnswer = async (req, res) => {
 
     if (getIO) {
       const io = getIO();
+      io.to('room:admins').emit('query_state_changed');
+      io.to('room:moderators').emit('query_state_changed');
       const internRoom = `user:${query.intern_id.toString()}`;
       io.to(internRoom).emit('new_peer_answer', {
         query_id: query._id,
@@ -440,6 +442,8 @@ const markAmbiguous = async (req, res) => {
 
       if (getIO) {
         const io = getIO();
+        io.to('room:admins').emit('query_state_changed');
+        io.to('room:moderators').emit('query_state_changed');
         io.to(`user:${query.intern_id.toString()}`).emit('query_resolved', {
           query_id: query._id,
           resolution_type: 'auto_ambiguous',
@@ -453,6 +457,11 @@ const markAmbiguous = async (req, res) => {
         is_locked: updatedQuery.is_locked,
       });
     } else {
+      if (getIO) {
+        const io = getIO();
+        io.to('room:admins').emit('query_state_changed');
+        io.to('room:moderators').emit('query_state_changed');
+      }
       res.status(200).json({
         success: true,
         message: `Marked as ambiguous. Strike ${updatedQuery.ambiguous_count}/${MAX_AMBIGUOUS_STRIKES}`,

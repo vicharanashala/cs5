@@ -112,15 +112,12 @@ frontend/src/
 /admin                    → AdminOverview (protected, admin only)
 /admin/users             → AdminUserManagement (admin only) - Combined: Registration + Users + Warnings
 /admin/announcement      → AdminAnnouncement (admin only)
-/admin/queries           → AdminQueries (admin only)
 /admin/faqs              → AdminFaqEditor (admin only)
-/admin/ambiguous         → AdminAmbiguous (admin only)
 /admin/resolve           → AdminResolveHub (admin only)
 
 # Moderator Pages
 /moderator               → ModeratorOverview (protected, moderator+)
 /moderator/announcements → ModeratorAnnouncements (moderator only) - View announcements with priority
-/moderator/queries       → ModeratorQueries (moderator only)
 /moderator/resolve       → ModeratorResolveHub (moderator only)
 
 # Intern Pages
@@ -526,7 +523,7 @@ Admin/Moderator can send warnings to interns from any query detail panel. This s
 
 **Admin Endpoints:**
 - `POST /api/admin/warn-user` - Send warning to intern
-- `GET /api/admin/spoiled-users` - Get all users with warnings
+- `GET /api/auth/users` - Get all users with warnings
 - `PATCH /api/auth/users/:id/toggle-status` - Toggle user active/inactive
 
 **Warning Flow:**

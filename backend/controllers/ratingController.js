@@ -37,6 +37,13 @@
 const Response = require('../models/Response');
 const Query = require('../models/Query');
 
+let getIO;
+try {
+  getIO = require('../config/socket').getIO;
+} catch (e) {
+  getIO = null;
+}
+
 /**
  * MIN_HIGH_RATING: Threshold for "high rating" queue
  * Ratings of 4 or 5 stars mark query as highly-rated
@@ -157,6 +164,15 @@ const rateResponse = async (req, res) => {
 
     if (Object.keys(queryUpdate).length > 0) {
       await Query.findByIdAndUpdate(query._id, queryUpdate);
+    }
+
+    if (getIO) {
+      const io = getIO();
+      if (shouldLock) {
+        io.to('room:admins').emit('query_state_changed');
+        io.to('room:moderators').emit('query_state_changed');
+      }
+      io.to(`user:${rater_id}`).emit('my_escalation_updated');
     }
 
     res.status(200).json({

@@ -14,11 +14,10 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import api from '../../utils/api';
 import { formatDateTime } from '../../utils/dateFormat';
-import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const AdminAnnouncement = () => {
-  const { token } = useAuth();
+  const { socket } = useNotifications();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ heading: '', content: '', priority: 'medium' });
@@ -49,23 +48,16 @@ const AdminAnnouncement = () => {
   }, [fetchAnnouncements]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('announcement_created', () => {
+    socket.on('announcements_updated', () => {
       fetchAnnouncements();
     });
 
     return () => {
-      socket.disconnect();
+      socket.off('announcements_updated');
     };
-  }, [token, fetchAnnouncements]);
+  }, [socket, fetchAnnouncements]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

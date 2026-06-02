@@ -9,7 +9,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
@@ -17,6 +16,7 @@ import Badge from '../../components/Badge';
 import FormattedAnswer from '../../components/FormattedAnswer';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
 
 const MyEscalations = () => {
   const [queries, setQueries] = useState([]);
@@ -37,17 +37,12 @@ const MyEscalations = () => {
     fetchUserWarnings();
   }, []);
 
+  const { socket } = useNotifications();
+
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('new_peer_answer', (data) => {
+    const handleNewPeerAnswer = (data) => {
       setQueries((prev) => {
         const exists = prev.some((q) => q._id === data.query_id);
         if (exists) {
@@ -55,9 +50,9 @@ const MyEscalations = () => {
         }
         return prev;
       });
-    });
+    };
 
-    socket.on('query_resolved', (data) => {
+    const handleQueryResolved = (data) => {
       setQueries((prev) => {
         const exists = prev.some((q) => q._id === data.query_id);
         if (exists) {
@@ -65,16 +60,24 @@ const MyEscalations = () => {
         }
         return prev;
       });
-    });
+    };
 
-    socket.on('escalation_deleted', (data) => {
+    const handleEscalationDeleted = (data) => {
       setQueries((prev) => prev.filter((q) => q._id !== data.query_id));
-    });
+    };
+
+    socket.on('new_peer_answer', handleNewPeerAnswer);
+    socket.on('query_resolved', handleQueryResolved);
+    socket.on('escalation_deleted', handleEscalationDeleted);
+    socket.on('my_escalation_updated', fetchMyQueries);
 
     return () => {
-      socket.disconnect();
+      socket.off('new_peer_answer', handleNewPeerAnswer);
+      socket.off('query_resolved', handleQueryResolved);
+      socket.off('escalation_deleted', handleEscalationDeleted);
+      socket.off('my_escalation_updated', fetchMyQueries);
     };
-  }, [token]);
+  }, [socket]);
 
   const fetchMyQueries = async () => {
     try {

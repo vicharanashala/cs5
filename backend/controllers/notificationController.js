@@ -411,6 +411,11 @@ const warnIntern = async (internId, warningMessage, adminId, queryId) => {
     created_by: adminId,
   });
 
+  if (getIO) {
+    const io = getIO();
+    io.to('room:admins').emit('users_updated');
+  }
+
   return nextWarning;
 };
 

@@ -289,31 +289,34 @@ graph TD
     
     %% Rating Logic
     RatingValue -- "5 Stars" --> Lock5[Lock Query Instantly]
-    Lock5 --> AdminHigh[Admin: Pending Resolution Queue]
+    Lock5 --> HubHigh[Resolve Hub: Pending Resolution]
     
-    RatingValue -- "4 Stars" --> AdminHigh
+    RatingValue -- "4 Stars" --> HubHigh
     
     RatingValue -- "1-3 Stars" --> Check5[Has 5 Low Responses?]
     Check5 -- Yes --> LockLow[Lock Query]
-    LockLow --> AdminLow[Admin: Low-Rated Queue]
+    LockLow --> HubLow[Resolve Hub: Low-Rated Queue]
     Check5 -- No --> TimeCheck[24 hours passed?]
-    TimeCheck -- Yes --> AdminStagnant[Admin: Stagnant Queue]
+    TimeCheck -- Yes --> HubStagnant[Resolve Hub: Stagnant Queue]
     
     %% Ambiguous Logic
     RatingValue -- "Mark Ambiguous" --> StrikeCheck{3 Peers Marked?}
     StrikeCheck -- Yes --> LockAmb[Lock Query: 3-Strike]
     LockAmb --> NotifyAuthor[Notify Intern to Rephrase]
-    LockAmb --> AdminAmb[Admin: Ambiguous Queue]
+    LockAmb --> HubAmb[Resolve Hub: Ambiguous Queue]
     
     %% ========================================
     %% 7. ADMIN / MODERATOR RESOLVE HUB
     %% ========================================
-    AdminHigh --> AdminResolveHub[Admin/Moderator Resolve Hub]
-    AdminLow --> AdminResolveHub
-    AdminStagnant --> AdminResolveHub
-    AdminAmb --> AdminResolveHub
+    ModDash --> ResolveHub[Admin & Moderator Resolve Hub]
+    AdminDash --> ResolveHub
     
-    AdminResolveHub --> HubAction{Action Taken}
+    HubHigh --> ResolveHub
+    HubLow --> ResolveHub
+    HubStagnant --> ResolveHub
+    HubAmb --> ResolveHub
+    
+    ResolveHub --> HubAction{Action Taken}
     
     HubAction -- "Warn Intern" --> IssueWarning[Add Strike to Warning System]
     IssueWarning --> DisableCheck{5 Warnings?}
@@ -326,7 +329,7 @@ graph TD
     %% ========================================
     %% 8. TERMINAL STATE & FAQ CREATION
     %% ========================================
-    Terminal --> CheckRole{User Role?}
+    Terminal --> CheckRole{Resolver Role?}
     
     CheckRole -- "Admin" --> AdminAddFAQ{Click 'Add to FAQ'?}
     AdminAddFAQ -- "Yes" --> CreateFAQ[New Knowledge Base Entry Created]

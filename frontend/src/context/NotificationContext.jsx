@@ -142,6 +142,7 @@ export const NotificationProvider = ({ children }) => {
     removeToast,
     clearYellowAlert,
     fetchNotifications,
+    socket,
   };
 
   return (

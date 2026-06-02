@@ -16,10 +16,11 @@ import Badge from '../../components/Badge';
 import Button from '../../components/Button';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const InternDashboard = () => {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
+  const { socket } = useNotifications();
   const [stats, setStats] = useState({ activeQueries: 0, peerResponses: 0, resolved: 0 });
   const [faqs, setFaqs] = useState([]);
 
@@ -45,35 +46,38 @@ const InternDashboard = () => {
   }, [fetchData]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('new_peer_answer', (data) => {
+    const handleNewPeerAnswer = (data) => {
       if (data.intern_id === user?.id || data.intern_id === user?.userId) {
         fetchData();
       }
-    });
+    };
 
-    socket.on('query_resolved', (data) => {
+    const handleQueryResolved = (data) => {
       if (data.intern_id === user?.id || data.intern_id === user?.userId) {
         fetchData();
       }
-    });
+    };
 
-    socket.on('new_notification', () => {
+    const handleNewNotification = () => {
       fetchData();
-    });
+    };
+
+    socket.on('new_peer_answer', handleNewPeerAnswer);
+    socket.on('query_resolved', handleQueryResolved);
+    socket.on('new_notification', handleNewNotification);
+    socket.on('faq_updated', fetchData);
+    socket.on('faq_deleted', fetchData);
 
     return () => {
-      socket.disconnect();
+      socket.off('new_peer_answer', handleNewPeerAnswer);
+      socket.off('query_resolved', handleQueryResolved);
+      socket.off('new_notification', handleNewNotification);
+      socket.off('faq_updated', fetchData);
+      socket.off('faq_deleted', fetchData);
     };
-  }, [token, user, fetchData]);
+  }, [socket, user, fetchData]);
 
   return (
     <DashboardLayout>

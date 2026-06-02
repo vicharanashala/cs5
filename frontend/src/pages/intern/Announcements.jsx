@@ -7,7 +7,7 @@
  * @module pages/intern/Announcements
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
@@ -19,34 +19,7 @@ const Announcements = () => {
   const [loading, setLoading] = useState(true);
   const { socket } = useNotifications();
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleNewAnnouncement = (notification) => {
-      if (notification.type === 'announcement') {
-        const newAnnouncement = {
-          _id: notification.link_id,
-          heading: notification.title,
-          content: notification.message,
-          priority: 'medium',
-          createdAt: notification.createdAt || new Date().toISOString(),
-        };
-        setAnnouncements(prev => [newAnnouncement, ...prev]);
-      }
-    };
-
-    socket.on('new_notification', handleNewAnnouncement);
-
-    return () => {
-      socket.off('new_notification', handleNewAnnouncement);
-    };
-  }, [socket]);
-
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get('/announcements');
@@ -56,7 +29,21 @@ const Announcements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [fetchAnnouncements]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('announcements_updated', fetchAnnouncements);
+
+    return () => {
+      socket.off('announcements_updated', fetchAnnouncements);
+    };
+  }, [socket, fetchAnnouncements]);
 
   return (
     <DashboardLayout>

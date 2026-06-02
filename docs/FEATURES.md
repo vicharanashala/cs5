@@ -83,6 +83,16 @@ Background cron job runs every 15 minutes to enforce SLA timeouts:
 - Sweeper locks query → `is_locked: true`
 - Query enters "Low-Rated Queue" in Admin dashboard
 
+### 5. 100% Real-Time Synchronization
+
+The entire platform operates on a single, shared Socket.IO connection exposed via a global `NotificationContext`, ensuring seamless updates without page refreshes.
+
+**Real-Time Capabilities:**
+- **Dynamic Dashboards:** Admin, Moderator, and Intern dashboards automatically update query queues, stats, and lists immediately when actions occur.
+- **Instant FAQs:** Newly published or edited FAQs instantly propagate to all users' active views.
+- **Live Announcements:** Admin broadcasts immediately push to the front of all users' announcement feeds.
+- **Query State Sync:** When peers answer queries, or when queries are locked/escalated/approved, active sessions pull the new state silently.
+
 ---
 
 ### 6-Section Admin/Moderator Resolve Hub
@@ -238,15 +248,16 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **Moderator Announcements** - Dedicated `/moderator/announcements` page for moderators to view admin broadcasts
 
 ### Admin Dashboard (Page-Based Layout)
-- **Dashboard Overview** - Navigation cards to all sections
+- **Dashboard Overview** - Navigation cards (User Management, Broadcast Announcement, FAQ Editor, Query Management)
 - **User Management** - Combined: Registration accordion + User table with warnings + Active/Inactive toggle (3-dot menu)
 - **Announcements** - Broadcast global notices
-- **User Management** - Sortable/filterable user table with warning levels and status
-- **Query Monitor** - Status filter, date sort, thread drawer
 - **FAQ Editor** - Full CRUD on FAQ collection
 - **Resolve Hub** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested
 
-  - **Resolve Hub** - 4-section queue: Pending Resolution, Stagnant, Low-Rated, Archive
+### Moderator Dashboard (Page-Based Layout)
+- **Dashboard Overview** - Navigation cards (Announcements, Resolve Query Hub)
+- **Announcements** - View admin broadcasted global notices with priority
+- **Resolve Hub** - 4-section queue: Pending Resolution, Stagnant, Low-Rated, Archive
 
 ### UI/UX Modernization (Phase 14)
 - **Black & White Design System** - #FAFAFA background, #000000 text, #FFD000 yellow highlight
@@ -300,7 +311,6 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 | Broadcast Announcement | no | no | yes |
 | User Management | no | no | yes |
 | Toggle User Active/Inactive | no | no | yes |
-| Master Query Monitor | no | yes | yes |
 | FAQ CRUD | no | no | yes |
 | Resolve Query Hub | no | yes | yes |
 | FAQ Suggestions | no | no | yes |

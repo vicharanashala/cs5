@@ -12,11 +12,10 @@ import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const AdminResolveHub = () => {
-  const { token } = useAuth();
+  const { socket } = useNotifications();
   const [activeSection, setActiveSection] = useState('pending');
   const [queries, setQueries] = useState([]);
   const [moderatorSuggestions, setModeratorSuggestions] = useState([]);
@@ -58,14 +57,7 @@ const AdminResolveHub = () => {
   }, [fetchQueries, fetchModeratorSuggestions]);
 
   useEffect(() => {
-    if (!token) return;
-
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
+    if (!socket) return;
 
     socket.on('query_resolved', () => {
       fetchQueries();
@@ -79,11 +71,17 @@ const AdminResolveHub = () => {
     socket.on('escalation_deleted', () => {
       fetchQueries();
     });
+    socket.on('query_state_changed', fetchQueries);
+    socket.on('new_query_in_queue', fetchQueries);
 
     return () => {
-      socket.disconnect();
+      socket.off('query_resolved');
+      socket.off('new_moderator_suggestion');
+      socket.off('escalation_deleted');
+      socket.off('query_state_changed', fetchQueries);
+      socket.off('new_query_in_queue', fetchQueries);
     };
-  }, [token, fetchQueries, fetchModeratorSuggestions]);
+  }, [socket, fetchQueries, fetchModeratorSuggestions]);
 
   const categorized = {
     pending: queries.filter(q => {

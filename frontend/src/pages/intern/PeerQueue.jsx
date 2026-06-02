@@ -15,11 +15,10 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const PeerQueue = () => {
-  const { token } = useAuth();
+  const { socket } = useNotifications();
   const [queries, setQueries] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -48,23 +47,16 @@ const PeerQueue = () => {
   }, [fetchQueue]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('new_query_in_queue', () => {
-      fetchQueue();
-    });
+    socket.on('new_query_in_queue', fetchQueue);
+    socket.on('query_state_changed', fetchQueue);
 
     return () => {
-      socket.disconnect();
+      socket.off('new_query_in_queue', fetchQueue);
+      socket.off('query_state_changed', fetchQueue);
     };
-  }, [token, fetchQueue]);
+  }, [socket, fetchQueue]);
 
   const handleSubmitAnswer = async () => {
     if (!answerText.trim() || currentIndex >= queries.length) return;

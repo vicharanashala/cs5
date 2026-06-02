@@ -10,6 +10,13 @@
 const Announcement = require('../models/Announcement');
 const { broadcastAnnouncement } = require('./notificationController');
 
+let getIO;
+try {
+  getIO = require('../config/socket').getIO;
+} catch (e) {
+  getIO = null;
+}
+
 const getAllAnnouncements = async (req, res) => {
   try {
     const announcements = await Announcement.find({})
@@ -51,6 +58,10 @@ const createAnnouncement = async (req, res) => {
 
     await broadcastAnnouncement(announcement, admin_id);
 
+    if (getIO) {
+      getIO().emit('announcements_updated');
+    }
+
     res.status(201).json({
       success: true,
       data: announcement,
@@ -83,6 +94,10 @@ const updateAnnouncement = async (req, res) => {
 
     await announcement.save();
 
+    if (getIO) {
+      getIO().emit('announcements_updated');
+    }
+
     res.status(200).json({
       success: true,
       data: announcement,
@@ -106,6 +121,10 @@ const deleteAnnouncement = async (req, res) => {
         success: false,
         error: 'Announcement not found',
       });
+    }
+
+    if (getIO) {
+      getIO().emit('announcements_updated');
     }
 
     res.status(200).json({

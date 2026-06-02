@@ -24,6 +24,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const { getIO } = require('../config/socket');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -191,6 +192,8 @@ const register = async (req, res) => {
     await user.save();
 
     const token = generateToken(user);
+    
+    try { getIO().to('room:admins').emit('users_updated'); } catch (e) {}
 
     res.status(201).json({
       success: true,
@@ -294,6 +297,8 @@ const bulkRegister = async (req, res) => {
         errors.push({ email: userData.email, error: err.message });
       }
     }
+    
+    try { getIO().to('room:admins').emit('users_updated'); } catch (e) {}
 
     res.status(201).json({
       success: true,
@@ -369,6 +374,8 @@ const toggleUserStatus = async (req, res) => {
     user.isActive = !user.isActive;
     await user.save();
 
+    try { getIO().to('room:admins').emit('users_updated'); } catch (e) {}
+
     res.status(200).json({
       success: true,
       message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`,
@@ -423,6 +430,8 @@ const removeWarnings = async (req, res) => {
     user.is_disabled = false;
     await user.save();
 
+    try { getIO().to('room:admins').emit('users_updated'); } catch (e) {}
+
     res.status(200).json({
       success: true,
       message: `Warnings removed for ${user.email}. Account has been ${user.is_disabled ? 'disabled' : 'enabled'}.`,
@@ -475,6 +484,8 @@ const deleteUser = async (req, res) => {
     }
 
     await User.findByIdAndDelete(id);
+
+    try { getIO().to('room:admins').emit('users_updated'); } catch (e) {}
 
     res.status(200).json({
       success: true,
@@ -538,6 +549,8 @@ const updateUser = async (req, res) => {
     }
 
     await user.save();
+
+    try { getIO().to('room:admins').emit('users_updated'); } catch (e) {}
 
     res.status(200).json({
       success: true,
