@@ -66,21 +66,6 @@ const PeerQueue = () => {
     };
   }, [token, fetchQueue]);
 
-  const fetchQueue = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/peer/queue');
-      setQueries(res.data.data || []);
-      setCurrentIndex(0);
-      setMessage('');
-      setMessageType('');
-    } catch (err) {
-      console.error('Failed to fetch queue', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmitAnswer = async () => {
     if (!answerText.trim() || currentIndex >= queries.length) return;
 

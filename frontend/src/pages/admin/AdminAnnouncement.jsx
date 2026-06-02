@@ -8,7 +8,7 @@
  * @module pages/admin/AdminAnnouncement
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
@@ -26,23 +26,23 @@ const AdminAnnouncement = () => {
   const [message, setMessage] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [hasNew, setHasNew] = useState(false);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const initialLoadDoneRef = useRef(false);
 
   const fetchAnnouncements = useCallback(async () => {
     try {
       const res = await api.get('/announcements');
       const data = res.data.data || [];
       setAnnouncements(data);
-      if (initialLoadDone && data.length > 0 && new Date(data[0].createdAt) > new Date(Date.now() - 60000)) {
+      if (initialLoadDoneRef.current && data.length > 0 && new Date(data[0].createdAt) > new Date(Date.now() - 60000)) {
         setHasNew(true);
       }
-      setInitialLoadDone(true);
+      initialLoadDoneRef.current = true;
     } catch (err) {
       console.error('Failed to fetch announcements', err);
     } finally {
       setLoading(false);
     }
-  }, [initialLoadDone]);
+  }, []);
 
   useEffect(() => {
     fetchAnnouncements();
