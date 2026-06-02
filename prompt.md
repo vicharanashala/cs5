@@ -1539,8 +1539,54 @@ Implemented ability for interns to delete only their own escalations with full o
 - Associated responses are cascade deleted
 
 **Files modified:**
-- `backend/controllers/peerController.js` - Added deleteEscalation function
+- `backend/controllers/peerController.js` - Added deleteEscalation function with ownership validation and cascading deletion
 - `backend/routes/peerRoutes.js` - Added DELETE route
-- `frontend/src/pages/intern/MyEscalations.jsx` - Added delete button and modal
+- `frontend/src/pages/intern/MyEscalations.jsx` - Added delete button, modal, optimistic UI update, and socket event handling
+- `frontend/src/context/NotificationContext.jsx` - Added escalation_deleted socket event handler
 - `docs/api_docs.md` - Added DELETE /peer/:query_id endpoint documentation
-- `context.md` - Added issue #96 to Resolved Issues table
+- `context.md` - Added issues #96-99 to Resolved Issues table
+
+---
+
+### Prompt 72: Cascading Deletion, Socket Events, and UI Updates for Escalation Deletion
+
+**Prompt:** When an escalation is deleted, it should be removed consistently across all related views, lists, counters, filters, and database records. Include an appropriate confirmation step before deletion to prevent accidental removals, and ensure the UI updates immediately after a successful delete operation.
+
+**Response:**
+Implemented comprehensive cascading deletion for escalations:
+
+**Backend (`peerController.js`):**
+1. Delete Query document
+2. Delete all Response documents for this query
+3. Delete all SimilarQueryInterest records referencing this query
+4. Delete all Notification records where link_id references this query
+5. Emit escalation_deleted socket event to user's room and admin room
+
+**Frontend (`MyEscalations.jsx`):**
+- Optimistic UI removal before API call
+- Socket event listener for escalation_deleted to sync across tabs
+- Background refetch after 500ms to ensure consistency
+
+**Frontend (`NotificationContext.jsx`):**
+- Listens for escalation_deleted socket event
+- Removes related notifications from notification list
+
+**Frontend (`PeerQueue.jsx`):**
+- Added timestamp display with clock icon alongside response count
+
+### Prompt 73: Timestamp Display on Escalation Cards
+
+**Prompt:** In the My Escalations page, display the exact date and time when each escalation was created. The timestamp should be clearly visible within every escalation card, alongside the existing response count and status information.
+
+**Response:**
+Updated My Escalations and Peer Queue pages with full timestamp display:
+- Shows date AND time (e.g., "Jan 15, 2026 at 2:30 PM")
+- Uses clock icon for visual consistency
+- Proper singular/plural handling for "response" vs "responses"
+- Flexbox layout for proper wrapping on smaller screens
+
+**Files modified:**
+- `frontend/src/pages/intern/MyEscalations.jsx` - Added full timestamp with icons
+- `frontend/src/pages/intern/PeerQueue.jsx` - Added timestamp to query info
+- `context.md` - Added issues #97-99
+- `README.md` - Added issues #97-99 to Recent Fixes table

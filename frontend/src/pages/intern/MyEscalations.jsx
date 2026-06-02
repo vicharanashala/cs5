@@ -67,6 +67,10 @@ const MyEscalations = () => {
       });
     });
 
+    socket.on('escalation_deleted', (data) => {
+      setQueries((prev) => prev.filter((q) => q._id !== data.query_id));
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -112,14 +116,21 @@ const MyEscalations = () => {
 
   const handleDeleteEscalation = async () => {
     if (!deleteModal.query) return;
+    const queryIdToDelete = deleteModal.query._id;
     try {
       setDeleting(true);
-      await api.delete(`/peer/${deleteModal.query._id}`);
-      await fetchMyQueries();
+      await api.delete(`/peer/${queryIdToDelete}`);
+
+      setQueries((prev) => prev.filter((q) => q._id !== queryIdToDelete));
       setDeleteModal({ show: false, query: null });
+
+      setTimeout(() => {
+        fetchMyQueries();
+      }, 500);
     } catch (err) {
       console.error('Failed to delete escalation', err);
       alert(err.response?.data?.error || 'Failed to delete escalation');
+      fetchMyQueries();
     } finally {
       setDeleting(false);
     }
@@ -228,9 +239,20 @@ const MyEscalations = () => {
                         )}
                       </div>
                       <p className="text-gray-900 font-medium text-base">{query.query_text}</p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {query.responses?.length || 0} responses | {new Date(query.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-500">
+                        <span className="flex items-center gap-1.5">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          {query.responses?.length || 0} {query.responses?.length === 1 ? 'response' : 'responses'}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {new Date(query.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(query.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        </span>
+                      </div>
                     </div>
                     <svg
                       className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${expandedQuery === query._id ? 'rotate-180' : ''}`}

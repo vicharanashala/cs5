@@ -644,6 +644,13 @@ Delete an escalation created by the current intern. Only the query author can de
 
 **Headers:** `Authorization: Bearer <token>`
 
+**Cascading Deletion:**
+- Deletes the Query document
+- Deletes all Response documents for this query
+- Deletes all SimilarQueryInterest records referencing this query
+- Deletes all Notification records where link_id references this query
+- Emits `escalation_deleted` socket event to user and admin rooms
+
 **Response (200):**
 ```json
 {

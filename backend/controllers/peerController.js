@@ -26,6 +26,8 @@
 
 const Query = require('../models/Query');
 const Response = require('../models/Response');
+const SimilarQueryInterest = require('../models/SimilarQueryInterest');
+const Notification = require('../models/Notification');
 const { createNotification } = require('./notificationController');
 
 let getIO;
@@ -495,6 +497,13 @@ const getInternStats = async (req, res) => {
  * Only the query author can delete their query.
  * Cannot delete queries that have been resolved, approved, or have approved responses.
  *
+ * CLEANUP OPERATIONS (Cascading Deletion):
+ * 1. Delete all Response documents for this query
+ * 2. Delete all SimilarQueryInterest records referencing this query
+ * 3. Delete all Notification records where link_id references this query
+ * 4. Delete any shadow queries created for interested interns (they reference original_query_id interest tracking)
+ * 5. Emit socket event to refresh UI for connected clients
+ *
  * @async
  * @function deleteEscalation
  * @param {Object} req - Express request (params: query_id)
@@ -547,9 +556,28 @@ const deleteEscalation = async (req, res) => {
       });
     }
 
+    await Query.findByIdAndDelete(query_id);
+
     await Response.deleteMany({ query_id: query._id });
 
-    await Query.findByIdAndDelete(query_id);
+    await SimilarQueryInterest.deleteMany({ original_query_id: query._id });
+
+    await Notification.deleteMany({
+      $or: [
+        { link_id: query._id, link_type: 'query' },
+        { link_id: query._id, link_type: null },
+      ],
+    });
+
+    if (getIO) {
+      const io = getIO();
+      io.to(`user:${user_id}`).emit('escalation_deleted', {
+        query_id: query._id,
+      });
+      io.to('room:admins').emit('escalation_deleted', {
+        query_id: query._id,
+      });
+    }
 
     res.status(200).json({
       success: true,

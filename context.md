@@ -307,6 +307,9 @@ STEP 7: RESOLVED (Terminal State)
 | 94 | AdminFaqEditor missing search bar | No way to search through FAQ entries | Added search bar with same logic as ViewFAQs, filters by question/answer/tags/category |
 | 95 | AdminFaqEditor category hardcoded | Category input was text field, not a dropdown | Replaced with dropdown populated from database categories + "Other" option with custom input |
 | 96 | Own escalation deletion not allowed | Interns could not delete their own pending queries | Added DELETE /api/peer/:query_id endpoint with ownership validation - interns can delete only their own Pending/Peer Answered escalations that have no approved responses |
+| 97 | Cascading deletion incomplete on escalation delete | SimilarQueryInterest and Notification records left orphaned when escalation deleted | deleteEscalation now deletes related Response, SimilarQueryInterest, and Notification records; emits escalation_deleted socket event |
+| 98 | Deletion UI missing immediate feedback | UI didn't update across connected clients after deletion | Added optimistic removal from local state, socket event handling in MyEscalations and NotificationContext for instant sync |
+| 99 | No timestamp display on escalation cards | Date only shown, not time | Added full timestamp display with date AND time in My Escalations and Peer Queue pages |
 
 ---
 

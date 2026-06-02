@@ -107,6 +107,10 @@ export const NotificationProvider = ({ children }) => {
       setYellowAlert(alert);
     });
 
+    newSocket.on('escalation_deleted', (data) => {
+      setNotifications((prev) => prev.filter((n) => n.link_id !== data.query_id));
+    });
+
     newSocket.on('disconnect', () => {
       console.log('Notification socket disconnected');
     });
