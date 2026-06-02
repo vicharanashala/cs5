@@ -162,13 +162,13 @@ const AdminResolveHub = () => {
               query={selectedQuery}
               activeSection={activeSection}
               onClose={() => setSelectedQuery(null)}
-              onSuggestionDismissed={() => {
+              onSuggestionDismissed={(closeFn) => {
                 setModeratorSuggestions(prev => prev.filter(s => s._id !== selectedQuery._id));
-                onClose();
+                closeFn();
               }}
-              onSuggestionApproved={() => {
+              onSuggestionApproved={(closeFn) => {
                 setModeratorSuggestions(prev => prev.filter(s => s._id !== selectedQuery._id));
-                onClose();
+                closeFn();
               }}
             />
           )}
@@ -178,7 +178,7 @@ const AdminResolveHub = () => {
   );
 };
 
-const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed, onSuggestionApproved }) => {
+const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed, onSuggestionApproved, onCloseAndReload }) => {
   const [overrideText, setOverrideText] = useState('');
   const [loading, setLoading] = useState(false);
   const [showWarnModal, setShowWarnModal] = useState(false);
@@ -263,7 +263,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
     }
     setLoading(true);
     try {
-      const faqQueryId = isSuggestionMode ? query.query_id?._id || query.query_id : query._id;
+      const faqQueryId = isSuggestionMode ? (query.query_id?._id || query.query_id) : query._id;
       await api.post('/admin/create-faq', {
         query_id: faqQueryId,
         category: finalCategory,
@@ -273,9 +273,11 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
       });
       setShowFaqModal(false);
       if (isSuggestionMode) {
-        onSuggestionApproved();
+        onSuggestionApproved(onClose);
       } else {
         alert('FAQ created successfully!');
+        onClose();
+        setTimeout(() => window.location.reload(), 100);
       }
     } catch (err) {
       console.error('Failed to create FAQ', err);
@@ -370,7 +372,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
                     setLoading(true);
                     try {
                       await api.patch(`/admin/moderator-suggestions/${query._id}/dismiss`);
-                      onSuggestionDismissed();
+                      onSuggestionDismissed(onClose);
                     } catch (err) {
                       console.error('Failed to dismiss', err);
                       alert(err.response?.data?.error || 'Failed to dismiss suggestion');
@@ -556,7 +558,7 @@ const QueryDetailPanel = ({ query, activeSection, onClose, onSuggestionDismissed
               </div>
               <div className="p-6 space-y-4">
                 <p className="text-sm text-text-muted">
-                  Creating FAQ from: <strong>{query.query_text}</strong>
+                  Creating FAQ from: <strong>{isSuggestionMode ? query.question_text : query.query_text}</strong>
                 </p>
 
                 <div>

@@ -15,17 +15,25 @@ import api from '../../utils/api';
 
 const AdminFaqEditor = () => {
   const [faqs, setFaqs] = useState([]);
+  const [filteredFaqs, setFilteredFaqs] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [editingFaq, setEditingFaq] = useState(null);
   const [form, setForm] = useState({
-    clean_question: '', answer: '', category: '', tags: '', keywords: '', intent: '', priority: 0, escalate_if_uncertain: false
+    clean_question: '', answer: '', category: '', customCategory: '', tags: '', keywords: '', intent: '', priority: 0, escalate_if_uncertain: false
   });
   const [message, setMessage] = useState(null);
 
   const loadFaqs = async () => {
     try {
       const res = await api.get('/faqs');
-      setFaqs(res.data.data || []);
+      const data = res.data.data || [];
+      setFaqs(data);
+      setFilteredFaqs(data);
+
+      const cats = [...new Set(data.map((faq) => faq.category))].sort();
+      setCategories(cats);
     } catch (err) {
       console.error('Failed to load FAQs', err);
     } finally {
@@ -35,12 +43,28 @@ const AdminFaqEditor = () => {
 
   useEffect(() => { loadFaqs(); }, []);
 
+  useEffect(() => {
+    if (search.trim()) {
+      const filtered = faqs.filter(
+        (faq) =>
+          faq.clean_question.toLowerCase().includes(search.toLowerCase()) ||
+          faq.answer.toLowerCase().includes(search.toLowerCase()) ||
+          faq.tags?.some((tag) => tag.toLowerCase().includes(search.toLowerCase())) ||
+          faq.category.toLowerCase().includes(search.toLowerCase())
+      );
+      setFilteredFaqs(filtered);
+    } else {
+      setFilteredFaqs(faqs);
+    }
+  }, [search, faqs]);
+
   const handleEdit = (faq) => {
     setEditingFaq(faq._id);
     setForm({
       clean_question: faq.clean_question,
       answer: faq.answer,
       category: faq.category,
+      customCategory: '',
       tags: faq.tags?.join(', ') || '',
       keywords: faq.keywords?.join(', ') || '',
       intent: faq.intent || '',
@@ -64,8 +88,19 @@ const AdminFaqEditor = () => {
     setLoading(true);
     setMessage(null);
     try {
+      const finalCategory = form.category === 'Other'
+        ? form.customCategory?.trim()
+        : form.category;
+
+      if (!finalCategory) {
+        setMessage({ type: 'error', text: 'Please select or enter a category' });
+        setLoading(false);
+        return;
+      }
+
       const payload = {
         ...form,
+        category: finalCategory,
         tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
         keywords: form.keywords.split(',').map(k => k.trim()).filter(Boolean),
         search_text: `${form.clean_question} ${form.answer}`,
@@ -78,7 +113,7 @@ const AdminFaqEditor = () => {
         setMessage({ type: 'success', text: 'FAQ created successfully' });
       }
       setEditingFaq(null);
-      setForm({ clean_question: '', answer: '', category: '', tags: '', keywords: '', intent: '', priority: 0, escalate_if_uncertain: false });
+      setForm({ clean_question: '', answer: '', category: '', customCategory: '', tags: '', keywords: '', intent: '', priority: 0, escalate_if_uncertain: false });
       loadFaqs();
     } catch (err) {
       setMessage({ type: 'error', text: err.response?.data?.error || 'Operation failed' });
@@ -111,16 +146,33 @@ const AdminFaqEditor = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-1">Category</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value, customCategory: '' })}
+                  className="w-full px-3 py-2 border border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                  <option value="Other">Other (type below)</option>
+                </select>
+              </div>
+            </div>
+            {form.category === 'Other' && (
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-1">Enter Custom Category</label>
                 <input
                   type="text"
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  value={form.customCategory}
+                  onChange={(e) => setForm({ ...form, customCategory: e.target.value })}
                   className="w-full px-3 py-2 border border-black bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                  placeholder="e.g., Program Info, Timeline, Rules"
+                  placeholder="Type custom category..."
                   required
                 />
               </div>
-            </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-text-primary mb-1">Answer Text</label>
               <textarea
@@ -189,12 +241,30 @@ const AdminFaqEditor = () => {
                 {loading ? 'Saving...' : editingFaq ? 'Update FAQ' : 'Create FAQ'}
               </Button>
               {editingFaq && (
-                <Button type="button" variant="outline" onClick={() => { setEditingFaq(null); setForm({ clean_question: '', answer: '', category: '', tags: '', keywords: '', intent: '', priority: 0, escalate_if_uncertain: false }); }}>
+                <Button type="button" variant="outline" onClick={() => { setEditingFaq(null); setForm({ clean_question: '', answer: '', category: '', customCategory: '', tags: '', keywords: '', intent: '', priority: 0, escalate_if_uncertain: false }); }}>
                   Cancel
                 </Button>
               )}
             </div>
           </form>
+
+          {/* Search Bar */}
+          <div className="relative">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search questions, answers, tags..."
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-black text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black rounded-lg"
+            />
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <p className="text-sm text-text-muted">
+            Showing {filteredFaqs.length} of {faqs.length} entries
+          </p>
 
           <div className="border border-black rounded-lg overflow-hidden">
             <div className="bg-black text-white px-4 py-2 font-medium">Active FAQ Index</div>
@@ -212,17 +282,23 @@ const AdminFaqEditor = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {faqs.map(faq => (
-                      <tr key={faq._id} className="border-t border-border-subtle hover:bg-gray-50">
-                        <td className="py-2 px-4 text-xs text-text-muted font-mono">{faq._id.slice(-6)}</td>
-                        <td className="py-2 px-4 text-sm text-black">{faq.clean_question.slice(0, 50)}...</td>
-                        <td className="py-2 px-4 text-sm">{faq.category}</td>
-                        <td className="py-2 px-4 text-right">
-                          <button onClick={() => handleEdit(faq)} className="text-blue-600 hover:text-blue-800 text-sm mr-3">Edit</button>
-                          <button onClick={() => handleDelete(faq._id)} className="text-red-600 hover:text-red-800 text-sm">Delete</button>
-                        </td>
+                    {filteredFaqs.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="py-4 px-4 text-center text-text-muted">No FAQs found</td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredFaqs.map(faq => (
+                        <tr key={faq._id} className="border-t border-border-subtle hover:bg-gray-50">
+                          <td className="py-2 px-4 text-xs text-text-muted font-mono">{faq._id.slice(-6)}</td>
+                          <td className="py-2 px-4 text-sm text-black">{faq.clean_question.slice(0, 50)}...</td>
+                          <td className="py-2 px-4 text-sm">{faq.category}</td>
+                          <td className="py-2 px-4 text-right">
+                            <button onClick={() => handleEdit(faq)} className="text-blue-600 hover:text-blue-800 text-sm mr-3">Edit</button>
+                            <button onClick={() => handleDelete(faq._id)} className="text-red-600 hover:text-red-800 text-sm">Delete</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               )}
