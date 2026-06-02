@@ -298,6 +298,7 @@ STEP 7: RESOLVED (Terminal State)
 | 85 | Moderator suggestion didn't show sender | Admin couldn't see which moderator suggested FAQ | Added "From: {email} ({role})" display in moderator suggestion header and response section |
 | 86 | rater_note not visible in admin query views | Admin couldn't see intern's review note when approving responses | Added "Author's Review Note:" display with blue styling in all admin/moderator query detail views |
 | 87 | Moderator Suggested list missing "From" field | Admin couldn't identify moderator from query list, only in detail panel | Added "From: {email} ({role})" display in query list items, shows question_text instead of suggestion text, role badge instead of response count |
+| 88 | Query Monitor still in moderator dashboard | Query Monitor route and card still existed after removal attempt | Completely removed Query Monitor: deleted ModeratorQueries component, route, nav card, and overview card |
 
 ---
 
@@ -493,8 +494,9 @@ query.in/
 | Card | Feature |
 |------|---------|
 | 1 | Announcements (View-only, yellow alert < 24hrs) |
-| 2 | Master Query Monitor |
-| 3 | Resolve Query Hub |
+| 2 | Highly Rated Queries |
+| 3 | Ambiguous Queries |
+| 4 | Resolve Query Hub |
 
 ---
 
@@ -514,8 +516,7 @@ query.in/
 | Page | Route | Purpose |
 |------|-------|---------|
 | Dashboard | /moderator | Overview with navigation cards |
-| Query Monitor | /moderator/queries | Master query feed |
-| Resolve Hub | /moderator/resolve | Resolution queue (Archive section includes "Suggest for FAQ" button) |
+| Resolve Hub | /moderator/resolve | Resolution queue (4 sections: Pending Resolution, Stagnant, Low-Rated, Archive) |
 
 ## Intern Dashboard Pages
 

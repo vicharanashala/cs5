@@ -61,7 +61,13 @@ const AdminResolveHub = () => {
     ambiguous: queries.filter(q => q.status === 'Ambiguous'),
     stagnant: queries.filter(q => {
       if (q.status === 'Resolved' || q.status === 'Ambiguous') return false;
-      if (!q.responses || q.responses.length === 0) return false;
+      // 0 responses OR 1-4 low-rated responses, both requiring 24+ hours
+      if (!q.responses || q.responses.length === 0) {
+        // 0 responses AND 24+ hours old → stagnant
+        const createdAt = new Date(q.createdAt);
+        const hoursSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
+        return hoursSinceCreation >= 24;
+      }
       if (q.responses.length >= 5) return false;
       const allLowRated = q.responses.every(r => r.rating && r.rating < 4);
       if (!allLowRated) return false;
