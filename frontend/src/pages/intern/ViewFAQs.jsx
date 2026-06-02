@@ -3,11 +3,12 @@
  * QUERY.IN - VIEW FAQs PAGE
  * =============================================================================
  * Modern SaaS-style knowledge base browser with clean cards and category accordions.
+ * Dynamic: Updates automatically when new FAQs are added by admin.
  *
  * @module pages/intern/ViewFAQs
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import DashboardLayout from '../../components/DashboardLayout';
@@ -15,8 +16,11 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const ViewFAQs = () => {
+  const { token } = useAuth();
   const [searchParams] = useSearchParams();
   const highlightId = searchParams.get('highlight');
   const [faqs, setFaqs] = useState([]);
@@ -27,9 +31,51 @@ const ViewFAQs = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const fetchFaqs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/faqs');
+      const data = res.data.data || [];
+      setFaqs(data);
+      setFilteredFaqs(data);
+
+      const cats = [...new Set(data.map((faq) => faq.category))].sort();
+      setCategories(cats);
+    } catch (err) {
+      console.error('Failed to fetch FAQs', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchFaqs();
-  }, []);
+  }, [fetchFaqs]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('faq_added', () => {
+      fetchFaqs();
+    });
+
+    socket.on('new_notification', (notification) => {
+      if (notification.type === 'faq_added') {
+        fetchFaqs();
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchFaqs]);
 
   useEffect(() => {
     if (highlightId && faqs.length > 0) {
@@ -60,23 +106,6 @@ const ViewFAQs = () => {
       setFilteredFaqs(faqs);
     }
   }, [search, faqs]);
-
-  const fetchFaqs = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/faqs');
-      const data = res.data.data || [];
-      setFaqs(data);
-      setFilteredFaqs(data);
-
-      const cats = [...new Set(data.map((faq) => faq.category))].sort();
-      setCategories(cats);
-    } catch (err) {
-      console.error('Failed to fetch FAQs', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getFaqsByCategory = (category) => {
     return filteredFaqs.filter((faq) => faq.category === category);

@@ -3,18 +3,22 @@
  * QUERY.IN - ADMIN ANNOUNCEMENT PAGE
  * =============================================================================
  * Create, view, edit and delete announcements.
+ * Dynamic: Updates automatically when announcements change.
  *
  * @module pages/admin/AdminAnnouncement
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import api from '../../utils/api';
 import { formatDateTime } from '../../utils/dateFormat';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const AdminAnnouncement = () => {
+  const { token } = useAuth();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ heading: '', content: '', priority: 'medium' });
@@ -24,7 +28,7 @@ const AdminAnnouncement = () => {
   const [hasNew, setHasNew] = useState(false);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
 
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       const res = await api.get('/announcements');
       const data = res.data.data || [];
@@ -38,11 +42,30 @@ const AdminAnnouncement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [initialLoadDone]);
 
   useEffect(() => {
     fetchAnnouncements();
-  }, []);
+  }, [fetchAnnouncements]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('announcement_created', () => {
+      fetchAnnouncements();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchAnnouncements]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

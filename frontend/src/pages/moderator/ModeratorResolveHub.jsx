@@ -3,16 +3,20 @@
  * QUERY.IN - MODERATOR RESOLVE HUB PAGE
  * =============================================================================
  * Card 5: Resolve Query Hub (remaining sections: Master, Unanswered, Low-Rated, Archive)
+ * Dynamic: Updates automatically when queries change status.
  *
  * @module pages/moderator/ModeratorResolveHub
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const ModeratorResolveHub = () => {
+  const { token } = useAuth();
   const [activeSection, setActiveSection] = useState('pending');
   const [queries, setQueries] = useState([]);
   const [selectedQuery, setSelectedQuery] = useState(null);
@@ -25,19 +29,43 @@ const ModeratorResolveHub = () => {
     { id: 'archive', label: 'Archive', count: 0 },
   ];
 
-  useEffect(() => {
-    const fetchQueries = async () => {
-      try {
-        const res = await api.get('/admin/escalated?type=all');
-        setQueries(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQueries();
+  const fetchQueries = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/escalated?type=all');
+      setQueries(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchQueries();
+  }, [fetchQueries]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('query_resolved', () => {
+      fetchQueries();
+    });
+
+    socket.on('escalation_deleted', () => {
+      fetchQueries();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchQueries]);
 
   const categorized = {
     pending: queries.filter(q => {

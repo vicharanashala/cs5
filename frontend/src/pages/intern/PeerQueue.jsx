@@ -4,18 +4,22 @@
  * =============================================================================
  * Modern SaaS-style interface for answering peer queries.
  * Sequential query viewing with submit/skip/ambiguous actions.
+ * Dynamic: Updates automatically when new queries are available.
  *
  * @module pages/intern/PeerQueue
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const PeerQueue = () => {
+  const { token } = useAuth();
   const [queries, setQueries] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -24,9 +28,43 @@ const PeerQueue = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
 
+  const fetchQueue = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/peer/queue');
+      setQueries(res.data.data || []);
+      setCurrentIndex(0);
+      setMessage('');
+      setMessageType('');
+    } catch (err) {
+      console.error('Failed to fetch queue', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchQueue();
-  }, []);
+  }, [fetchQueue]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('new_query_in_queue', () => {
+      fetchQueue();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchQueue]);
 
   const fetchQueue = async () => {
     try {

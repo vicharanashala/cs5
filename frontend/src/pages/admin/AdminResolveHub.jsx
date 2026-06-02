@@ -3,16 +3,20 @@
  * QUERY.IN - ADMIN RESOLVE HUB PAGE
  * =============================================================================
  * Card 8: Resolve Query Hub (remaining sections: Master, Stagnant, Unanswered, Low-Rated, Archive)
+ * Dynamic: Updates automatically when queries change status.
  *
  * @module pages/admin/AdminResolveHub
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const AdminResolveHub = () => {
+  const { token } = useAuth();
   const [activeSection, setActiveSection] = useState('pending');
   const [queries, setQueries] = useState([]);
   const [moderatorSuggestions, setModeratorSuggestions] = useState([]);
@@ -28,28 +32,58 @@ const AdminResolveHub = () => {
     { id: 'moderator_suggested', label: 'Moderator Suggested', count: 0 },
   ];
 
+  const fetchQueries = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/escalated?type=all');
+      setQueries(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchModeratorSuggestions = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/moderator-suggestions');
+      setModeratorSuggestions(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to fetch moderator suggestions', err);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchQueries = async () => {
-      try {
-        const res = await api.get('/admin/escalated?type=all');
-        setQueries(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    const fetchModeratorSuggestions = async () => {
-      try {
-        const res = await api.get('/admin/moderator-suggestions');
-        setModeratorSuggestions(res.data.data || []);
-      } catch (err) {
-        console.error('Failed to fetch moderator suggestions', err);
-      }
-    };
     fetchQueries();
     fetchModeratorSuggestions();
-  }, []);
+  }, [fetchQueries, fetchModeratorSuggestions]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('query_resolved', () => {
+      fetchQueries();
+      fetchModeratorSuggestions();
+    });
+
+    socket.on('new_moderator_suggestion', () => {
+      fetchModeratorSuggestions();
+    });
+
+    socket.on('escalation_deleted', () => {
+      fetchQueries();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchQueries, fetchModeratorSuggestions]);
 
   const categorized = {
     pending: queries.filter(q => {

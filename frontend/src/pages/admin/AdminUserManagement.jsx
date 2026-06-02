@@ -6,16 +6,18 @@
  * - User Registration (Single & Bulk CSV)
  * - User Management (list with active/inactive toggle)
  * - Spoiled Users (warnings visualization in same table)
+ * Dynamic: Updates automatically when users are added/modified.
  *
  * @module pages/admin/AdminUserManagement
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const AdminUserManagement = () => {
   const [showRegistration, setShowRegistration] = useState(false);
@@ -259,6 +261,7 @@ const BulkCsvUploadForm = ({ onSuccess }) => {
 };
 
 const UserListTable = () => {
+  const { token } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState('all');
@@ -285,7 +288,7 @@ const UserListTable = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await api.get('/auth/users');
       setUsers(res.data.data || []);
@@ -294,11 +297,30 @@ const UserListTable = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('new_notification', () => {
+      fetchUsers();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchUsers]);
 
   const handleToggleStatus = async (userId, currentStatus) => {
     try {

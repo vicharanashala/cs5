@@ -3,26 +3,26 @@
  * QUERY.IN - ANNOUNCEMENTS PAGE (Moderator)
  * =============================================================================
  * Displays announcements from admins to moderators.
+ * Dynamic: Updates automatically when new announcements arrive.
  *
  * @module pages/moderator/ModeratorAnnouncements
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
 import { formatDate } from '../../utils/dateFormat';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const ModeratorAnnouncements = () => {
+  const { token } = useAuth();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
-
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get('/announcements');
@@ -32,7 +32,36 @@ const ModeratorAnnouncements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [fetchAnnouncements]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('new_notification', (notification) => {
+      if (notification.type === 'announcement') {
+        fetchAnnouncements();
+      }
+    });
+
+    socket.on('announcement_created', () => {
+      fetchAnnouncements();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchAnnouncements]);
 
   return (
     <DashboardLayout>

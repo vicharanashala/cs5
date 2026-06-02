@@ -5,19 +5,98 @@
  * Entry point for /admin route. Shows navigation cards to each section.
  * User Registration, Spoiled Users, and User Management are all combined
  * into the single "User Management" page at /admin/users.
+ * Dynamic: Updates automatically when queries or users change.
  *
  * @module pages/admin/AdminOverview
  */
 
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
+import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const AdminOverview = () => {
+  const { token } = useAuth();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    pendingQueries: 0,
+    resolvedToday: 0,
+    activeAnnouncements: 0
+  });
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const [usersRes, queriesRes, announcementsRes] = await Promise.all([
+        api.get('/auth/users'),
+        api.get('/admin/escalated?type=all'),
+        api.get('/announcements')
+      ]);
+
+      const allQueries = queriesRes.data.data || [];
+      const pendingCount = allQueries.filter(q =>
+        q.status === 'Pending' || q.status === 'Peer Answered'
+      ).length;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const resolvedToday = allQueries.filter(q => {
+        if (q.status !== 'Resolved') return false;
+        const resolvedAt = new Date(q.resolved_at || q.updatedAt);
+        return resolvedAt >= today;
+      }).length;
+
+      setStats({
+        totalUsers: usersRes.data.count || 0,
+        pendingQueries: pendingCount,
+        resolvedToday,
+        activeAnnouncements: announcementsRes.data.count || 0
+      });
+    } catch (err) {
+      console.error('Failed to fetch stats', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('new_notification', () => {
+      fetchStats();
+    });
+
+    socket.on('escalation_deleted', () => {
+      fetchStats();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchStats]);
+
   return (
     <DashboardLayout>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-black">Admin Dashboard</h1>
         <p className="text-text-secondary mt-1">Complete system management interface</p>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Total Users" value={stats.totalUsers} />
+        <StatCard label="Pending Queries" value={stats.pendingQueries} />
+        <StatCard label="Resolved Today" value={stats.resolvedToday} />
+        <StatCard label="Announcements" value={stats.activeAnnouncements} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -41,7 +120,7 @@ const AdminOverview = () => {
             </svg>
           }
         />
-        
+
         <NavCard
           to="/admin/faqs"
           title="FAQ Editor"
@@ -52,7 +131,7 @@ const AdminOverview = () => {
             </svg>
           }
         />
-        
+
         <NavCard
           to="/admin/resolve"
           title="Query Management"
@@ -67,6 +146,13 @@ const AdminOverview = () => {
     </DashboardLayout>
   );
 };
+
+const StatCard = ({ label, value }) => (
+  <Card className="border border-gray-200 hover:shadow-lg transition-shadow" hover={false}>
+    <div className="text-sm font-medium text-gray-500 mb-1">{label}</div>
+    <div className="text-3xl font-bold text-black">{value}</div>
+  </Card>
+);
 
 const NavCard = ({ to, title, icon, description }) => {
   return (

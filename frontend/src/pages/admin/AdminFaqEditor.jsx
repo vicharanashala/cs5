@@ -3,17 +3,21 @@
  * QUERY.IN - ADMIN FAQ EDITOR PAGE
  * =============================================================================
  * Card 5: FAQ Knowledge Base Editor
+ * Dynamic: Updates automatically when FAQs are modified.
  *
  * @module pages/admin/AdminFaqEditor
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const AdminFaqEditor = () => {
+  const { token } = useAuth();
   const [faqs, setFaqs] = useState([]);
   const [filteredFaqs, setFilteredFaqs] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -25,7 +29,7 @@ const AdminFaqEditor = () => {
   });
   const [message, setMessage] = useState(null);
 
-  const loadFaqs = async () => {
+  const loadFaqs = useCallback(async () => {
     try {
       const res = await api.get('/faqs');
       const data = res.data.data || [];
@@ -39,9 +43,28 @@ const AdminFaqEditor = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { loadFaqs(); }, []);
+  useEffect(() => { loadFaqs(); }, [loadFaqs]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('faq_added', () => {
+      loadFaqs();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, loadFaqs]);
 
   useEffect(() => {
     if (search.trim()) {

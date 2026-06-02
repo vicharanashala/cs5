@@ -3,41 +3,77 @@
  * QUERY.IN - INTERN DASHBOARD
  * =============================================================================
  * Modern SaaS-style dashboard with clean cards and professional spacing.
+ * Dynamic: Updates automatically when peer responses or queries change.
  *
  * @module pages/intern/InternDashboard
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Badge from '../../components/Badge';
 import Button from '../../components/Button';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const InternDashboard = () => {
+  const { token, user } = useAuth();
   const [stats, setStats] = useState({ activeQueries: 0, peerResponses: 0, resolved: 0 });
   const [faqs, setFaqs] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsRes, faqsRes] = await Promise.all([
-          api.get('/peer/stats'),
-          api.get('/faqs'),
-        ]);
-        setStats({
-          activeQueries: statsRes.data.data.activeQueries || 0,
-          peerResponses: statsRes.data.data.peerResponses || 0,
-          resolved: statsRes.data.data.resolved || 0,
-        });
-        setFaqs(faqsRes.data.data?.slice(0, 5) || []);
-      } catch (err) {
-        console.error('Failed to fetch data', err);
-      }
-    };
-    fetchData();
+  const fetchData = useCallback(async () => {
+    try {
+      const [statsRes, faqsRes] = await Promise.all([
+        api.get('/peer/stats'),
+        api.get('/faqs'),
+      ]);
+      setStats({
+        activeQueries: statsRes.data.data.activeQueries || 0,
+        peerResponses: statsRes.data.data.peerResponses || 0,
+        resolved: statsRes.data.data.resolved || 0,
+      });
+      setFaqs(faqsRes.data.data?.slice(0, 5) || []);
+    } catch (err) {
+      console.error('Failed to fetch data', err);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('new_peer_answer', (data) => {
+      if (data.intern_id === user?.id || data.intern_id === user?.userId) {
+        fetchData();
+      }
+    });
+
+    socket.on('query_resolved', (data) => {
+      if (data.intern_id === user?.id || data.intern_id === user?.userId) {
+        fetchData();
+      }
+    });
+
+    socket.on('new_notification', () => {
+      fetchData();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, user, fetchData]);
 
   return (
     <DashboardLayout>

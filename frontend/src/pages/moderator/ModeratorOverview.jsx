@@ -3,39 +3,109 @@
  * QUERY.IN - MODERATOR OVERVIEW PAGE
  * =============================================================================
  * Entry point for /moderator route. Shows navigation cards to each section.
+ * Dynamic: Updates automatically when new announcements arrive.
  *
  * @module pages/moderator/ModeratorOverview
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import api from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const ModeratorOverview = () => {
+  const { token } = useAuth();
   const [announcements, setAnnouncements] = useState([]);
   const [hasNew, setHasNew] = useState(false);
+  const [stats, setStats] = useState({ pendingQueries: 0, resolvedToday: 0 });
+
+  const fetchAnnouncements = useCallback(async () => {
+    try {
+      const res = await api.get('/announcements');
+      const data = res.data.data || [];
+      setAnnouncements(data);
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      setHasNew(data.some(a => new Date(a.createdAt) > oneDayAgo));
+    } catch (err) {
+      console.error('Failed to fetch announcements', err);
+    }
+  }, []);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await api.get('/admin/escalated?type=all');
+      const allQueries = res.data.data || [];
+      const pendingCount = allQueries.filter(q =>
+        q.status === 'Pending' || q.status === 'Peer Answered'
+      ).length;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const resolvedToday = allQueries.filter(q => {
+        if (q.status !== 'Resolved') return false;
+        const resolvedAt = new Date(q.resolved_at || q.updatedAt);
+        return resolvedAt >= today;
+      }).length;
+      setStats({ pendingQueries: pendingCount, resolvedToday });
+    } catch (err) {
+      console.error('Failed to fetch stats', err);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchAnnouncements = async () => {
-      try {
-        const res = await api.get('/announcements');
-        const data = res.data.data || [];
-        setAnnouncements(data);
-        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        setHasNew(data.some(a => new Date(a.createdAt) > oneDayAgo));
-      } catch (err) {
-        console.error('Failed to fetch announcements', err);
-      }
-    };
     fetchAnnouncements();
-  }, []);
+    fetchStats();
+  }, [fetchAnnouncements, fetchStats]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const socketUrl = apiUrl.replace('/api', '');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('new_notification', () => {
+      fetchAnnouncements();
+      fetchStats();
+    });
+
+    socket.on('query_resolved', () => {
+      fetchStats();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, fetchAnnouncements, fetchStats]);
 
   return (
     <DashboardLayout>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-black">Moderator Dashboard</h1>
         <p className="text-text-secondary mt-1">Review and resolve escalated queries</p>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-gray-500 mb-1">Pending Queries</div>
+          <div className="text-3xl font-bold text-black">{stats.pendingQueries}</div>
+        </div>
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-gray-500 mb-1">Resolved Today</div>
+          <div className="text-3xl font-bold text-black">{stats.resolvedToday}</div>
+        </div>
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-gray-500 mb-1">Announcements</div>
+          <div className="text-3xl font-bold text-black">{announcements.length}</div>
+        </div>
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-gray-500 mb-1">New Today</div>
+          <div className="text-3xl font-bold text-black">{hasNew ? 'Yes' : 'No'}</div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
