@@ -156,32 +156,65 @@ const AdminResolveHub = () => {
                   onClick={() => setSelectedQuery(query)}
                   className="border border-black rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex justify-between">
-                    <div>
-                      <div className="font-medium text-black">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-black break-words">
                         {activeSection === 'moderator_suggested' ? query.question_text : query.query_text}
                       </div>
                       <div className="text-sm text-text-muted mt-1">
                         {activeSection === 'moderator_suggested' ? (
                           <>From: {query.suggested_by?.email} ({query.suggested_by?.role || 'moderator'})</>
                         ) : (
-                          <>From: {query.intern_id?.email} • Status: {query.status}</>
+                          <>
+                            From: {query.intern_id?.email}
+                            {activeSection === 'archive' && query.resolved_by && (
+                              <span className="ml-2 text-green-600">
+                                • Resolved by: {query.resolved_by?.role === 'admin' ? 'Admin' : 'Moderator'} ({query.resolved_by?.email})
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
+                      <div className="text-xs text-text-muted mt-1">
+                        Created: {new Date(query.createdAt).toLocaleString()}
+                        {query.resolved_at && ` • Resolved: ${new Date(query.resolved_at).toLocaleString()}`}
+                        {query.status === 'Ambiguous' && ` • Ambiguous`}
+                        {!query.resolved_at && query.status !== 'Ambiguous' && ` • Pending`}
+                      </div>
                     </div>
-                    <div className="text-right text-sm text-text-muted">
-                      {activeSection === 'ambiguous' && (
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 mr-2">
-                          {query.ambiguous_count || 0}/3 strikes
-                        </span>
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                      {activeSection !== 'archive' && activeSection !== 'moderator_suggested' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm('Are you sure you want to delete this query?')) {
+                              api.delete(`/admin/query/${query._id}`)
+                                .then(() => fetchQueries())
+                                .catch(err => alert(err.response?.data?.error || 'Failed to delete'));
+                            }
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                          title="Delete Query"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
                       )}
-                      {activeSection === 'moderator_suggested' ? (
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-gray-200 text-black">
-                          Suggested by {query.suggested_by?.role || 'moderator'}
-                        </span>
-                      ) : (
-                        `${query.responses?.length || 0} responses`
-                      )}
+                      <div className="text-right text-sm text-text-muted">
+                        {activeSection === 'ambiguous' && (
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                            {query.ambiguous_count || 0}/3 strikes
+                          </span>
+                        )}
+                        {activeSection === 'moderator_suggested' ? (
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-200 text-black">
+                            Suggested
+                          </span>
+                        ) : activeSection !== 'archive' && (
+                          <span className="text-text-muted">{query.responses?.length || 0} responses</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -326,6 +326,10 @@ STEP 7: RESOLVED (Terminal State)
 | 113 | Suggestion chips persist after submit | Auto-complete suggestions stayed visible after response generated | Added `!response` condition to suggestions dropdown check in AskAI.jsx - suggestions only show when no active conversation |
 | 114 | Global search bar cluttering header | Search bar at top of every page added unnecessary space | Removed search bar from DashboardLayout.jsx header, keeping only mobile menu, notifications, and user menu |
 | 115 | Notification/user badge aligned left | Elements showed on left side of header instead of right | Changed header `justify-between` to `justify-end` with `mr-auto` on mobile menu button - notification bell and user badge now correctly right-aligned |
+| 116 | Archive section didn't show resolver info | Admin/Moderator couldn't identify who resolved a query in Archive | getEscalatedQueries now populates resolved_by with email and role; AdminResolveHub and ModeratorResolveHub display resolver info (Admin/Moderator + email) and full timestamps (createdAt + resolved_at) for all query sections |
+| 117 | Query text overflowing in Query Management | Long queries overflow and show "..." instead of wrapping | Changed `truncate` to `break-words` class in AdminResolveHub and ModeratorResolveHub for proper text wrapping |
+| 118 | No delete button on query cards | Could only delete from ambiguous section detail panel | Added delete button (trash icon) directly on query cards in all sections except Archive and Moderator Suggested |
+| 119 | Missing timestamps on all query cards | Timestamps only shown for archive/pending/low_rated sections | Now shows timestamps for ALL query sections: Created date/time, Resolved date/time, and status indicator (Pending/Ambiguous) |
 
 ---
 

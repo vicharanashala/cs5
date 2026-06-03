@@ -124,6 +124,7 @@ const getEscalatedQueries = async (req, res) => {
       ...(type !== 'all' ? { is_locked: true } : {}),
     })
       .populate('intern_id', '_id email role warning_count')
+      .populate('resolved_by', 'email role')
       .populate('responses')
       .sort({ updatedAt: -1 });
 

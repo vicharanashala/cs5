@@ -1724,3 +1724,47 @@ Implemented persistent skip tracking for peer queue:
 - `context.md` - Added issue #102
 - `README.md` - Added issue #102 to Recent Fixes table
 - `prompt.md` - Added Prompt 103
+
+---
+
+### Prompt 104: Query Management UI Improvements
+
+**Prompt:** 
+1. In the query management, add timestamp for every query. 
+2. When the query is too long it is overflowing the window size and also the query is just continuing with "..." but fix that if the query is too long it should go to next line.
+3. Add a delete button on every query card in query management, just like in ambiguous category.
+
+**Response:**
+Implemented comprehensive UI improvements for Query Management:
+
+**Backend:**
+1. **adminController.js** - Updated `getEscalatedQueries` to populate `resolved_by` with `email` and `role` fields for better resolver identification
+
+**Frontend AdminResolveHub.jsx:**
+1. **Timestamps for ALL sections:**
+   - Added Created: [datetime] for every query
+   - Added Resolved: [datetime] when available
+   - Shows Pending/Ambiguous status indicator
+   - Applied to all sections: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested
+
+2. **Query text wrapping:**
+   - Changed `truncate` to `break-words` CSS class
+   - Long query text now wraps to next line instead of showing "..."
+
+3. **Delete button on all query cards:**
+   - Added trash icon delete button to query cards (except Archive and Moderator Suggested)
+   - Uses `e.stopPropagation()` to prevent opening detail panel
+   - Shows confirmation dialog before deletion
+   - Refreshes list after successful deletion
+
+**Frontend ModeratorResolveHub.jsx:**
+- Same improvements: timestamps for all sections, break-words for query text, delete button (except Archive)
+
+**Files modified:**
+- `backend/controllers/adminController.js` - Added resolved_by population
+- `frontend/src/pages/admin/AdminResolveHub.jsx` - Full UI update
+- `frontend/src/pages/moderator/ModeratorResolveHub.jsx` - Full UI update
+- `context.md` - Added issues #116-119
+- `README.md` - Added issues #116-119 to Recent Fixes table
+
+---
