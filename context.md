@@ -332,6 +332,12 @@ STEP 7: RESOLVED (Terminal State)
 | 119 | Missing timestamps on all query cards | Timestamps only shown for archive/pending/low_rated sections | Now shows timestamps for ALL query sections: Created date/time, Resolved date/time, and status indicator (Pending/Ambiguous) |
 | 120 | High-impact actions lacked confirmation | Accidental clicks could deactivate/remove users or escalate queries | Created reusable ConfirmModal component with smooth animations, added confirmation for: Intern escalation, Admin deactivation, Admin account removal, Admin remove warnings |
 | 121 | Similar questions escalate instead of showing resolved answer | When intern asks similar question to resolved query, system created new escalation instead of showing existing resolution | Added `findResolvedSimilarQuery` function to check for resolved queries before escalation; returns `source: 'previously_resolved'` with original query text and approved answer |
+| 122 | Sidebar scrolls away on scroll | When scrolling content in dashboard, sidebar scrolls up and disappears | Changed sidebar to `lg:sticky lg:top-0 lg:h-screen` in DashboardLayout.jsx so it stays visible when scrolling |
+| 123 | Admin stat cards not clickable | Total Users, Pending Queries, Resolved Today, Announcements stat cards on Admin dashboard didn't navigate anywhere | Wrapped stat cards with Link components: Total Users → /admin/users, Pending/Resolved → /admin/resolve, Announcements → /admin/announcement |
+| 124 | Moderator dashboard had "New Today" and "Announcements" stat cards | These cards were redundant and of no use | Removed "Announcements" and "New Today" stat cards from ModeratorOverview.jsx |
+| 125 | "Resolve Hub" naming inconsistent | Moderator dashboard showed "Resolve Hub" while admin called it "Query Management" | Changed moderator "Resolve Hub" to "Query Management" in both navConfig.jsx and ModeratorOverview.jsx |
+| 126 | Moderator "View All Notifications" didn't work | Clicking "View All notifications" in bell dropdown redirected to intern page which wasn't accessible for moderator | Created /moderator/notifications route with ModeratorAllNotifications page; NotificationBell now correctly routes to /moderator/notifications for moderators |
+| 127 | Notifications in moderator sidebar | Moderator sidebar had a "Notifications" nav item that was unnecessary | Removed Notifications from moderatorNavItems in navConfig.jsx; notifications accessible via bell icon only |
 
 ---
 

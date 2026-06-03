@@ -289,9 +289,10 @@ When an intern asks a question that is similar to a query already resolved for a
 - **Resolve Hub** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested
 
 ### Moderator Dashboard (Page-Based Layout)
-- **Dashboard Overview** - Navigation cards (Announcements, Resolve Query Hub)
+- **Dashboard Overview** - Navigation cards (Announcements, Query Management) with clickable stat cards
 - **Announcements** - View admin broadcasted global notices with priority
-- **Resolve Hub** - 4-section queue: Pending Resolution, Stagnant, Low-Rated, Archive
+- **Query Management** - 4-section queue: Pending Resolution, Stagnant, Low-Rated, Archive (renamed from "Resolve Hub")
+- **All Notifications** - Full notifications page at `/moderator/notifications`, accessible via bell icon "View all"
 
 ### UI/UX Modernization (Phase 14)
 - **Black & White Design System** - #FAFAFA background, #000000 text, #FFD000 yellow highlight

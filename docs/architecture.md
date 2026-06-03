@@ -118,7 +118,8 @@ frontend/src/
 # Moderator Pages
 /moderator               → ModeratorOverview (protected, moderator+)
 /moderator/announcements → ModeratorAnnouncements (moderator only) - View announcements with priority
-/moderator/resolve       → ModeratorResolveHub (moderator only)
+/moderator/resolve       → ModeratorResolveHub (moderator only) - Query Management
+/moderator/notifications → ModeratorAllNotifications (moderator only) - Full notifications list
 
 # Intern Pages
 /intern                  → InternDashboard (protected, intern only)
@@ -127,6 +128,7 @@ frontend/src/
 /intern/my-queries       → MyEscalations (protected, intern only)
 /intern/faqs             → ViewFAQs (protected, intern only)
 /intern/announcements    → Announcements (protected, intern only)
+/notifications           → AllNotifications (intern only) - Full notifications list
 ```
 
 ### Protected Routes

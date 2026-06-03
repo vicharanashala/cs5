@@ -3,7 +3,7 @@
  * QUERY.IN - MODERATOR OVERVIEW PAGE
  * =============================================================================
  * Entry point for /moderator route. Shows navigation cards to each section.
- * Dynamic: Updates automatically when new announcements arrive.
+ * Dynamic: Updates automatically when queries change.
  *
  * @module pages/moderator/ModeratorOverview
  */
@@ -12,26 +12,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import api from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const ModeratorOverview = () => {
-  const { token } = useAuth();
-  const [announcements, setAnnouncements] = useState([]);
-  const [hasNew, setHasNew] = useState(false);
+  const { socket } = useNotifications();
   const [stats, setStats] = useState({ pendingQueries: 0, resolvedToday: 0 });
-
-  const fetchAnnouncements = useCallback(async () => {
-    try {
-      const res = await api.get('/announcements');
-      const data = res.data.data || [];
-      setAnnouncements(data);
-      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      setHasNew(data.some(a => new Date(a.createdAt) > oneDayAgo));
-    } catch (err) {
-      console.error('Failed to fetch announcements', err);
-    }
-  }, []);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -54,33 +39,20 @@ const ModeratorOverview = () => {
   }, []);
 
   useEffect(() => {
-    fetchAnnouncements();
     fetchStats();
-  }, [fetchAnnouncements, fetchStats]);
+  }, [fetchStats]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('new_notification', () => {
-      fetchAnnouncements();
-      fetchStats();
-    });
-
-    socket.on('query_resolved', () => {
-      fetchStats();
-    });
+    socket.on('query_resolved', fetchStats);
+    socket.on('query_state_changed', fetchStats);
 
     return () => {
-      socket.disconnect();
+      socket.off('query_resolved', fetchStats);
+      socket.off('query_state_changed', fetchStats);
     };
-  }, [token, fetchAnnouncements, fetchStats]);
+  }, [socket, fetchStats]);
 
   return (
     <DashboardLayout>
@@ -90,22 +62,18 @@ const ModeratorOverview = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500 mb-1">Pending Queries</div>
-          <div className="text-3xl font-bold text-black">{stats.pendingQueries}</div>
-        </div>
-        <div className="border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500 mb-1">Resolved Today</div>
-          <div className="text-3xl font-bold text-black">{stats.resolvedToday}</div>
-        </div>
-        <div className="border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500 mb-1">Announcements</div>
-          <div className="text-3xl font-bold text-black">{announcements.length}</div>
-        </div>
-        <div className="border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500 mb-1">New Today</div>
-          <div className="text-3xl font-bold text-black">{hasNew ? 'Yes' : 'No'}</div>
-        </div>
+        <Link to="/moderator/resolve">
+          <div className="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:scale-105 transition-all cursor-pointer">
+            <div className="text-sm font-medium text-gray-500 mb-1">Pending Queries</div>
+            <div className="text-3xl font-bold text-black">{stats.pendingQueries}</div>
+          </div>
+        </Link>
+        <Link to="/moderator/resolve">
+          <div className="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:scale-105 transition-all cursor-pointer">
+            <div className="text-sm font-medium text-gray-500 mb-1">Resolved Today</div>
+            <div className="text-3xl font-bold text-black">{stats.resolvedToday}</div>
+          </div>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -118,12 +86,11 @@ const ModeratorOverview = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
             </svg>
           }
-          hasNew={hasNew}
         />
         <NavCard
           to="/moderator/resolve"
-          title="Resolve Hub"
-          description="Central command terminal for reviewing, approving, or overriding escalated queries"
+          title="Query Management"
+          description="Review, approve, or override escalated queries from peers. Resolve ambiguous or low-rated tickets."
           icon={
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -135,23 +102,15 @@ const ModeratorOverview = () => {
   );
 };
 
-const NavCard = ({ to, title, icon, description, hasNew }) => {
+const NavCard = ({ to, title, icon, description }) => {
   return (
     <Link
       to={to}
       className="block border-2 border-black rounded-lg p-6 hover:bg-gray-50 transition-colors hover:shadow-lg"
     >
       <div className="flex items-start gap-4">
-        <div className="text-black relative">
+        <div className="text-black">
           {icon}
-          {hasNew && (
-            <span className="absolute -top-1 -right-1 relative">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
-              </span>
-            </span>
-          )}
         </div>
         <div className="flex-1">
           <h3 className="font-bold text-black">{title}</h3>

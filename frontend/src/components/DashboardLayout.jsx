@@ -90,10 +90,10 @@ const DashboardLayout = ({ children, navItems: propNavItems }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200
+          fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200
           transform transition-transform duration-300 ease-out lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          flex flex-col shadow-lg lg:shadow-none
+          flex flex-col shadow-lg lg:shadow-none lg:h-screen
         `}
       >
         {/* Logo */}

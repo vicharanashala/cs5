@@ -301,9 +301,10 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 **Moderator Pages:**
 | Route | Purpose |
 |-------|---------|
-| /moderator | Dashboard overview |
+| /moderator | Dashboard overview with clickable stat cards |
 | /moderator/announcements | View announcements with priority indicators |
-| /moderator/resolve | Resolve hub (includes Pending Resolution, Stagnant, Low-Rated, Archive) |
+| /moderator/resolve | Query Management (renamed from Resolve Hub, includes Pending Resolution, Stagnant, Low-Rated, Archive) |
+| /moderator/notifications | Full notifications list |
 
 ---
 

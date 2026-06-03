@@ -218,7 +218,8 @@ const NotificationBell = () => {
                 <button
                   onClick={() => {
                     setDropdownOpen(false);
-                    navigate('/notifications');
+                    const notifPath = user?.role === 'moderator' ? '/moderator/notifications' : '/notifications';
+                    navigate(notifPath);
                   }}
                   className="text-sm font-medium text-black hover:underline"
                 >

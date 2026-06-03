@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
@@ -87,10 +88,18 @@ const AdminOverview = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Total Users" value={stats.totalUsers} />
-        <StatCard label="Pending Queries" value={stats.pendingQueries} />
-        <StatCard label="Resolved Today" value={stats.resolvedToday} />
-        <StatCard label="Announcements" value={stats.activeAnnouncements} />
+        <Link to="/admin/users">
+          <StatCard label="Total Users" value={stats.totalUsers} />
+        </Link>
+        <Link to="/admin/resolve">
+          <StatCard label="Pending Queries" value={stats.pendingQueries} />
+        </Link>
+        <Link to="/admin/resolve">
+          <StatCard label="Resolved Today" value={stats.resolvedToday} />
+        </Link>
+        <Link to="/admin/announcement">
+          <StatCard label="Announcements" value={stats.activeAnnouncements} />
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -142,7 +151,7 @@ const AdminOverview = () => {
 };
 
 const StatCard = ({ label, value }) => (
-  <Card className="border border-gray-200 hover:shadow-lg transition-shadow" hover={false}>
+  <Card className="border border-gray-200 hover:shadow-lg hover:scale-105 transition-all cursor-pointer">
     <div className="text-sm font-medium text-gray-500 mb-1">{label}</div>
     <div className="text-3xl font-bold text-black">{value}</div>
   </Card>
