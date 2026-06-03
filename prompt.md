@@ -296,6 +296,9 @@ Created frontend intern pages:
 | 110 | "WebSocket is closed" console errors | `ModeratorAnnouncements` and `MyEscalations` created duplicate `io()` instances | Refactored to use shared `socket` from `useNotifications()`, eliminating duplicate connections and race conditions |
 | 111 | Missing FAQ real-time updates | Intern Dashboard didn't refresh popular FAQs when Admin updated them | Added `faq_updated` and `faq_deleted` listeners to Intern Dashboard |
 | 120 | High-impact actions lacked confirmation | Accidental clicks could deactivate/remove users or escalate queries | Created reusable ConfirmModal component with smooth animations, added confirmation for: Intern escalation, Admin deactivation, Admin account removal, Admin remove warnings |
+| 128 | Analytics charts missing percentages | Charts showed counts but not percentages in tooltips and labels | Added percentage calculations to all chart data, tooltips now show "value (percent%)", labels removed from pie charts |
+| 129 | Resolution distribution chart labels overflowing | Small percentage slices had labels pointing outside the chart | Removed floating labels from Resolution Distribution pie chart, increased bottom margin, moved pie chart up (cy=45%) |
+| 130 | Bottleneck analysis pie chart labels | Floating labels next to pie slices were hard to read | Removed floating labels from Bottleneck Analysis pie chart |
 
 ---
 
@@ -1800,41 +1803,5 @@ Implemented previously resolved query detection feature:
 - `docs/api_docs.md` - Added "Previously Resolved" response example
 - `context.md` - Added issue #121
 - `README.md` - Added issue #121 to Recent Fixes table
-
----
-
-### Prompt 76: Analytics Charts - Add Percentages and Fix Labels
-**Prompt:** Update all analytics charts to show percentages. Use different colors for each chart. Remove floating percentage labels from pie chart slices.
-
-**Response:**
-Updated `frontend/src/pages/admin/AdminAnalytics.jsx`:
-
-1. **Added new colors:**
-   - `autoComplete: '#06B6D4'` (cyan)
-   - `escalated: '#EC4899'` (pink)
-   - `CHART_COLORS_ARRAY` with 12 distinct colors for resolution distribution pie chart
-
-2. **Added percentage calculations to all chart data:**
-   - `aiPerformanceData` - includes `upPercent` for RAG/LLM share
-   - `bottleneckData` - includes `percent` and `rawPercent` for Pending/Resolved
-   - `humanInterventionData` - includes `percent` for Admin/Mod overrides
-   - `peerPerformanceData` - includes `percent` for Admin/Mod approved
-   - `resolutionDistributionData` - includes `percent` and `rawPercent` for all 7 resolution types
-   - `dailyTrendsData` - includes `*-Percent` fields for each day
-
-3. **Updated tooltips** to show both count and percentage (e.g., "15 (25.5%)")
-
-4. **Removed floating labels** from bottleneck and resolution distribution pie charts (`label={false}`)
-
-5. **Added Escalated line** to Daily Trends chart with pink color
-
-6. **Updated legend formatter** to show percentages in legend
-
-7. **Fixed percentage bug:** The `rawPercent` field (decimal 0-1) is used for pie chart labels to avoid double-multiplication
-
-**Files modified:**
-- `frontend/src/pages/admin/AdminAnalytics.jsx` - Full chart update with percentages and new colors
-- `context.md` - Added issue #128
-- `README.md` - Added issue #128 to Recent Fixes table
 
 ---

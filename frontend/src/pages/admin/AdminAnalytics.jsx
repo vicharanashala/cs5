@@ -381,11 +381,11 @@ const AdminAnalytics = () => {
           <h2 className="text-base md:text-lg font-bold text-black mb-2">Resolution Distribution</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-2">Breakdown of how queries are being resolved</p>
           <ResponsiveContainer width="100%" height={SMALL_CHART_HEIGHT} minWidth={280}>
-            <PieChart margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+            <PieChart margin={{ top: 5, right: 10, left: 10, bottom: 60 }}>
               <Pie
                 data={resolutionDistributionData}
                 cx="50%"
-                cy="50%"
+                cy="45%"
                 outerRadius={pieOuterRadius}
                 innerRadius={0}
                 paddingAngle={2}
@@ -408,7 +408,7 @@ const AdminAnalytics = () => {
                 verticalAlign="bottom"
                 iconType="circle"
                 iconSize={8}
-                wrapperStyle={{ fontSize: isSmallScreen ? 9 : 11, lineHeight: '16px' }}
+                wrapperStyle={{ fontSize: isSmallScreen ? 9 : 11, lineHeight: '16px', bottom: 0 }}
                 formatter={(value) => {
                   const item = resolutionDistributionData.find(d => d.name === value);
                   return `${value} (${item?.percent}%)`;
