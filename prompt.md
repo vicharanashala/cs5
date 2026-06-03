@@ -1852,3 +1852,26 @@ Fixed the AI Performance analytics to properly track and display downvotes:
 - `prompt.md` - Added Prompt 77 documenting the fix
 
 ---
+
+### Prompt 78: Update AI Metrics Display
+
+**Prompt:** remove the helpfulness metric from ai performance comparison in ai helpfulness rate card at the top, instead of showing only llm rate it should show both of rate which is of rag and llm rates in bigger font
+
+**Response:**
+Updated the AI metrics display to be clearer and more visually prominent:
+
+1. **AI Helpfulness Rate Metric Card** - Now shows RAG and LLM rates side-by-side in big 2xl-3xl font:
+   - RAG rate in blue (#3B82F6) with "RAG" label below
+   - LLM rate in purple (#8B5CF6) with "LLM" label below
+
+2. **AI Performance Comparison Chart** - Removed the Helpfulness % bar:
+   - Chart now shows only Upvotes (green) and Downvotes (red) bars
+   - Y-axis auto-scales based on actual data (removed fixed 0-100 domain)
+   - Tooltip still shows percentage breakdown for each vote type
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminAnalytics.jsx` - Restyled metric card, removed Helpfulness bar from chart
+- `README.md` - Updated issue #132 description
+- `context.md` - Updated issue #132 description
+
+---
