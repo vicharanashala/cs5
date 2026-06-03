@@ -202,12 +202,20 @@ const AdminAnalytics = () => {
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MetricCard
-          label="AI Helpfulness Rate"
-          value={`${Math.max(analytics.aiPerformance.ragHelpfulness, analytics.aiPerformance.llmHelpfulness)}%`}
-          subLabel={`RAG: ${analytics.aiPerformance.ragHelpfulness}% | LLM: ${analytics.aiPerformance.llmHelpfulness}%`}
-          color={COLORS.success}
-        />
+        {/* AI Helpfulness Rate - RAG and LLM displayed prominently */}
+        <Card className="border border-gray-200">
+          <div className="text-xs sm:text-sm font-medium text-gray-500 mb-1">AI Helpfulness Rate</div>
+          <div className="flex items-baseline gap-3 mt-1">
+            <div className="flex flex-col">
+              <span className="text-2xl sm:text-3xl font-bold text-[#3B82F6]">{analytics.aiPerformance.ragHelpfulness}%</span>
+              <span className="text-xs text-gray-400">RAG</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl sm:text-3xl font-bold text-[#8B5CF6]">{analytics.aiPerformance.llmHelpfulness}%</span>
+              <span className="text-xs text-gray-400">LLM</span>
+            </div>
+          </div>
+        </Card>
         <MetricCard
           label="Resolution Rate"
           value={`${analytics.bottleneckAnalysis.resolutionRate}%`}
@@ -239,11 +247,10 @@ const AdminAnalytics = () => {
               <BarChart data={aiPerformanceData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 10 : 12 }} />
-                <YAxis tick={{ fontSize: isSmallScreen ? 10 : 12 }} width={30} domain={[0, 100]} />
+                <YAxis tick={{ fontSize: isSmallScreen ? 10 : 12 }} width={30} />
                 <Tooltip
                   contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
                   formatter={(value, name) => {
-                    if (name === 'Helpfulness') return [`${value}%`, 'Helpfulness Rate'];
                     if (name === 'Upvotes') {
                       const item = aiPerformanceData.find(d => d.Upvotes === value);
                       const total = item ? item.Upvotes + item.Downvotes : value;
@@ -263,7 +270,6 @@ const AdminAnalytics = () => {
                 <Legend wrapperStyle={{ fontSize: isSmallScreen ? 10 : 12 }} />
                 <Bar dataKey="Upvotes" fill={COLORS.success} radius={[4, 4, 0, 0]} name="Upvotes" />
                 <Bar dataKey="Downvotes" fill={COLORS.error} radius={[4, 4, 0, 0]} name="Downvotes" />
-                <Bar dataKey="Helpfulness" fill={COLORS.primary} radius={[4, 4, 0, 0]} name="Helpfulness %" />
               </BarChart>
             </ResponsiveContainer>
           </div>
