@@ -292,11 +292,12 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 **Admin Pages:**
 | Route | Purpose |
 |-------|---------|
-| /admin | Dashboard overview with navigation cards (User Management, Announcements, FAQ Editor, Query Management) |
+| /admin | Dashboard overview with navigation cards (User Management, Announcements, FAQ Editor, Query Management, Analytics) |
 | /admin/users | Combined: User registration, User list with warnings (0=green, 1+=yellow, 5=red), Active/Inactive toggle |
 | /admin/announcement | Publish announcements |
 | /admin/faqs | FAQ editor |
-| /admin/resolve | Resolve hub (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested) |
+| /admin/resolve | Query Management (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested) |
+| /admin/analytics | AI performance comparison, bottleneck analysis, and human intervention metrics with visualizations |
 
 **Moderator Pages:**
 | Route | Purpose |

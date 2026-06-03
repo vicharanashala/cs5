@@ -457,11 +457,12 @@ The Admin Dashboard now uses a page-based structure with sidebar navigation:
 
 | Page | Route | Purpose |
 |------|-------|---------|
-| Dashboard | /admin | Overview with navigation cards (4 cards - removed AI Suggestions) |
+| Dashboard | /admin | Overview with navigation cards (5 cards - User Management, Announcements, FAQ Editor, Query Management, Analytics) |
 | User Management | /admin/users | Combined: Registration (Single + Bulk CSV), User list with Edit/Remove/Activate/Remove Warnings options, warnings display |
 | Announcements | /admin/announcement | Publish announcements with total count display |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
 | Query Management | /admin/resolve | Resolution queue (includes Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested) |
+| Analytics | /admin/analytics | AI performance comparison, bottleneck analysis, and human intervention metrics with visualizations |
 
 **Note:** AI Suggestions (FAQ gap suggestions) has been removed from the admin dashboard and navigation.
 

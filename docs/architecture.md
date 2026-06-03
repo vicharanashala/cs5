@@ -114,6 +114,7 @@ frontend/src/
 /admin/announcement      → AdminAnnouncement (admin only)
 /admin/faqs              → AdminFaqEditor (admin only)
 /admin/resolve           → AdminResolveHub (admin only)
+/admin/analytics         → AdminAnalytics (admin only) - AI performance, bottleneck analysis, human intervention metrics
 
 # Moderator Pages
 /moderator               → ModeratorOverview (protected, moderator+)

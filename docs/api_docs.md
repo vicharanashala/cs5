@@ -1252,6 +1252,68 @@ Get analytics summary.
 
 ---
 
+### GET /analytics/dashboard
+
+Get comprehensive analytics for admin dashboard. Returns AI performance metrics, bottleneck analysis, human intervention index, peer performance, resolution distribution, and daily trends.
+
+**Headers:** `Authorization: Bearer <token>` (admin only)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "aiPerformance": {
+      "ragUpvotes": 45,
+      "ragDownvotes": 5,
+      "ragHelpfulness": 90,
+      "llmUpvotes": 30,
+      "llmDownvotes": 10,
+      "llmHelpfulness": 75
+    },
+    "bottleneckAnalysis": {
+      "pendingCount": 12,
+      "resolvedCount": 88,
+      "totalQueries": 100,
+      "resolutionRate": 88
+    },
+    "humanIntervention": {
+      "adminOverrideCount": 10,
+      "moderatorOverrideCount": 5,
+      "totalHumanInterventions": 15,
+      "humanInterventionIndex": 17
+    },
+    "peerPerformance": {
+      "peerApprovedAdmin": 25,
+      "peerApprovedModerator": 18,
+      "totalPeerResolved": 43
+    },
+    "resolutionDistribution": {
+      "autoComplete": 20,
+      "ragResolved": 45,
+      "llmResolved": 30,
+      "peerAnsweredAdmin": 25,
+      "peerAnsweredModerator": 18,
+      "adminOverride": 10,
+      "moderatorOverride": 5
+    },
+    "dailyTrends": [
+      {
+        "date": "2026-05-20T00:00:00.000Z",
+        "auto_complete": 5,
+        "rag_resolved": 10,
+        "llm_resolved": 8,
+        "escalated": 7,
+        "peer_approved": 6,
+        "admin_override": 2
+      }
+    ]
+  }
+}
+```
+
+---
+
 ### DELETE /analytics/suggestions/:id
 
 Dismiss a FAQ suggestion.

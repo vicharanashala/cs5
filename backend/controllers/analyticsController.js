@@ -1,39 +1,26 @@
 /**
  * =============================================================================
- * QUERY.IN - ANALYTICS CONTROLLER (AI FAQ Suggestion Engine)
+ * QUERY.IN - ANALYTICS CONTROLLER
  * =============================================================================
- * Tracks content gaps (unanswered queries) and triggers FAQ creation suggestions.
+ * Tracks content gaps (unanswered queries) and provides analytics data.
  *
- * CONTENT GAP TRACKING LOGIC:
+ * ANALYTICS TRACKING:
+ * - ResolutionLog: Tracks every AI interaction (RAG up/downvotes, LLM up/downvotes)
+ * - Query/Response: Source of truth for peer resolution stats
  *
- * When LLM fails to answer a query, this engine tracks it in the NoFaq collection.
- *
- * CONDITION 1 - NEW CONTENT GAP:
- *   - queryText does not exist in NoFaq collection
- *   - Create new record with occurrenceCount = 1
- *   - Add intern's _id to impactedInterns array
- *
- * CONDITION 2 - EXISTING CONTENT GAP:
- *   - queryText already exists in NoFaq collection
- *   - Check if intern's _id is NOT in impactedInterns (prevents inflation)
- *   - If NOT present: push intern's _id to array AND increment occurrenceCount by 1
- *   - If ALREADY present: do nothing (same user, same gap = no double counting)
- *
- * ANTI-INFLATION MECHANISM:
- * The impactedInterns array ensures that a single intern cannot artificially
- * inflate the occurrenceCount by submitting the same query multiple times.
- * Each intern can only contribute +1 to the count, regardless of how many
- * times THEY personally hit the same content gap.
- *
- * 10-OCCURRENCE THRESHOLD:
- * When occurrenceCount >= 10, the gap is considered significant enough
- * to warrant creating a new FAQ. These are returned via GET /api/admin/faq-suggestions.
+ * ANALYTICS DASHBOARD METRICS:
+ * - AI Performance: RAG vs LLM helpfulness ratios
+ * - Bottleneck Analysis: Pending vs Resolved counts
+ * - Human Intervention Index: Admin/Mod overrides vs peer resolutions
  *
  * @module controllers/analyticsController
  */
 
 const NoFaq = require('../models/NoFaq');
 const FAQ = require('../models/FAQ');
+const ResolutionLog = require('../models/ResolutionLog');
+const Query = require('../models/Query');
+const Response = require('../models/Response');
 
 const PROMOTION_THRESHOLD = 10;
 
@@ -51,10 +38,27 @@ const ResolutionType = {
   ESCALATED: 'escalated',
   SPAM_BLOCKED: 'spam_blocked',
   CAP_BLOCKED: 'cap_blocked',
+  PEER_APPROVED: 'peer_approved',
+  ADMIN_OVERRIDE: 'admin_override',
+  MODERATOR_OVERRIDE: 'moderator_override',
 };
 
+/**
+ * trackResolution
+ * Logs a resolution event to ResolutionLog collection.
+ */
 const trackResolution = async (intern_id, resolutionType, metadata = {}) => {
-  console.log(`📊 [ANALYTICS] intern:${intern_id} | ${resolutionType} | ${JSON.stringify(metadata)}`);
+  try {
+    const logEntry = await ResolutionLog.create({
+      intern_id,
+      resolution_type: resolutionType,
+      metadata,
+    });
+    console.log(`[ANALYTICS] intern:${intern_id} | ${resolutionType} | metadata:${JSON.stringify(metadata)}`);
+    return logEntry;
+  } catch (error) {
+    console.error('[ANALYTICS] Failed to track resolution:', error.message);
+  }
 };
 
 const trackNoFaqQuery = async (queryText, intern_id) => {
@@ -89,15 +93,148 @@ const trackNoFaqQuery = async (queryText, intern_id) => {
 };
 
 /**
+ * getDashboardAnalytics
+ * Returns comprehensive analytics for admin dashboard.
+ */
+const getDashboardAnalytics = async (req, res) => {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [
+      resolutionLogs,
+      allQueries,
+      allQueriesWithResolver,
+      ragUpvotes,
+      ragDownvotes,
+      llmUpvotes,
+      llmDownvotes,
+    ] = await Promise.all([
+      ResolutionLog.find({ createdAt: { $gte: thirtyDaysAgo } }).lean(),
+      Query.find({}).lean(),
+      Query.find({ resolution_type: 'peer_approved' }).populate('resolved_by', 'role').lean(),
+      ResolutionLog.countDocuments({ resolution_type: 'rag_resolved' }),
+      ResolutionLog.countDocuments({ resolution_type: 'escalated', source: 'rag' }),
+      ResolutionLog.countDocuments({ resolution_type: 'llm_resolved' }),
+      ResolutionLog.countDocuments({ resolution_type: 'escalated', source: 'llm' }),
+    ]);
+
+    const pendingCount = allQueries.filter(q =>
+      q.status === 'Pending' || q.status === 'Peer Answered'
+    ).length;
+
+    const resolvedCount = allQueries.filter(q => q.status === 'Resolved').length;
+
+    const peerApprovedAdmin = allQueriesWithResolver.filter(q =>
+      q.resolved_by && q.resolved_by.role === 'admin'
+    ).length;
+
+    const peerApprovedModerator = allQueriesWithResolver.filter(q =>
+      q.resolved_by && q.resolved_by.role === 'moderator'
+    ).length;
+
+    const adminOverrideCount = allQueries.filter(q =>
+      q.resolution_type === 'admin_override'
+    ).length;
+
+    const moderatorOverrideCount = allQueries.filter(q =>
+      q.resolution_type === 'moderator_override'
+    ).length;
+
+    const ragTotal = ragUpvotes + ragDownvotes;
+    const llmTotal = llmUpvotes + llmDownvotes;
+    const ragHelpfulness = ragTotal > 0 ? (ragUpvotes / ragTotal * 100).toFixed(1) : 0;
+    const llmHelpfulness = llmTotal > 0 ? (llmUpvotes / llmTotal * 100).toFixed(1) : 0;
+
+    const humanInterventionCount = adminOverrideCount + moderatorOverrideCount;
+    const peerResolvedCount = peerApprovedAdmin + peerApprovedModerator;
+    const totalResolutions = peerResolvedCount + humanInterventionCount;
+    const humanInterventionIndex = totalResolutions > 0
+      ? (humanInterventionCount / totalResolutions * 100).toFixed(1)
+      : 0;
+
+    const resolutionByDay = {};
+    resolutionLogs.forEach(log => {
+      const date = log.createdAt.toISOString().split('T')[0];
+      if (!resolutionByDay[date]) {
+        resolutionByDay[date] = {
+          auto_complete: 0,
+          rag_resolved: 0,
+          llm_resolved: 0,
+          escalated: 0,
+          peer_approved: 0,
+          admin_override: 0,
+          moderator_override: 0,
+        };
+      }
+      if (resolutionByDay[date][log.resolution_type] !== undefined) {
+        resolutionByDay[date][log.resolution_type]++;
+      }
+    });
+
+    const dailyTrends = Object.entries(resolutionByDay)
+      .map(([date, counts]) => ({ date, ...counts }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-14);
+
+    const resolutionDistribution = {
+      autoComplete: ragUpvotes > 0 ? ragUpvotes : 0,
+      ragResolved: ragUpvotes,
+      llmResolved: llmUpvotes,
+      peerAnsweredAdmin: peerApprovedAdmin,
+      peerAnsweredModerator: peerApprovedModerator,
+      adminOverride: adminOverrideCount,
+      moderatorOverride: moderatorOverrideCount,
+    };
+
+    res.status(200).json({
+      success: true,
+      data: {
+        aiPerformance: {
+          ragUpvotes,
+          ragDownvotes,
+          ragTotal,
+          ragHelpfulness: parseFloat(ragHelpfulness),
+          llmUpvotes,
+          llmDownvotes,
+          llmTotal,
+          llmHelpfulness: parseFloat(llmHelpfulness),
+        },
+        bottleneckAnalysis: {
+          pendingCount,
+          resolvedCount,
+          totalQueries: allQueries.length,
+          resolutionRate: allQueries.length > 0
+            ? ((resolvedCount / allQueries.length) * 100).toFixed(1)
+            : 0,
+        },
+        humanIntervention: {
+          adminOverrideCount,
+          moderatorOverrideCount,
+          totalHumanInterventions: humanInterventionCount,
+          humanInterventionIndex: parseFloat(humanInterventionIndex),
+        },
+        peerPerformance: {
+          peerApprovedAdmin,
+          peerApprovedModerator,
+          totalPeerResolved: peerResolvedCount,
+        },
+        resolutionDistribution,
+        dailyTrends,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch analytics',
+      message: error.message,
+    });
+  }
+};
+
+/**
  * getFaqSuggestions
- * -----------------
  * Returns NoFaq records where occurrenceCount >= 10.
- * These represent significant content gaps that warrant FAQ creation.
- *
- * @async
- * @function getFaqSuggestions
- * @param {Object} req - Express request
- * @param {Object} res - Express response
  */
 const getFaqSuggestions = async (req, res) => {
   try {
@@ -124,21 +261,12 @@ const getFaqSuggestions = async (req, res) => {
 
 /**
  * dismissFaqSuggestion
- * --------------------
- * Admin can dismiss a suggestion (e.g., after creating FAQ manually).
- * This removes it from the suggestions list without deleting the record.
- *
- * @async
- * @function dismissFaqSuggestion
- * @param {Object} req - Express request (params: id)
- * @param {Object} res - Express response
+ * Admin can dismiss a suggestion.
  */
 const dismissFaqSuggestion = async (req, res) => {
   try {
     const { id } = req.params;
-
     await NoFaq.findByIdAndDelete(id);
-
     res.status(200).json({
       success: true,
       message: 'Suggestion dismissed',
@@ -154,14 +282,7 @@ const dismissFaqSuggestion = async (req, res) => {
 
 /**
  * createFaqFromSuggestion
- * -----------------------
  * Converts a NoFaq suggestion into an actual FAQ.
- * Pre-populates the FAQ fields with the suggestion data.
- *
- * @async
- * @function createFaqFromSuggestion
- * @param {Object} req - Express request (params: id)
- * @param {Object} res - Express response
  */
 const createFaqFromSuggestion = async (req, res) => {
   try {
@@ -169,7 +290,6 @@ const createFaqFromSuggestion = async (req, res) => {
     const { clean_question, answer, category, keywords, tags } = req.body;
 
     const noFaq = await NoFaq.findById(id);
-
     if (!noFaq) {
       return res.status(404).json({
         success: false,
@@ -207,13 +327,7 @@ const createFaqFromSuggestion = async (req, res) => {
 
 /**
  * getAllNoFaqQueries
- * ------------------
- * Admin view of all content gaps (not just >= 10 occurrences).
- *
- * @async
- * @function getAllNoFaqQueries
- * @param {Object} req - Express request
- * @param {Object} res - Express response
+ * Admin view of all content gaps.
  */
 const getAllNoFaqQueries = async (req, res) => {
   try {
@@ -237,13 +351,7 @@ const getAllNoFaqQueries = async (req, res) => {
 
 /**
  * getNoFaqStats
- * -------------
  * Returns analytics summary for the dashboard.
- *
- * @async
- * @function getNoFaqStats
- * @param {Object} req - Express request
- * @param {Object} res - Express response
  */
 const getNoFaqStats = async (req, res) => {
   try {
@@ -276,6 +384,7 @@ const getNoFaqStats = async (req, res) => {
 module.exports = {
   trackNoFaqQuery,
   trackResolution,
+  getDashboardAnalytics,
   getFaqSuggestions,
   dismissFaqSuggestion,
   createFaqFromSuggestion,

@@ -19,6 +19,7 @@ import AdminQueries from './pages/admin/AdminQueries';
 import AdminFaqEditor from './pages/admin/AdminFaqEditor';
 import AdminAmbiguous from './pages/admin/AdminAmbiguous';
 import AdminResolveHub from './pages/admin/AdminResolveHub';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 import ModeratorOverview from './pages/moderator/ModeratorOverview';
 import ModeratorDashboard from './pages/moderator/ModeratorDashboard';
 import ModeratorHighRated from './pages/moderator/ModeratorHighRated';
@@ -111,6 +112,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminResolveHub />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/analytics"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminAnalytics />
             </ProtectedRoute>
           }
         />

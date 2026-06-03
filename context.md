@@ -522,7 +522,7 @@ query.in/
 
 ---
 
-## Admin Dashboard (5-Card Layout)
+## Admin Dashboard (6-Card Layout)
 
 | Card | Feature |
 |------|---------|
@@ -530,7 +530,8 @@ query.in/
 | 2 | Broadcast Announcement |
 | 3 | FAQ Knowledge Base Editor |
 | 4 | Query Management (Review, approve, or override escalated queries. Resolve ambiguous or low-rated tickets.) |
-| 5 | AI-Assisted FAQ Suggestions (Yellow alert) |
+| 5 | Analytics (AI performance comparison, bottleneck analysis, and human intervention metrics with visualizations) |
+| 6 | AI-Assisted FAQ Suggestions (Yellow alert) |
 
 ---
 
@@ -549,11 +550,12 @@ query.in/
 
 | Page | Route | Purpose |
 |------|-------|---------|
-| Dashboard | /admin | Overview with navigation cards (4 cards - AI Suggestions removed) |
+| Dashboard | /admin | Overview with navigation cards (5 cards - User Management, Announcements, FAQ Editor, Query Management, Analytics) |
 | User Management | /admin/users | Combined: Registration (Single + Bulk CSV upload), User list with Edit/Remove/Activate/Remove Warnings, warnings display |
 | Announcements | /admin/announcement | Publish announcements with total count display |
 | FAQ Editor | /admin/faqs | FAQ CRUD operations |
 | Query Management | /admin/resolve | Resolution queue (6 sections: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested) |
+| Analytics | /admin/analytics | AI performance comparison, bottleneck analysis, and human intervention metrics with visualizations |
 | AI Suggestions | /admin/suggestions | FAQ gap suggestions (REMOVED) |
 
 ## Moderator Dashboard Pages

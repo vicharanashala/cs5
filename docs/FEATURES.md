@@ -282,11 +282,12 @@ When an intern asks a question that is similar to a query already resolved for a
 - **Moderator Announcements** - Dedicated `/moderator/announcements` page for moderators to view admin broadcasts
 
 ### Admin Dashboard (Page-Based Layout)
-- **Dashboard Overview** - Navigation cards (User Management, Broadcast Announcement, FAQ Editor, Query Management)
+- **Dashboard Overview** - Navigation cards (User Management, Broadcast Announcement, FAQ Editor, Query Management, Analytics)
 - **User Management** - Combined: Registration accordion + User table with warnings + Active/Inactive toggle (3-dot menu)
 - **Announcements** - Broadcast global notices
 - **FAQ Editor** - Full CRUD on FAQ collection
-- **Resolve Hub** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested
+- **Query Management** - 6-section queue: Pending Resolution, Ambiguous, Stagnant, Low-Rated, Archive, Moderator Suggested
+- **Analytics** - AI performance comparison, bottleneck analysis, and human intervention metrics with interactive charts (recharts)
 
 ### Moderator Dashboard (Page-Based Layout)
 - **Dashboard Overview** - Navigation cards (Announcements, Query Management) with clickable stat cards
