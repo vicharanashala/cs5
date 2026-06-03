@@ -69,3 +69,26 @@ export const formatDateShort = (date) => {
 
   return `${month} ${day}, ${year}`;
 };
+
+/**
+ * Format date and time as "Jun 3, 2026 • 10:47 PM"
+ * @param {Date|string|number} date - Date to format
+ * @returns {string} Formatted date and time string with bullet separator
+ */
+export const formatDateTimeFull = (date) => {
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const day = d.getDate();
+  const month = months[d.getMonth()];
+  const year = d.getFullYear();
+
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+
+  return `${month} ${day}, ${year} • ${hours}:${minutes} ${ampm}`;
+};

@@ -384,6 +384,10 @@ Announcements support three priority levels with color-coded badges:
 | 105 | Bulk JSON Upload not functional | Clicking Bulk JSON Upload tab did nothing | Replaced with Bulk CSV Upload with proper CSV parser (requires email,password,role columns) |
 | 106 | AI Suggestions card and page still in admin dashboard | Navigation still showed AI Suggestions after removal attempt | Removed NavCard from AdminOverview.jsx, removed nav item from adminNavItems in navConfig.jsx, removed route from App.jsx |
 | 107 | Announcements page missing count | No total count displayed on All Announcements card | Added `{count} total announcements` subtitle to AdminAnnouncement page |
+| 112 | Announcements page missing timestamp | No creation time displayed on announcement cards | Added `formatDateTimeFull` function to dateFormat.js, displays "Jun 3, 2026 • 10:47 PM" format on Announcements.jsx cards |
+| 113 | Suggestion chips persist after submit | Auto-complete suggestions stayed visible after response generated | Added `!response` condition to suggestions dropdown check in AskAI.jsx - suggestions only show when no active conversation |
+| 114 | Global search bar cluttering header | Search bar at top of every page added unnecessary space | Removed search bar from DashboardLayout.jsx header, keeping only mobile menu, notifications, and user menu |
+| 115 | Notification/user badge aligned left | Elements showed on left side of header instead of right | Changed header `justify-between` to `justify-end` with `mr-auto` on mobile menu button - notification bell and user badge now correctly right-aligned |
 
 ---
 

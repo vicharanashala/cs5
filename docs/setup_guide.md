@@ -464,3 +464,5 @@ LLM calls are logged with format:
 - **No Text Cursor on Click**: Global user-select: none prevents cursor on click
 - **FAQ Deep Linking**: Popular FAQs link to specific FAQ with scroll-to-highlight
 - **All Notifications Page**: Dedicated `/notifications` page for viewing all notifications
+- **Announcement Timestamps**: Full timestamp display with date AND time ("Jun 3, 2026 • 10:47 PM")
+- **Clean Header**: No global search bar; notification bell and user badge right-aligned

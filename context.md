@@ -322,6 +322,10 @@ STEP 7: RESOLVED (Terminal State)
 | 109 | Real-time page updates failing | Pages got toast notifications but content didn't refresh | `NotificationContext` failed to export `socket`; exported `socket` so all pages can attach listeners |
 | 110 | "WebSocket is closed" console errors | `ModeratorAnnouncements` and `MyEscalations` created duplicate `io()` instances | Refactored to use shared `socket` from `useNotifications()`, eliminating duplicate connections and race conditions |
 | 111 | Missing FAQ real-time updates | Intern Dashboard didn't refresh popular FAQs when Admin updated them | Added `faq_updated` and `faq_deleted` listeners to Intern Dashboard |
+| 112 | Announcements page missing timestamp | No creation time displayed on announcement cards | Added `formatDateTimeFull` function to dateFormat.js, displays "Jun 3, 2026 • 10:47 PM" format on Announcements.jsx cards |
+| 113 | Suggestion chips persist after submit | Auto-complete suggestions stayed visible after response generated | Added `!response` condition to suggestions dropdown check in AskAI.jsx - suggestions only show when no active conversation |
+| 114 | Global search bar cluttering header | Search bar at top of every page added unnecessary space | Removed search bar from DashboardLayout.jsx header, keeping only mobile menu, notifications, and user menu |
+| 115 | Notification/user badge aligned left | Elements showed on left side of header instead of right | Changed header `justify-between` to `justify-end` with `mr-auto` on mobile menu button - notification bell and user badge now correctly right-aligned |
 
 ---
 

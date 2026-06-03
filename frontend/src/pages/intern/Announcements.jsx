@@ -11,7 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
-import { formatDate } from '../../utils/dateFormat';
+import { formatDateTimeFull } from '../../utils/dateFormat';
 import { useNotifications } from '../../context/NotificationContext';
 
 const Announcements = () => {
@@ -85,8 +85,8 @@ const Announcements = () => {
                       </span>
                     )}
                   </div>
-                  <span className="text-sm text-text-muted">
-                    {formatDate(ann.createdAt)}
+                  <span className="text-xs text-text-muted">
+                    {formatDateTimeFull(ann.createdAt)}
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-black mb-3">{ann.heading}</h3>

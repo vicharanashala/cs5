@@ -291,6 +291,9 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 - **ProtectedRoute Redirect** - Redirects to `/` (Landing) instead of `/login`
 - **Markdown Rendering** - FAQ answers render markdown (bold, lists, highlights) via react-markdown
 - **Status Badges** - FAQ cards show "AI Generated", "Peer Answered", or "Verified by Admin" based on priority
+- **Announcement Timestamps** - Full timestamp display with date AND time ("Jun 3, 2026 • 10:47 PM")
+- **Clean Header** - No global search bar; notification bell and user badge right-aligned
+- **Suggestion Chip Behavior** - Auto-complete suggestions only show when no active conversation
 
 ---
 

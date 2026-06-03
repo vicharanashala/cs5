@@ -303,7 +303,7 @@ const AskAI = () => {
               </div>
 
               {/* Auto-complete suggestions dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
+              {!response && showSuggestions && suggestions.length > 0 && (
                 <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-72 overflow-y-auto">
                   {suggestions.map((faq) => (
                     <button
