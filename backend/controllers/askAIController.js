@@ -254,6 +254,8 @@ const askAI = async (req, res) => {
     }
 
     if (action === 'rag_downvote') {
+      await trackResolution(intern_id, ResolutionType.RAG_DOWNVOTED, {});
+
       const grokResult = await getGrokResponse(query, allFAQs);
 
       if (!grokResult.success) {
@@ -327,8 +329,6 @@ const askAI = async (req, res) => {
         });
       }
 
-      await trackResolution(intern_id, ResolutionType.LLM_RESOLVED, { model: grokResult.model, stage: grokResult.stage });
-
       return res.status(200).json({
         success: true,
         source: 'grok',
@@ -339,6 +339,8 @@ const askAI = async (req, res) => {
     }
 
     if (action === 'grok_downvote') {
+      await trackResolution(intern_id, ResolutionType.LLM_DOWNVOTED, {});
+      
       const activeCount = await Query.countDocuments({
         intern_id,
         status: { $nin: ['Resolved', 'Ambiguous'] },

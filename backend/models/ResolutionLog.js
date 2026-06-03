@@ -31,7 +31,9 @@ const resolutionLogSchema = new mongoose.Schema({
     enum: [
       'auto_complete',
       'rag_resolved',
+      'rag_downvoted',
       'llm_resolved',
+      'llm_downvoted',
       'escalated',
       'spam_blocked',
       'cap_blocked',

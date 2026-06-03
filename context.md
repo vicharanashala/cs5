@@ -181,8 +181,10 @@ STEP 7: RESOLVED (Terminal State)
 |------|---------|-------------|
 | `AUTO_COMPLETE` | User selects autocomplete suggestion | Instant resolution via FAQ |
 | `RAG_RESOLVED` | User upvotes RAG answer | FAQ match accepted |
+| `RAG_DOWNVOTED` | User downvotes RAG answer | Triggers LLM pipeline |
 | `LLM_RESOLVED` | User upvotes LLM answer | AI answered successfully |
-| `ESCALATED` | User downvotes LLM or LLM fails | Sent to peer queue |
+| `LLM_DOWNVOTED` | User downvotes LLM answer | Triggers peer escalation |
+| `ESCALATED` | LLM fails or user downvotes LLM | Sent to peer queue |
 | `SPAM_BLOCKED` | Similar query in pending state | Spam prevention |
 | `CAP_BLOCKED` | Intern has 5 active queries | Query cap reached |
 
@@ -342,6 +344,7 @@ STEP 7: RESOLVED (Terminal State)
 | 129 | Resolution distribution chart labels overflowing | Small percentage slices had labels pointing outside the chart | Removed floating labels from Resolution Distribution pie chart, increased bottom margin, moved pie chart up (cy=45%) |
 | 130 | Bottleneck analysis pie chart labels | Floating labels next to pie slices were hard to read | Removed floating labels from Bottleneck Analysis pie chart |
 | 131 | Analytics charts clipped/cut off | Charts weren't sizing dynamically, edges/labels/legends cut off | Removed minWidth constraints, added overflow-hidden wrappers, fixed pie chart cy positioning (45%→50%), reduced legend bottom margin from 60 to 10, increased chart heights for proper legend space, made all chart radii responsive |
+| 132 | AI Helpfulness Rate inaccurate | Downvotes not tracked separately - ragDownvotes counted escalated queries, not actual downvotes; Helpfulness % not visually shown in chart | Added RAG_DOWNVOTED and LLM_DOWNVOTED resolution types, properly track downvotes when user downvotes RAG/LLM answer, added Helpfulness % bar to AI Performance chart with 0-100 scale |
 
 ---
 

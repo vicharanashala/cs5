@@ -1806,3 +1806,49 @@ Implemented previously resolved query detection feature:
 - `README.md` - Added issue #121 to Recent Fixes table
 
 ---
+
+### Prompt 77: Fix AI Helpfulness Rate and AI Performance Comparison Chart
+
+**Prompt:** The "AI Helpfulness Rate" and "AI Performance Comparison" charts on our Admin Analytics Dashboard are currently inaccurate because they are only calculating metrics based on upvotes. They completely ignore downvotes, which skews the data and masks poor AI performance. You need to update the data processing logic for these two specific charts so that downvotes are properly accounted for in the visual metrics.
+
+**Response:**
+Fixed the AI Performance analytics to properly track and display downvotes:
+
+**Backend Changes:**
+
+1. **`backend/models/ResolutionLog.js`** - Added `rag_downvoted` and `llm_downvoted` to the `resolution_type` enum
+
+2. **`backend/controllers/analyticsController.js`**:
+   - Added `RAG_DOWNVOTED` and `LLM_DOWNVOTED` to the `ResolutionType` enum
+   - Changed downvote counting to use proper resolution types:
+     - `ragDownvotes`: Now counts `rag_downvoted` (was incorrectly counting `escalated` with `source: 'rag'`)
+     - `llmDownvotes`: Now counts `llm_downvoted` (was incorrectly counting `escalated` with `source: 'llm'`)
+
+3. **`backend/controllers/askAIController.js`**:
+   - Added `RAG_DOWNVOTED` tracking when user downvotes RAG answer
+   - Added `LLM_DOWNVOTED` tracking when user downvotes LLM answer
+   - `LLM_RESOLVED` is only tracked when user explicitly upvotes the LLM answer
+
+**Frontend Changes:**
+
+1. **`frontend/src/pages/admin/AdminAnalytics.jsx`** - AI Performance Comparison chart:
+   - Added **Helpfulness %** bar (black) scaled 0-100 alongside Upvotes (green) and Downvotes (red)
+   - Set Y-axis domain to `[0, 100]` for proper percentage scaling
+   - Updated tooltip to show percentage breakdown for upvotes/downvotes
+   - Updated text below chart to show raw vote counts with ↑/↓ symbols
+
+**How it works now:**
+- `Helpfulness %` = `(Upvotes / (Upvotes + Downvotes)) × 100`
+- Both upvotes AND downvotes are now properly tracked and displayed
+- The chart visually shows the relationship between upvotes, downvotes, and helpfulness rate
+
+**Files modified:**
+- `backend/models/ResolutionLog.js` - Added rag_downvoted and llm_downvoted enum values
+- `backend/controllers/analyticsController.js` - Added RAG_DOWNVOTED and LLM_DOWNVOTED to enum, fixed downvote counting
+- `backend/controllers/askAIController.js` - Added tracking for rag_downvote and grok_downvote actions
+- `frontend/src/pages/admin/AdminAnalytics.jsx` - Added Helpfulness % bar to chart, improved tooltips
+- `docs/FEATURES.md` - Updated ResolutionType enum
+- `context.md` - Added issue #132, updated Resolution Types table
+- `prompt.md` - Added Prompt 77 documenting the fix
+
+---

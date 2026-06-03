@@ -34,7 +34,9 @@ try {
 const ResolutionType = {
   AUTO_COMPLETE: 'auto_complete',
   RAG_RESOLVED: 'rag_resolved',
+  RAG_DOWNVOTED: 'rag_downvoted',
   LLM_RESOLVED: 'llm_resolved',
+  LLM_DOWNVOTED: 'llm_downvoted',
   ESCALATED: 'escalated',
   SPAM_BLOCKED: 'spam_blocked',
   CAP_BLOCKED: 'cap_blocked',
@@ -114,9 +116,9 @@ const getDashboardAnalytics = async (req, res) => {
       Query.find({}).lean(),
       Query.find({ resolution_type: 'peer_approved' }).populate('resolved_by', 'role').lean(),
       ResolutionLog.countDocuments({ resolution_type: 'rag_resolved' }),
-      ResolutionLog.countDocuments({ resolution_type: 'escalated', source: 'rag' }),
+      ResolutionLog.countDocuments({ resolution_type: 'rag_downvoted' }),
       ResolutionLog.countDocuments({ resolution_type: 'llm_resolved' }),
-      ResolutionLog.countDocuments({ resolution_type: 'escalated', source: 'llm' }),
+      ResolutionLog.countDocuments({ resolution_type: 'llm_downvoted' }),
     ]);
 
     const pendingCount = allQueries.filter(q =>

@@ -277,11 +277,15 @@ All query resolutions are tracked with ResolutionType:
 |------|-------------|
 | `AUTO_COMPLETE` | Resolved via auto-complete suggestion |
 | `RAG_RESOLVED` | RAG found answer, user upvoted |
-| `LLM_RESOLVED` | LLM answered (Gemini or Groq) |
-| `ESCALATED` | Downvoted, sent to peer queue |
+| `RAG_DOWNVOTED` | RAG answer downvoted, triggers LLM |
+| `LLM_RESOLVED` | LLM answered (Gemini or Groq), user upvoted |
+| `LLM_DOWNVOTED` | LLM answer downvoted, triggers peer escalation |
+| `ESCALATED` | LLM failed, sent to peer queue |
 | `SPAM_BLOCKED` | Similar query already in queue |
 | `CAP_BLOCKED` | 5 active queries reached |
-| `MODERATOR_OVERRIDE` | Moderator resolved query (not yet implemented) |
+| `PEER_APPROVED` | Peer answer approved by admin/moderator |
+| `ADMIN_OVERRIDE` | Admin resolved with own answer |
+| `MODERATOR_OVERRIDE` | Moderator resolved with own answer |
 
 ---
 
@@ -404,6 +408,7 @@ Announcements support three priority levels with color-coded badges:
 | 129 | Resolution distribution chart labels overflowing | Small percentage slices had labels pointing outside the chart | Removed floating labels from Resolution Distribution pie chart, increased bottom margin, moved pie chart up (cy=45%) |
 | 130 | Bottleneck analysis pie chart labels | Floating labels next to pie slices were hard to read | Removed floating labels from Bottleneck Analysis pie chart |
 | 131 | Analytics charts clipped/cut off | Charts weren't sizing dynamically, edges/labels/legends cut off | Removed minWidth constraints, added overflow-hidden wrappers, fixed pie chart cy positioning (45%→50%), reduced legend bottom margin from 60 to 10, increased chart heights for proper legend space, made all chart radii responsive |
+| 132 | AI Helpfulness Rate inaccurate | Downvotes not tracked separately - ragDownvotes counted escalated queries, not actual downvotes; Helpfulness % not visually shown in chart | Added RAG_DOWNVOTED and LLM_DOWNVOTED resolution types, properly track downvotes when user downvotes RAG/LLM answer, added Helpfulness % bar to AI Performance chart with 0-100 scale |
 
 ---
 

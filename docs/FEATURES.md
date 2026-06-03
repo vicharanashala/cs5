@@ -271,9 +271,10 @@ When an intern asks a question that is similar to a query already resolved for a
 - **Yellow Alert** - Admin notification when NoFaq hits 10 occurrences
 
 ### Analytics Tracking
-- **ResolutionType Enum** - AUTO_COMPLETE, RAG_RESOLVED, LLM_RESOLVED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED
+- **ResolutionType Enum** - AUTO_COMPLETE, RAG_RESOLVED, RAG_DOWNVOTED, LLM_RESOLVED, LLM_DOWNVOTED, ESCALATED, SPAM_BLOCKED, CAP_BLOCKED, PEER_APPROVED, ADMIN_OVERRIDE, MODERATOR_OVERRIDE
 - **Model Logging** - Logs which LLM model answered
 - **Response Length** - Logs character count
+- **AI Performance Metrics** - Helpfulness % calculated as Upvotes / (Upvotes + Downvotes) for accurate AI quality measurement
 
 ### Announcements
 - **Create Announcement** - Admin broadcast with priority levels (Low/Medium/High)

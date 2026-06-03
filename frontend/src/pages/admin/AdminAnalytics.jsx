@@ -131,14 +131,16 @@ const AdminAnalytics = () => {
       Upvotes: analytics.aiPerformance.ragUpvotes, 
       Downvotes: analytics.aiPerformance.ragDownvotes, 
       Helpfulness: analytics.aiPerformance.ragHelpfulness,
-      upPercent: totalAiVotes > 0 ? ((analytics.aiPerformance.ragUpvotes + analytics.aiPerformance.ragDownvotes) / totalAiVotes * 100).toFixed(1) : 0
+      upPercent: totalAiVotes > 0 ? ((analytics.aiPerformance.ragUpvotes + analytics.aiPerformance.ragDownvotes) / totalAiVotes * 100).toFixed(1) : 0,
+      netScore: analytics.aiPerformance.ragUpvotes - analytics.aiPerformance.ragDownvotes,
     },
     { 
       name: 'LLM', 
       Upvotes: analytics.aiPerformance.llmUpvotes, 
       Downvotes: analytics.aiPerformance.llmDownvotes, 
       Helpfulness: analytics.aiPerformance.llmHelpfulness,
-      upPercent: totalAiVotes > 0 ? ((analytics.aiPerformance.llmUpvotes + analytics.aiPerformance.llmDownvotes) / totalAiVotes * 100).toFixed(1) : 0
+      upPercent: totalAiVotes > 0 ? ((analytics.aiPerformance.llmUpvotes + analytics.aiPerformance.llmDownvotes) / totalAiVotes * 100).toFixed(1) : 0,
+      netScore: analytics.aiPerformance.llmUpvotes - analytics.aiPerformance.llmDownvotes,
     },
   ];
 
@@ -237,12 +239,23 @@ const AdminAnalytics = () => {
               <BarChart data={aiPerformanceData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 10 : 12 }} />
-                <YAxis tick={{ fontSize: isSmallScreen ? 10 : 12 }} width={30} />
+                <YAxis tick={{ fontSize: isSmallScreen ? 10 : 12 }} width={30} domain={[0, 100]} />
                 <Tooltip
                   contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
                   formatter={(value, name) => {
-                    if (name === 'Helpfulness') return [`${value}%`, 'Helpfulness'];
-                    if (name === 'upPercent') return [`${value}%`, 'Share'];
+                    if (name === 'Helpfulness') return [`${value}%`, 'Helpfulness Rate'];
+                    if (name === 'Upvotes') {
+                      const item = aiPerformanceData.find(d => d.Upvotes === value);
+                      const total = item ? item.Upvotes + item.Downvotes : value;
+                      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                      return [`${value} (${percent}%)`, 'Upvotes'];
+                    }
+                    if (name === 'Downvotes') {
+                      const item = aiPerformanceData.find(d => d.Downvotes === value);
+                      const total = item ? item.Upvotes + item.Downvotes : value;
+                      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                      return [`${value} (${percent}%)`, 'Downvotes'];
+                    }
                     return [value, name];
                   }}
                   labelFormatter={(label) => `AI: ${label}`}
@@ -250,6 +263,7 @@ const AdminAnalytics = () => {
                 <Legend wrapperStyle={{ fontSize: isSmallScreen ? 10 : 12 }} />
                 <Bar dataKey="Upvotes" fill={COLORS.success} radius={[4, 4, 0, 0]} name="Upvotes" />
                 <Bar dataKey="Downvotes" fill={COLORS.error} radius={[4, 4, 0, 0]} name="Downvotes" />
+                <Bar dataKey="Helpfulness" fill={COLORS.primary} radius={[4, 4, 0, 0]} name="Helpfulness %" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -257,10 +271,12 @@ const AdminAnalytics = () => {
             <div className="flex items-center gap-2">
               <span className="font-medium">RAG Helpfulness:</span>
               <span className="text-[#3B82F6] font-bold">{analytics.aiPerformance.ragHelpfulness}%</span>
+              <span className="text-gray-400">({analytics.aiPerformance.ragUpvotes}↑ / {analytics.aiPerformance.ragDownvotes}↓)</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-medium">LLM Helpfulness:</span>
               <span className="text-[#8B5CF6] font-bold">{analytics.aiPerformance.llmHelpfulness}%</span>
+              <span className="text-gray-400">({analytics.aiPerformance.llmUpvotes}↑ / {analytics.aiPerformance.llmDownvotes}↓)</span>
             </div>
           </div>
         </Card>
