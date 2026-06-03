@@ -1769,3 +1769,36 @@ Implemented comprehensive UI improvements for Query Management:
 - `README.md` - Added issues #116-119 to Recent Fixes table
 
 ---
+
+### Prompt 75: Previously Resolved Query Detection
+**Prompt:** When an intern asks a same or similar question in the "Ask AI" page and if that same question is already resolved for another intern, it should be displayed along with the question and the approved response.
+
+**Response:**
+Implemented previously resolved query detection feature:
+
+**Backend (`askAIController.js`):**
+- Added `findResolvedSimilarQuery(query)` function that:
+  - Searches for resolved queries with matching text (case-insensitive regex)
+  - Filters by `status: 'Resolved'` and `resolution_type: 'peer_approved'` or `'admin_override'`
+  - Populates responses and finds the first with `approval: true`
+  - Returns `{ found, originalQueryText, approvedAnswer, resolvedBy, resolvedAt }`
+- Added this check in 3 escalation paths: `rag_downvote`, `grok_downvote`, and LLM failure flow
+- When found, returns `source: 'previously_resolved'` with original query text and approved answer
+
+**Frontend (`AskAI.jsx`):**
+- Added handling for `previously_resolved` source in response state
+- Shows "Previously Resolved" badge (green) instead of "AI Generated"
+- Displays original query text in gray box
+- Shows approved response in formatted answer card
+- Updates all response handlers to capture `answer` and `originalQueryText` fields
+
+**Files modified:**
+- `backend/controllers/askAIController.js` - Added findResolvedSimilarQuery function and integrated into escalation flows
+- `frontend/src/pages/intern/AskAI.jsx` - Added previously_resolved handling in handleVote, confirmEscalate, and response display
+- `docs/FEATURES.md` - Added "Previously Resolved Query Detection" feature
+- `docs/architecture.md` - Updated RAG+LLM pipeline diagram
+- `docs/api_docs.md` - Added "Previously Resolved" response example
+- `context.md` - Added issue #121
+- `README.md` - Added issue #121 to Recent Fixes table
+
+---

@@ -393,6 +393,7 @@ Announcements support three priority levels with color-coded badges:
 | 118 | No delete button on query cards | Could only delete from ambiguous section detail panel | Added delete button (trash icon) directly on query cards in all sections except Archive and Moderator Suggested |
 | 119 | Missing timestamps on all query cards | Timestamps only shown for archive/pending/low_rated sections | Now shows timestamps for ALL query sections: Created date/time, Resolved date/time, and status indicator (Pending/Ambiguous) |
 | 120 | High-impact actions lacked confirmation | Accidental clicks could deactivate/remove users or escalate queries | Created reusable ConfirmModal component with smooth animations, added confirmation for: Intern escalation, Admin deactivation, Admin account removal, Admin remove warnings |
+| 121 | Similar questions escalate instead of showing resolved answer | When intern asks similar question to resolved query, system created new escalation instead of showing existing resolution | Added `findResolvedSimilarQuery` function to check for resolved queries before escalation; returns `source: 'previously_resolved'` with original query text and approved answer |
 
 ---
 

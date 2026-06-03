@@ -505,6 +505,18 @@ Includes query sanity validation - garbage input rejected with `INVALID_QUERY` e
 }
 ```
 
+**Response (200) - Previously Resolved:**
+```json
+{
+  "success": true,
+  "source": "previously_resolved",
+  "resolution": "resolved",
+  "originalQueryText": "How do I reset my password?",
+  "answer": "Go to Settings > Security > Reset Password. You will receive an email with a link to reset your password.",
+  "message": "This question has been resolved for another intern. Here is the approved answer:"
+}
+```
+
 **Response (400) - Invalid Query:**
 ```json
 {

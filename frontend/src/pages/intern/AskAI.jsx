@@ -194,6 +194,7 @@ const AskAI = () => {
         faq_id: data.faq_id,
         resolution: data.resolution,
         message: data.message,
+        originalQueryText: data.originalQueryText,
       });
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to get response. Please try again.');
@@ -232,8 +233,11 @@ const AskAI = () => {
         });
       } else if (data.resolution === 'resolved') {
         setResponse({
+          source: data.source || 'resolved',
           resolution: 'resolved',
-          message: 'Thank you for your feedback!',
+          message: data.message || 'Thank you for your feedback!',
+          originalQueryText: data.originalQueryText,
+          answer: data.answer,
         });
       } else if (data.resolution === 'pending_feedback' && data.answer) {
         setResponse({
@@ -288,8 +292,11 @@ const AskAI = () => {
         });
       } else if (data.resolution === 'resolved') {
         setResponse({
+          source: data.source || 'resolved',
           resolution: 'resolved',
-          message: 'Thank you for your feedback!',
+          message: data.message || 'Thank you for your feedback!',
+          originalQueryText: data.originalQueryText,
+          answer: data.answer,
         });
       } else if (data.resolution === 'pending_feedback' && data.answer) {
         setResponse({
@@ -410,14 +417,21 @@ const AskAI = () => {
           <Card className="hover:shadow-lg transition-shadow" hover={false}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
-                <Badge variant={response.source === 'autocomplete' ? 'highlight' : response.source === 'rag' ? 'outline' : 'filled'} size="lg">
-                  {response.source === 'autocomplete' ? 'Instant Match' : response.source === 'rag' ? 'RAG Match' : 'AI Generated'}
+                <Badge variant={response.source === 'autocomplete' ? 'highlight' : response.source === 'rag' ? 'outline' : response.source === 'previously_resolved' ? 'filled' : 'filled'} size="lg">
+                  {response.source === 'autocomplete' ? 'Instant Match' : response.source === 'rag' ? 'RAG Match' : response.source === 'previously_resolved' ? 'Previously Resolved' : 'AI Generated'}
                 </Badge>
                 {response.category && (
                   <span className="text-sm text-gray-500">{response.category}</span>
                 )}
               </div>
             </div>
+
+            {response.source === 'previously_resolved' && response.originalQueryText && (
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Similar Query</p>
+                <p className="text-gray-800 font-medium">{response.originalQueryText}</p>
+              </div>
+            )}
 
             {response.clean_question && (
               <h3 className="font-semibold text-gray-900 text-lg mb-4">{response.clean_question}</h3>
@@ -474,7 +488,39 @@ const AskAI = () => {
         )}
 
         {/* Resolved State */}
-        {response?.resolution === 'resolved' && (
+        {response?.resolution === 'resolved' && response.source === 'previously_resolved' && (
+          <Card className="hover:shadow-lg transition-shadow" hover={false}>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 bg-green-500 text-white rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-black">Previously Resolved</h2>
+                <p className="text-sm text-gray-500">{response.message}</p>
+              </div>
+            </div>
+
+            {response.originalQueryText && (
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Similar Query Asked By Another Intern</p>
+                <p className="text-gray-800 font-medium">{response.originalQueryText}</p>
+              </div>
+            )}
+
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Approved Response</p>
+              <pre className="text-sm text-gray-800 whitespace-pre-wrap">Answer: {response.answer || 'NO ANSWER PROVIDED'}</pre>
+            </div>
+
+            <div className="mt-6 pt-5 border-t border-gray-100">
+              <Button variant="primary" onClick={reset} size="lg">Ask Another Question</Button>
+            </div>
+          </Card>
+        )}
+
+        {response?.resolution === 'resolved' && response.source !== 'previously_resolved' && (
           <Card className="bg-black text-white text-center py-10 hover:shadow-xl transition-shadow" hover={false}>
             <div className="w-16 h-16 bg-green-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-5">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

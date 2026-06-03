@@ -27,6 +27,50 @@ try {
 
 const MAX_UNRESOLVED_QUERIES = 5;
 
+const findResolvedSimilarQuery = async (query) => {
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const similarResolved = await Query.findOne({
+    query_text: { $regex: new RegExp(escapedQuery, 'i') },
+    status: 'Resolved',
+    resolution_type: { $in: ['peer_approved', 'admin_override'] },
+  }).populate('responses');
+
+  console.log('[DEBUG] findResolvedSimilarQuery - raw populate result:', {
+    query,
+    found: !!similarResolved,
+    queryId: similarResolved?._id,
+    responsesCount: similarResolved?.responses?.length,
+    responsesDetail: similarResolved?.responses?.map(r => ({
+      id: r?._id,
+      approval: r?.approval,
+      responseText: r?.response_text?.substring(0, 50)
+    })),
+  });
+
+  if (similarResolved && similarResolved.responses && similarResolved.responses.length > 0) {
+    // Find the first response with approval: true
+    const approvedResponse = similarResolved.responses.find(r => r && r.approval === true);
+    console.log('[DEBUG] Approved response found:', approvedResponse ? {
+      id: approvedResponse._id,
+      responseText: approvedResponse.response_text?.substring(0, 100),
+      approval: approvedResponse.approval
+    } : 'NONE');
+
+    if (approvedResponse) {
+      return {
+        found: true,
+        originalQueryText: similarResolved.query_text,
+        approvedAnswer: approvedResponse.response_text,
+        resolvedBy: similarResolved.resolved_by,
+        resolvedAt: similarResolved.resolved_at,
+      };
+    }
+  }
+
+  console.log('[DEBUG] No approved responses found');
+  return { found: false };
+};
+
 const trackSimilarQueryInterest = async (similarQuery, intern_id, query_text) => {
   try {
     await SimilarQueryInterest.findOneAndUpdate(
@@ -241,6 +285,22 @@ const askAI = async (req, res) => {
           });
         }
 
+        const resolvedSimilar = await findResolvedSimilarQuery(query);
+        if (resolvedSimilar.found) {
+          console.log('[DEBUG] Returning previously_resolved response:', {
+            originalQueryText: resolvedSimilar.originalQueryText,
+            answer: resolvedSimilar.approvedAnswer?.substring(0, 100),
+          });
+          return res.status(200).json({
+            success: true,
+            source: 'previously_resolved',
+            resolution: 'resolved',
+            originalQueryText: resolvedSimilar.originalQueryText,
+            answer: resolvedSimilar.approvedAnswer,
+            message: 'This question has been resolved for another intern. Here is the approved answer:',
+          });
+        }
+
         const newQuery = new Query({
           intern_id,
           query_text: query,
@@ -306,6 +366,23 @@ const askAI = async (req, res) => {
           code: 'SIMILAR_QUERY_EXISTS',
         });
       }
+
+      const resolvedSimilar = await findResolvedSimilarQuery(query);
+      if (resolvedSimilar.found) {
+        console.log('[DEBUG] grok_downvote - found resolved similar:', {
+          originalQueryText: resolvedSimilar.originalQueryText,
+          answer: resolvedSimilar.approvedAnswer?.substring(0, 100),
+        });
+        return res.status(200).json({
+          success: true,
+          source: 'previously_resolved',
+          resolution: 'resolved',
+          originalQueryText: resolvedSimilar.originalQueryText,
+          answer: resolvedSimilar.approvedAnswer,
+          message: 'This question has been resolved for another intern. Here is the approved answer:',
+        });
+      }
+      console.log('[DEBUG] grok_downvote - no resolved similar found, escalating');
 
       const newQuery = new Query({
         intern_id,
@@ -387,6 +464,18 @@ const askAI = async (req, res) => {
           success: false,
           error: 'Similar query already in peer queue. You will be notified when the existing query is resolved.',
           code: 'SIMILAR_QUERY_EXISTS',
+        });
+      }
+
+      const resolvedSimilar = await findResolvedSimilarQuery(query);
+      if (resolvedSimilar.found) {
+        return res.status(200).json({
+          success: true,
+          source: 'previously_resolved',
+          resolution: 'resolved',
+          originalQueryText: resolvedSimilar.originalQueryText,
+          answer: resolvedSimilar.approvedAnswer,
+          message: 'This question has been resolved for another intern. Here is the approved answer:',
         });
       }
 

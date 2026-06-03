@@ -179,6 +179,40 @@ Input validation before RAG/LLM processing to prevent garbage inputs like `ajfla
 
 ---
 
+### 11. Previously Resolved Query Detection
+
+When an intern asks a question that is similar to a query already resolved for another intern, the system:
+
+1. Detects the similar resolved query before creating a new escalation
+2. Displays the original question asked by the other intern
+3. Shows the approved response that resolved the original query
+4. Avoids redundant escalations to the peer queue
+
+**Flow:**
+- Intern submits question via "Ask AI" page
+- RAG/LLM doesn't find a match → escalates to peer queue
+- BEFORE creating new escalation, system checks for similar resolved queries
+- If found: returns `source: 'previously_resolved'` with original query text and approved answer
+- Intern sees the resolution without needing peer escalation
+
+**Backend Logic (`findResolvedSimilarQuery`):**
+- Searches for resolved queries with matching text (case-insensitive regex)
+- Filters by `status: 'Resolved'` and `resolution_type: 'peer_approved'` or `'admin_override'`
+- Populates responses and finds the first with `approval: true`
+- Returns original query text and approved response text
+
+**Frontend Handling:**
+- Badge shows "Previously Resolved" in green
+- Original query displayed in gray box
+- Approved response shown in formatted answer card
+- Button to ask another question
+
+---
+
+## Full Feature List
+
+---
+
 ## Full Feature List
 
 ### Authentication & Authorization

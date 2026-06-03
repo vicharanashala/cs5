@@ -358,8 +358,37 @@ Match found? ──NO──→ LLM Pipeline
         │              │           │
         │             YES          NO
         │              │           │
-        │              ↓      Escalate to Peer Queue
- Return FAQ Answer
+        │              ↓      Check Similar Resolved Queries
+        │              │                │
+        │              ↓                ↓
+        │      Escalate to Peer    Found resolved?
+        │         Queue              │    │
+        │                            YES  NO
+        │                             │    │
+        │                             ↓    ↓
+        │                     Show Previously  Create New
+        │                       Resolved      Escalation
+        │                      Response
+```
+
+### Previously Resolved Query Detection
+
+Before creating a new peer queue escalation, the system checks for similar resolved queries:
+
+1. **Search:** Finds queries with matching text (case-insensitive regex)
+2. **Filter:** Only queries with `status: 'Resolved'` and `resolution_type: 'peer_approved'` or `'admin_override'`
+3. **Response:** Finds the first approved response (`approval: true`)
+4. **Return:** Shows original query text + approved response to user
+
+**Response Format:**
+```json
+{
+  "source": "previously_resolved",
+  "resolution": "resolved",
+  "originalQueryText": "Original intern's question",
+  "answer": "Approved response text",
+  "message": "This question has been resolved for another intern."
+}
 ```
 
 ### LLM Service Configuration
