@@ -299,6 +299,7 @@ Created frontend intern pages:
 | 128 | Analytics charts missing percentages | Charts showed counts but not percentages in tooltips and labels | Added percentage calculations to all chart data, tooltips now show "value (percent%)", labels removed from pie charts |
 | 129 | Resolution distribution chart labels overflowing | Small percentage slices had labels pointing outside the chart | Removed floating labels from Resolution Distribution pie chart, increased bottom margin, moved pie chart up (cy=45%) |
 | 130 | Bottleneck analysis pie chart labels | Floating labels next to pie slices were hard to read | Removed floating labels from Bottleneck Analysis pie chart |
+| 131 | Analytics charts clipped/cut off | Charts weren't sizing dynamically, edges/labels/legends cut off | Removed minWidth constraints, added overflow-hidden wrappers, fixed pie chart cy positioning (45%→50%), reduced legend bottom margin from 60 to 10, increased chart heights for proper legend space, made all chart radii responsive |
 
 ---
 

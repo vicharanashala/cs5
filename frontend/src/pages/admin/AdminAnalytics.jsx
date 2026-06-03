@@ -191,8 +191,6 @@ const AdminAnalytics = () => {
     };
   });
 
-  const pieOuterRadius = isSmallScreen ? 70 : (isMediumScreen ? 85 : 90);
-
   return (
     <DashboardLayout>
       <div className="mb-6">
@@ -234,25 +232,27 @@ const AdminAnalytics = () => {
         <Card className="border border-gray-200 p-4 md:p-6">
           <h2 className="text-base md:text-lg font-bold text-black mb-2">AI Performance Comparison</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-4">RAG vs LLM helpfulness ratios based on upvote/downvote metrics</p>
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT} minWidth={280}>
-            <BarChart data={aiPerformanceData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 10 : 12 }} />
-              <YAxis tick={{ fontSize: isSmallScreen ? 10 : 12 }} width={30} />
-              <Tooltip
-                contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
-                formatter={(value, name) => {
-                  if (name === 'Helpfulness') return [`${value}%`, 'Helpfulness'];
-                  if (name === 'upPercent') return [`${value}%`, 'Share'];
-                  return [value, name];
-                }}
-                labelFormatter={(label) => `AI: ${label}`}
-              />
-              <Legend wrapperStyle={{ fontSize: isSmallScreen ? 10 : 12 }} />
-              <Bar dataKey="Upvotes" fill={COLORS.success} radius={[4, 4, 0, 0]} name="Upvotes" />
-              <Bar dataKey="Downvotes" fill={COLORS.error} radius={[4, 4, 0, 0]} name="Downvotes" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <BarChart data={aiPerformanceData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 10 : 12 }} />
+                <YAxis tick={{ fontSize: isSmallScreen ? 10 : 12 }} width={30} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
+                  formatter={(value, name) => {
+                    if (name === 'Helpfulness') return [`${value}%`, 'Helpfulness'];
+                    if (name === 'upPercent') return [`${value}%`, 'Share'];
+                    return [value, name];
+                  }}
+                  labelFormatter={(label) => `AI: ${label}`}
+                />
+                <Legend wrapperStyle={{ fontSize: isSmallScreen ? 10 : 12 }} />
+                <Bar dataKey="Upvotes" fill={COLORS.success} radius={[4, 4, 0, 0]} name="Upvotes" />
+                <Bar dataKey="Downvotes" fill={COLORS.error} radius={[4, 4, 0, 0]} name="Downvotes" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
           <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2 sm:gap-6 text-xs sm:text-sm">
             <div className="flex items-center gap-2">
               <span className="font-medium">RAG Helpfulness:</span>
@@ -269,27 +269,29 @@ const AdminAnalytics = () => {
         <Card className="border border-gray-200 p-4 md:p-6">
           <h2 className="text-base md:text-lg font-bold text-black mb-2">Bottleneck Analysis</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-4">Pending vs Resolved query counts showing system load</p>
-          <ResponsiveContainer width="100%" height={CHART_HEIGHT} minWidth={280}>
-            <PieChart margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-              <Pie
-                data={bottleneckData}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={pieOuterRadius}
-                paddingAngle={5}
-                dataKey="value"
-                label={false}
-              >
-                {bottleneckData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value, name) => [`${value} (${bottleneckData.find(d => d.name === name)?.percent}%)`, 'Queries']}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                <Pie
+                  data={bottleneckData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={isSmallScreen ? 70 : (isMediumScreen ? 80 : 85)}
+                  paddingAngle={5}
+                  dataKey="value"
+                  label={false}
+                >
+                  {bottleneckData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name) => [`${value} (${bottleneckData.find(d => d.name === name)?.percent}%)`, 'Queries']}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
           <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2 sm:gap-6 text-xs sm:text-sm">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-[#F59E0B]"></span>
@@ -313,25 +315,27 @@ const AdminAnalytics = () => {
         <Card className="border border-gray-200 p-4 md:p-6">
           <h2 className="text-base md:text-lg font-bold text-black mb-2">Human Intervention Index</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-2">Admin/Mod overrides vs total resolutions</p>
-          <ResponsiveContainer width="100%" height={SMALL_CHART_HEIGHT} minWidth={240}>
-            <BarChart data={humanInterventionData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 9 : 11 }} interval={0} angle={isSmallScreen ? -30 : 0} textAnchor={isSmallScreen ? 'end' : 'middle'} />
-              <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
-              <Tooltip
-                contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
-                formatter={(value, name) => {
-                  const item = humanInterventionData.find(d => d.name === name || d.name === 'Admin Overrides' || d.name === 'Mod Overrides');
-                  return [`${value} (${item?.percent}%)`, 'Count'];
-                }}
-              />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Count">
-                {humanInterventionData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={SMALL_CHART_HEIGHT}>
+              <BarChart data={humanInterventionData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 9 : 11 }} interval={0} angle={isSmallScreen ? -30 : 0} textAnchor={isSmallScreen ? 'end' : 'middle'} />
+                <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
+                  formatter={(value, name) => {
+                    const item = humanInterventionData.find(d => d.name === name || d.name === 'Admin Overrides' || d.name === 'Mod Overrides');
+                    return [`${value} (${item?.percent}%)`, 'Count'];
+                  }}
+                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Count">
+                  {humanInterventionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
           <div className="mt-3 bg-yellow-50 border-l-4 border-yellow-500 p-2 rounded text-xs">
             <p className="text-yellow-800">
               <span className="font-bold">Index: {analytics.humanIntervention.humanInterventionIndex}%</span>
@@ -351,25 +355,27 @@ const AdminAnalytics = () => {
         <Card className="border border-gray-200 p-4 md:p-6">
           <h2 className="text-base md:text-lg font-bold text-black mb-2">Peer Performance</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-2">Peer answers approved by Admin vs Moderator</p>
-          <ResponsiveContainer width="100%" height={SMALL_CHART_HEIGHT} minWidth={240}>
-            <BarChart data={peerPerformanceData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 9 : 11 }} />
-              <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
-              <Tooltip
-                contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
-                formatter={(value, name) => {
-                  const item = peerPerformanceData.find(d => d.name.includes('Admin') ? name.includes('Admin') : name.includes('Mod'));
-                  return [`${value} (${item?.percent}%)`, 'Count'];
-                }}
-              />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Count">
-                {peerPerformanceData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={SMALL_CHART_HEIGHT}>
+              <BarChart data={peerPerformanceData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="name" tick={{ fontSize: isSmallScreen ? 9 : 11 }} />
+                <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
+                  formatter={(value, name) => {
+                    const item = peerPerformanceData.find(d => d.name.includes('Admin') ? name.includes('Admin') : name.includes('Mod'));
+                    return [`${value} (${item?.percent}%)`, 'Count'];
+                  }}
+                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Count">
+                  {peerPerformanceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
           <div className="mt-3 text-center text-sm">
             <span className="font-medium">Total Peer Resolved:</span>
             <span className="ml-2 font-bold text-lg">{analytics.peerPerformance.totalPeerResolved}</span>
@@ -380,42 +386,44 @@ const AdminAnalytics = () => {
         <Card className="border border-gray-200 p-4 md:p-6 md:col-span-2 xl:col-span-1">
           <h2 className="text-base md:text-lg font-bold text-black mb-2">Resolution Distribution</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-2">Breakdown of how queries are being resolved</p>
-          <ResponsiveContainer width="100%" height={SMALL_CHART_HEIGHT} minWidth={280}>
-            <PieChart margin={{ top: 5, right: 10, left: 10, bottom: 60 }}>
-              <Pie
-                data={resolutionDistributionData}
-                cx="50%"
-                cy="45%"
-                outerRadius={pieOuterRadius}
-                innerRadius={0}
-                paddingAngle={2}
-                dataKey="value"
-                label={false}
-              >
-                {resolutionDistributionData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value, name) => {
-                  const item = resolutionDistributionData.find(d => d.name === name);
-                  return [`${value} (${item?.percent}%)`, 'Queries'];
-                }}
-              />
-              <Legend
-                layout="horizontal"
-                align="center"
-                verticalAlign="bottom"
-                iconType="circle"
-                iconSize={8}
-                wrapperStyle={{ fontSize: isSmallScreen ? 9 : 11, lineHeight: '16px', bottom: 0 }}
-                formatter={(value) => {
-                  const item = resolutionDistributionData.find(d => d.name === value);
-                  return `${value} (${item?.percent}%)`;
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={SMALL_CHART_HEIGHT + 40}>
+              <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                <Pie
+                  data={resolutionDistributionData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={isSmallScreen ? 60 : (isMediumScreen ? 70 : 80)}
+                  innerRadius={0}
+                  paddingAngle={2}
+                  dataKey="value"
+                  label={false}
+                >
+                  {resolutionDistributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name) => {
+                    const item = resolutionDistributionData.find(d => d.name === name);
+                    return [`${value} (${item?.percent}%)`, 'Queries'];
+                  }}
+                />
+                <Legend
+                  layout="horizontal"
+                  align="center"
+                  verticalAlign="bottom"
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: isSmallScreen ? 8 : 10, lineHeight: '14px', paddingTop: '10px' }}
+                  formatter={(value) => {
+                    const item = resolutionDistributionData.find(d => d.name === value);
+                    return `${value} (${item?.percent}%)`;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </Card>
       </div>
 
@@ -424,44 +432,46 @@ const AdminAnalytics = () => {
         <Card className="border border-gray-200 p-4 md:p-6">
           <h2 className="text-base md:text-lg font-bold text-black mb-2">Daily Resolution Trends (Last 14 Days)</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-4">Resolution activity over time by type</p>
-          <ResponsiveContainer width="100%" height={TREND_CHART_HEIGHT} minWidth={320}>
-            <LineChart data={dailyTrendsData} margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="date" tick={{ fontSize: isSmallScreen ? 9 : 11 }} interval={Math.floor(dailyTrendsData.length / 7)} />
-              <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
-              <Tooltip
-                contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 11 }}
-                formatter={(value, name) => {
-                  const percentKey = `${name}-Percent`;
-                  const percent = dailyTrendsData.length > 0 && dailyTrendsData[0][percentKey];
-                  return [`${value}${percent ? ` (${percent}%)` : ''}`, name];
-                }}
-                labelFormatter={(label) => `Date: ${label}`}
-              />
-              <Legend
-                wrapperStyle={{ fontSize: isSmallScreen ? 9 : 11 }}
-                iconType="circle"
-                iconSize={8}
-                formatter={(value) => {
-                  const lineNames = {
-                    'Peer Approved': 'Peer Approved',
-                    'LLM': 'LLM',
-                    'RAG': 'RAG',
-                    'Escalated': 'Escalated',
-                    'Admin Override': 'Admin',
-                    'Auto-Complete': 'Auto-Complete'
-                  };
-                  return lineNames[value] || value;
-                }}
-              />
-              <Line type="monotone" dataKey="Peer Approved" stroke={COLORS.peer} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Peer Approved" />
-              <Line type="monotone" dataKey="LLM" stroke={COLORS.llm} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="LLM" />
-              <Line type="monotone" dataKey="RAG" stroke={COLORS.rag} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="RAG" />
-              <Line type="monotone" dataKey="Escalated" stroke={COLORS.escalated} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Escalated" />
-              <Line type="monotone" dataKey="Admin" stroke={COLORS.admin} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Admin Override" />
-              <Line type="monotone" dataKey="Auto-Complete" stroke={COLORS.autoComplete} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Auto-Complete" />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={TREND_CHART_HEIGHT}>
+              <LineChart data={dailyTrendsData} margin={{ top: 5, right: 15, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="date" tick={{ fontSize: isSmallScreen ? 9 : 11 }} interval={Math.floor(dailyTrendsData.length / 7)} />
+                <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 11 }}
+                  formatter={(value, name) => {
+                    const percentKey = `${name}-Percent`;
+                    const percent = dailyTrendsData.length > 0 && dailyTrendsData[0][percentKey];
+                    return [`${value}${percent ? ` (${percent}%)` : ''}`, name];
+                  }}
+                  labelFormatter={(label) => `Date: ${label}`}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: isSmallScreen ? 9 : 11 }}
+                  iconType="circle"
+                  iconSize={8}
+                  formatter={(value) => {
+                    const lineNames = {
+                      'Peer Approved': 'Peer Approved',
+                      'LLM': 'LLM',
+                      'RAG': 'RAG',
+                      'Escalated': 'Escalated',
+                      'Admin Override': 'Admin',
+                      'Auto-Complete': 'Auto-Complete'
+                    };
+                    return lineNames[value] || value;
+                  }}
+                />
+                <Line type="monotone" dataKey="Peer Approved" stroke={COLORS.peer} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Peer Approved" />
+                <Line type="monotone" dataKey="LLM" stroke={COLORS.llm} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="LLM" />
+                <Line type="monotone" dataKey="RAG" stroke={COLORS.rag} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="RAG" />
+                <Line type="monotone" dataKey="Escalated" stroke={COLORS.escalated} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Escalated" />
+                <Line type="monotone" dataKey="Admin" stroke={COLORS.admin} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Admin Override" />
+                <Line type="monotone" dataKey="Auto-Complete" stroke={COLORS.autoComplete} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Auto-Complete" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </Card>
       )}
 
