@@ -15,6 +15,7 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import FormattedAnswer from '../../components/FormattedAnswer';
+import ConfirmModal from '../../components/ConfirmModal';
 import api from '../../utils/api';
 
 const AskAI = () => {
@@ -25,6 +26,8 @@ const AskAI = () => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState('');
+  const [showEscalateConfirm, setShowEscalateConfirm] = useState(false);
+  const [pendingVote, setPendingVote] = useState(null);
 
   const debounceRef = { current: null };
 
@@ -202,6 +205,12 @@ const AskAI = () => {
   const handleVote = async (vote) => {
     if (!response) return;
 
+    if (vote === 'downvote') {
+      setPendingVote('downvote');
+      setShowEscalateConfirm(true);
+      return;
+    }
+
     setLoading(true);
     const action = response.source === 'rag' ? `rag_${vote}` : `grok_${vote}`;
 
@@ -251,6 +260,59 @@ const AskAI = () => {
     setError('');
     setSuggestions([]);
     setShowSuggestions(false);
+  };
+
+  const confirmEscalate = async () => {
+    setShowEscalateConfirm(false);
+    if (!pendingVote) return;
+
+    setLoading(true);
+    const action = response.source === 'rag' ? `rag_${pendingVote}` : `grok_${pendingVote}`;
+    setPendingVote(null);
+
+    try {
+      const res = await api.post('/ask', {
+        query: query.trim(),
+        intern_id: user.id,
+        action,
+        faq_id: response.faq_id,
+      });
+
+      const data = res.data;
+
+      if (data.resolution === 'escalated') {
+        setResponse({
+          resolution: 'escalated',
+          query_id: data.query_id,
+          message: data.message,
+        });
+      } else if (data.resolution === 'resolved') {
+        setResponse({
+          resolution: 'resolved',
+          message: 'Thank you for your feedback!',
+        });
+      } else if (data.resolution === 'pending_feedback' && data.answer) {
+        setResponse({
+          source: data.source,
+          answer: data.answer,
+          clean_question: data.clean_question,
+          category: data.category,
+          faq_id: data.faq_id,
+          resolution: data.resolution,
+          message: data.message,
+        });
+      }
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || 'Failed to submit feedback. Please try again.';
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelEscalate = () => {
+    setShowEscalateConfirm(false);
+    setPendingVote(null);
   };
 
   return (
@@ -424,6 +486,23 @@ const AskAI = () => {
             <Button variant="primary" onClick={reset}>Ask Another Question</Button>
           </Card>
         )}
+
+        <ConfirmModal
+          isOpen={showEscalateConfirm}
+          onClose={cancelEscalate}
+          onConfirm={confirmEscalate}
+          title="Escalate Query?"
+          message="Are you sure you want to escalate this query? Escalated queries will be reviewed by an administrator."
+          confirmText="Continue"
+          cancelText="Cancel"
+          variant="primary"
+          isLoading={loading}
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          }
+        />
       </div>
     </DashboardLayout>
   );

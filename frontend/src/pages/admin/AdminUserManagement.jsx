@@ -15,6 +15,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
+import ConfirmModal from '../../components/ConfirmModal';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -278,6 +279,11 @@ const UserListTable = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [editMessage, setEditMessage] = useState(null);
 
+  const [deactivateConfirm, setDeactivateConfirm] = useState(null);
+  const [removeUserConfirm, setRemoveUserConfirm] = useState(null);
+  const [removeWarningsConfirm, setRemoveWarningsConfirm] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -317,7 +323,10 @@ const UserListTable = () => {
     };
   }, [socket, fetchUsers]);
 
-  const handleToggleStatus = async (userId, currentStatus) => {
+  const handleToggleStatus = async () => {
+    if (!deactivateConfirm) return;
+    const { userId } = deactivateConfirm;
+    setActionLoading(true);
     try {
       const res = await api.patch(`/auth/users/${userId}/toggle-status`);
       setUsers(users.map(u => u._id === userId ? { ...u, isActive: res.data.data.isActive } : u));
@@ -325,11 +334,16 @@ const UserListTable = () => {
     } catch (err) {
       console.error('Failed to toggle status', err);
       alert(err.response?.data?.error || 'Failed to toggle user status');
+    } finally {
+      setActionLoading(false);
+      setDeactivateConfirm(null);
     }
   };
 
-  const handleRemoveWarnings = async (userId) => {
-    if (!confirm('Are you sure you want to remove all warnings for this user?')) return;
+  const handleRemoveWarnings = async () => {
+    if (!removeWarningsConfirm) return;
+    const { userId } = removeWarningsConfirm;
+    setActionLoading(true);
     try {
       const res = await api.patch(`/auth/users/${userId}/remove-warnings`);
       setUsers(users.map(u => u._id === userId ? { ...u, warning_count: res.data.data.warning_count, is_disabled: res.data.data.is_disabled } : u));
@@ -337,11 +351,16 @@ const UserListTable = () => {
     } catch (err) {
       console.error('Failed to remove warnings', err);
       alert(err.response?.data?.error || 'Failed to remove warnings');
+    } finally {
+      setActionLoading(false);
+      setRemoveWarningsConfirm(null);
     }
   };
 
-  const handleDeleteUser = async (userId, userEmail) => {
-    if (!confirm(`Are you sure you want to permanently delete user "${userEmail}"? This action cannot be undone.`)) return;
+  const handleDeleteUser = async () => {
+    if (!removeUserConfirm) return;
+    const { userId } = removeUserConfirm;
+    setActionLoading(true);
     try {
       await api.delete(`/auth/users/${userId}`);
       setUsers(users.filter(u => u._id !== userId));
@@ -349,6 +368,9 @@ const UserListTable = () => {
     } catch (err) {
       console.error('Failed to delete user', err);
       alert(err.response?.data?.error || 'Failed to delete user');
+    } finally {
+      setActionLoading(false);
+      setRemoveUserConfirm(null);
     }
   };
 
@@ -505,21 +527,30 @@ const UserListTable = () => {
                                     Edit User
                                   </button>
                                   <button
-                                    onClick={() => handleToggleStatus(user._id, user.isActive)}
+                                    onClick={() => {
+                                      setDeactivateConfirm({ userId: user._id, userEmail: user.email, currentStatus: user.isActive });
+                                      setMenuOpenId(null);
+                                    }}
                                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                                   >
                                     {user.isActive === false ? 'Activate User' : 'Deactivate User'}
                                   </button>
                                   {user.warning_count > 0 && (
                                     <button
-                                      onClick={() => handleRemoveWarnings(user._id)}
+                                      onClick={() => {
+                                        setRemoveWarningsConfirm({ userId: user._id, userEmail: user.email });
+                                        setMenuOpenId(null);
+                                      }}
                                       className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-yellow-600"
                                     >
                                       Remove Warnings
                                     </button>
                                   )}
                                   <button
-                                    onClick={() => handleDeleteUser(user._id, user.email)}
+                                    onClick={() => {
+                                      setRemoveUserConfirm({ userId: user._id, userEmail: user.email });
+                                      setMenuOpenId(null);
+                                    }}
                                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600 rounded-b-lg"
                                   >
                                     Remove User
@@ -587,6 +618,65 @@ const UserListTable = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!deactivateConfirm}
+        onClose={() => setDeactivateConfirm(null)}
+        onConfirm={handleToggleStatus}
+        title={deactivateConfirm?.currentStatus === false ? 'Activate Account?' : 'Deactivate Account?'}
+        message={deactivateConfirm?.currentStatus === false
+          ? `Are you sure you want to activate this account? The user will regain access.`
+          : `Are you sure you want to deactivate this account? The user will lose access until the account is reactivated.`}
+        confirmText={deactivateConfirm?.currentStatus === false ? 'Activate' : 'Deactivate'}
+        cancelText="Cancel"
+        variant="primary"
+        isLoading={actionLoading}
+        icon={
+          deactivateConfirm?.currentStatus === false ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+          )
+        }
+      />
+
+      <ConfirmModal
+        isOpen={!!removeUserConfirm}
+        onClose={() => setRemoveUserConfirm(null)}
+        onConfirm={handleDeleteUser}
+        title="Remove User Account?"
+        message={`Are you sure you want to remove this account? The user "${removeUserConfirm?.userEmail}" will lose access permanently.`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        variant="error"
+        isLoading={actionLoading}
+        icon={
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        }
+      />
+
+      <ConfirmModal
+        isOpen={!!removeWarningsConfirm}
+        onClose={() => setRemoveWarningsConfirm(null)}
+        onConfirm={handleRemoveWarnings}
+        title="Remove All Warnings?"
+        message={`Are you sure you want to remove all warnings for "${removeWarningsConfirm?.userEmail}"? This will re-enable the account if it was disabled.`}
+        confirmText="Remove Warnings"
+        cancelText="Cancel"
+        variant="warning"
+        isLoading={actionLoading}
+        icon={
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        }
+      />
     </>
   );
 };

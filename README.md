@@ -392,6 +392,7 @@ Announcements support three priority levels with color-coded badges:
 | 117 | Query text overflowing in Query Management | Long queries overflow and show "..." instead of wrapping | Changed `truncate` to `break-words` class in AdminResolveHub and ModeratorResolveHub for proper text wrapping |
 | 118 | No delete button on query cards | Could only delete from ambiguous section detail panel | Added delete button (trash icon) directly on query cards in all sections except Archive and Moderator Suggested |
 | 119 | Missing timestamps on all query cards | Timestamps only shown for archive/pending/low_rated sections | Now shows timestamps for ALL query sections: Created date/time, Resolved date/time, and status indicator (Pending/Ambiguous) |
+| 120 | High-impact actions lacked confirmation | Accidental clicks could deactivate/remove users or escalate queries | Created reusable ConfirmModal component with smooth animations, added confirmation for: Intern escalation, Admin deactivation, Admin account removal, Admin remove warnings |
 
 ---
 
