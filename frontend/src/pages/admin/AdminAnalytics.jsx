@@ -37,7 +37,21 @@ const COLORS = {
   peer: '#10B981',
   admin: '#F59E0B',
   moderator: '#6366F1',
+  autoComplete: '#06B6D4',
+  escalated: '#EC4899',
+  line1: '#EF4444',
+  line2: '#F59E0B',
+  line3: '#10B981',
+  line4: '#3B82F6',
+  line5: '#8B5CF6',
+  line6: '#6366F1',
 };
+
+const CHART_COLORS_ARRAY = [
+  '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', 
+  '#EF4444', '#06B6D4', '#EC4899', '#6366F1',
+  '#84CC16', '#F97316', '#14B8A6', '#A855F7'
+];
 
 const CHART_HEIGHT = 280;
 const SMALL_CHART_HEIGHT = 220;
@@ -109,45 +123,73 @@ const AdminAnalytics = () => {
   const isSmallScreen = containerWidth < 768;
   const isMediumScreen = containerWidth >= 768 && containerWidth < 1024;
 
+  const totalAiVotes = analytics.aiPerformance.ragUpvotes + analytics.aiPerformance.ragDownvotes + analytics.aiPerformance.llmUpvotes + analytics.aiPerformance.llmDownvotes;
+  
   const aiPerformanceData = [
-    { name: 'RAG', Upvotes: analytics.aiPerformance.ragUpvotes, Downvotes: analytics.aiPerformance.ragDownvotes, Helpfulness: analytics.aiPerformance.ragHelpfulness },
-    { name: 'LLM', Upvotes: analytics.aiPerformance.llmUpvotes, Downvotes: analytics.aiPerformance.llmDownvotes, Helpfulness: analytics.aiPerformance.llmHelpfulness },
+    { 
+      name: 'RAG', 
+      Upvotes: analytics.aiPerformance.ragUpvotes, 
+      Downvotes: analytics.aiPerformance.ragDownvotes, 
+      Helpfulness: analytics.aiPerformance.ragHelpfulness,
+      upPercent: totalAiVotes > 0 ? ((analytics.aiPerformance.ragUpvotes + analytics.aiPerformance.ragDownvotes) / totalAiVotes * 100).toFixed(1) : 0
+    },
+    { 
+      name: 'LLM', 
+      Upvotes: analytics.aiPerformance.llmUpvotes, 
+      Downvotes: analytics.aiPerformance.llmDownvotes, 
+      Helpfulness: analytics.aiPerformance.llmHelpfulness,
+      upPercent: totalAiVotes > 0 ? ((analytics.aiPerformance.llmUpvotes + analytics.aiPerformance.llmDownvotes) / totalAiVotes * 100).toFixed(1) : 0
+    },
   ];
 
+  const totalBottleneck = analytics.bottleneckAnalysis.pendingCount + analytics.bottleneckAnalysis.resolvedCount;
   const bottleneckData = [
-    { name: 'Pending', value: analytics.bottleneckAnalysis.pendingCount, color: COLORS.warning },
-    { name: 'Resolved', value: analytics.bottleneckAnalysis.resolvedCount, color: COLORS.success },
+    { name: 'Pending', value: analytics.bottleneckAnalysis.pendingCount, percent: totalBottleneck > 0 ? (analytics.bottleneckAnalysis.pendingCount / totalBottleneck * 100).toFixed(1) : 0, rawPercent: totalBottleneck > 0 ? analytics.bottleneckAnalysis.pendingCount / totalBottleneck : 0, color: COLORS.warning },
+    { name: 'Resolved', value: analytics.bottleneckAnalysis.resolvedCount, percent: totalBottleneck > 0 ? (analytics.bottleneckAnalysis.resolvedCount / totalBottleneck * 100).toFixed(1) : 0, rawPercent: totalBottleneck > 0 ? analytics.bottleneckAnalysis.resolvedCount / totalBottleneck : 0, color: COLORS.success },
   ];
 
+  const totalHuman = analytics.humanIntervention.adminOverrideCount + analytics.humanIntervention.moderatorOverrideCount;
   const humanInterventionData = [
-    { name: 'Admin Overrides', count: analytics.humanIntervention.adminOverrideCount, color: COLORS.admin },
-    { name: 'Mod Overrides', count: analytics.humanIntervention.moderatorOverrideCount, color: COLORS.moderator },
+    { name: 'Admin Overrides', count: analytics.humanIntervention.adminOverrideCount, percent: totalHuman > 0 ? (analytics.humanIntervention.adminOverrideCount / totalHuman * 100).toFixed(1) : 0, color: COLORS.admin },
+    { name: 'Mod Overrides', count: analytics.humanIntervention.moderatorOverrideCount, percent: totalHuman > 0 ? (analytics.humanIntervention.moderatorOverrideCount / totalHuman * 100).toFixed(1) : 0, color: COLORS.moderator },
   ];
 
+  const totalPeer = analytics.peerPerformance.peerApprovedAdmin + analytics.peerPerformance.peerApprovedModerator;
   const peerPerformanceData = [
-    { name: 'Admin Approved', count: analytics.peerPerformance.peerApprovedAdmin, color: COLORS.admin },
-    { name: 'Mod Approved', count: analytics.peerPerformance.peerApprovedModerator, color: COLORS.moderator },
+    { name: 'Admin Approved', count: analytics.peerPerformance.peerApprovedAdmin, percent: totalPeer > 0 ? (analytics.peerPerformance.peerApprovedAdmin / totalPeer * 100).toFixed(1) : 0, color: COLORS.admin },
+    { name: 'Mod Approved', count: analytics.peerPerformance.peerApprovedModerator, percent: totalPeer > 0 ? (analytics.peerPerformance.peerApprovedModerator / totalPeer * 100).toFixed(1) : 0, color: COLORS.moderator },
   ];
 
+  const totalResolution = Object.values(analytics.resolutionDistribution).reduce((sum, val) => sum + val, 0);
   const resolutionDistributionData = [
-    { name: 'Auto-Complete', value: analytics.resolutionDistribution.autoComplete, color: COLORS.rag },
-    { name: 'RAG Resolved', value: analytics.resolutionDistribution.ragResolved, color: COLORS.rag },
-    { name: 'LLM Resolved', value: analytics.resolutionDistribution.llmResolved, color: COLORS.llm },
-    { name: 'Peer (Admin)', value: analytics.resolutionDistribution.peerAnsweredAdmin, color: COLORS.admin },
-    { name: 'Peer (Mod)', value: analytics.resolutionDistribution.peerAnsweredModerator, color: COLORS.moderator },
-    { name: 'Admin Override', value: analytics.resolutionDistribution.adminOverride, color: COLORS.admin },
-    { name: 'Mod Override', value: analytics.resolutionDistribution.moderatorOverride, color: COLORS.moderator },
+    { name: 'Auto-Complete', value: analytics.resolutionDistribution.autoComplete, percent: totalResolution > 0 ? (analytics.resolutionDistribution.autoComplete / totalResolution * 100).toFixed(1) : 0, rawPercent: totalResolution > 0 ? analytics.resolutionDistribution.autoComplete / totalResolution : 0, color: CHART_COLORS_ARRAY[0] },
+    { name: 'RAG Resolved', value: analytics.resolutionDistribution.ragResolved, percent: totalResolution > 0 ? (analytics.resolutionDistribution.ragResolved / totalResolution * 100).toFixed(1) : 0, rawPercent: totalResolution > 0 ? analytics.resolutionDistribution.ragResolved / totalResolution : 0, color: CHART_COLORS_ARRAY[1] },
+    { name: 'LLM Resolved', value: analytics.resolutionDistribution.llmResolved, percent: totalResolution > 0 ? (analytics.resolutionDistribution.llmResolved / totalResolution * 100).toFixed(1) : 0, rawPercent: totalResolution > 0 ? analytics.resolutionDistribution.llmResolved / totalResolution : 0, color: CHART_COLORS_ARRAY[2] },
+    { name: 'Peer (Admin)', value: analytics.resolutionDistribution.peerAnsweredAdmin, percent: totalResolution > 0 ? (analytics.resolutionDistribution.peerAnsweredAdmin / totalResolution * 100).toFixed(1) : 0, rawPercent: totalResolution > 0 ? analytics.resolutionDistribution.peerAnsweredAdmin / totalResolution : 0, color: CHART_COLORS_ARRAY[3] },
+    { name: 'Peer (Mod)', value: analytics.resolutionDistribution.peerAnsweredModerator, percent: totalResolution > 0 ? (analytics.resolutionDistribution.peerAnsweredModerator / totalResolution * 100).toFixed(1) : 0, rawPercent: totalResolution > 0 ? analytics.resolutionDistribution.peerAnsweredModerator / totalResolution : 0, color: CHART_COLORS_ARRAY[4] },
+    { name: 'Admin Override', value: analytics.resolutionDistribution.adminOverride, percent: totalResolution > 0 ? (analytics.resolutionDistribution.adminOverride / totalResolution * 100).toFixed(1) : 0, rawPercent: totalResolution > 0 ? analytics.resolutionDistribution.adminOverride / totalResolution : 0, color: CHART_COLORS_ARRAY[5] },
+    { name: 'Mod Override', value: analytics.resolutionDistribution.moderatorOverride, percent: totalResolution > 0 ? (analytics.resolutionDistribution.moderatorOverride / totalResolution * 100).toFixed(1) : 0, rawPercent: totalResolution > 0 ? analytics.resolutionDistribution.moderatorOverride / totalResolution : 0, color: CHART_COLORS_ARRAY[6] },
   ].filter(d => d.value > 0);
 
-  const dailyTrendsData = analytics.dailyTrends.map(d => ({
-    date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    'Auto-Complete': d.auto_complete,
-    'RAG': d.rag_resolved,
-    'LLM': d.llm_resolved,
-    'Escalated': d.escalated,
-    'Peer Approved': d.peer_approved,
-    'Admin': d.admin_override,
-  }));
+  const dailyTrendsData = analytics.dailyTrends.map(d => {
+    const dayTotal = d.auto_complete + d.rag_resolved + d.llm_resolved + d.escalated + d.peer_approved + d.admin_override;
+    return {
+      date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      'Auto-Complete': d.auto_complete,
+      'RAG': d.rag_resolved,
+      'LLM': d.llm_resolved,
+      'Escalated': d.escalated,
+      'Peer Approved': d.peer_approved,
+      'Admin': d.admin_override,
+      dayTotal,
+      'Auto-Percent': dayTotal > 0 ? (d.auto_complete / dayTotal * 100).toFixed(1) : 0,
+      'RAG-Percent': dayTotal > 0 ? (d.rag_resolved / dayTotal * 100).toFixed(1) : 0,
+      'LLM-Percent': dayTotal > 0 ? (d.llm_resolved / dayTotal * 100).toFixed(1) : 0,
+      'Escalated-Percent': dayTotal > 0 ? (d.escalated / dayTotal * 100).toFixed(1) : 0,
+      'Peer-Percent': dayTotal > 0 ? (d.peer_approved / dayTotal * 100).toFixed(1) : 0,
+      'Admin-Percent': dayTotal > 0 ? (d.admin_override / dayTotal * 100).toFixed(1) : 0,
+    };
+  });
 
   const pieOuterRadius = isSmallScreen ? 70 : (isMediumScreen ? 85 : 90);
 
@@ -199,11 +241,16 @@ const AdminAnalytics = () => {
               <YAxis tick={{ fontSize: isSmallScreen ? 10 : 12 }} width={30} />
               <Tooltip
                 contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
-                formatter={(value, name) => [value, name === 'Helpfulness' ? `${value}%` : value]}
+                formatter={(value, name) => {
+                  if (name === 'Helpfulness') return [`${value}%`, 'Helpfulness'];
+                  if (name === 'upPercent') return [`${value}%`, 'Share'];
+                  return [value, name];
+                }}
+                labelFormatter={(label) => `AI: ${label}`}
               />
               <Legend wrapperStyle={{ fontSize: isSmallScreen ? 10 : 12 }} />
-              <Bar dataKey="Upvotes" fill={COLORS.success} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Downvotes" fill={COLORS.error} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Upvotes" fill={COLORS.success} radius={[4, 4, 0, 0]} name="Upvotes" />
+              <Bar dataKey="Downvotes" fill={COLORS.error} radius={[4, 4, 0, 0]} name="Downvotes" />
             </BarChart>
           </ResponsiveContainer>
           <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2 sm:gap-6 text-xs sm:text-sm">
@@ -232,14 +279,15 @@ const AdminAnalytics = () => {
                 outerRadius={pieOuterRadius}
                 paddingAngle={5}
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                labelLine={{ stroke: '#9CA3AF', strokeWidth: 1 }}
+                label={false}
               >
                 {bottleneckData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [value, 'Queries']} />
+              <Tooltip 
+                formatter={(value, name) => [`${value} (${bottleneckData.find(d => d.name === name)?.percent}%)`, 'Queries']}
+              />
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2 sm:gap-6 text-xs sm:text-sm">
@@ -247,11 +295,13 @@ const AdminAnalytics = () => {
               <span className="w-3 h-3 rounded-full bg-[#F59E0B]"></span>
               <span className="font-medium">Pending:</span>
               <span className="font-bold">{analytics.bottleneckAnalysis.pendingCount}</span>
+              <span className="text-gray-500">({bottleneckData.find(d => d.name === 'Pending')?.percent}%)</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-[#10B981]"></span>
               <span className="font-medium">Resolved:</span>
               <span className="font-bold">{analytics.bottleneckAnalysis.resolvedCount}</span>
+              <span className="text-gray-500">({bottleneckData.find(d => d.name === 'Resolved')?.percent}%)</span>
             </div>
           </div>
         </Card>
@@ -270,9 +320,12 @@ const AdminAnalytics = () => {
               <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
               <Tooltip
                 contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
-                formatter={(value) => [value, 'Count']}
+                formatter={(value, name) => {
+                  const item = humanInterventionData.find(d => d.name === name || d.name === 'Admin Overrides' || d.name === 'Mod Overrides');
+                  return [`${value} (${item?.percent}%)`, 'Count'];
+                }}
               />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Count">
                 {humanInterventionData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
@@ -305,9 +358,12 @@ const AdminAnalytics = () => {
               <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
               <Tooltip
                 contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 12 }}
-                formatter={(value) => [value, 'Count']}
+                formatter={(value, name) => {
+                  const item = peerPerformanceData.find(d => d.name.includes('Admin') ? name.includes('Admin') : name.includes('Mod'));
+                  return [`${value} (${item?.percent}%)`, 'Count'];
+                }}
               />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Count">
                 {peerPerformanceData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
@@ -340,7 +396,12 @@ const AdminAnalytics = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [value, 'Queries']} />
+              <Tooltip 
+                formatter={(value, name) => {
+                  const item = resolutionDistributionData.find(d => d.name === name);
+                  return [`${value} (${item?.percent}%)`, 'Queries'];
+                }}
+              />
               <Legend
                 layout="horizontal"
                 align="center"
@@ -348,6 +409,10 @@ const AdminAnalytics = () => {
                 iconType="circle"
                 iconSize={8}
                 wrapperStyle={{ fontSize: isSmallScreen ? 9 : 11, lineHeight: '16px' }}
+                formatter={(value) => {
+                  const item = resolutionDistributionData.find(d => d.name === value);
+                  return `${value} (${item?.percent}%)`;
+                }}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -366,16 +431,35 @@ const AdminAnalytics = () => {
               <YAxis tick={{ fontSize: isSmallScreen ? 9 : 11 }} width={25} />
               <Tooltip
                 contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: 11 }}
+                formatter={(value, name) => {
+                  const percentKey = `${name}-Percent`;
+                  const percent = dailyTrendsData.length > 0 && dailyTrendsData[0][percentKey];
+                  return [`${value}${percent ? ` (${percent}%)` : ''}`, name];
+                }}
+                labelFormatter={(label) => `Date: ${label}`}
               />
               <Legend
                 wrapperStyle={{ fontSize: isSmallScreen ? 9 : 11 }}
                 iconType="circle"
                 iconSize={8}
+                formatter={(value) => {
+                  const lineNames = {
+                    'Peer Approved': 'Peer Approved',
+                    'LLM': 'LLM',
+                    'RAG': 'RAG',
+                    'Escalated': 'Escalated',
+                    'Admin Override': 'Admin',
+                    'Auto-Complete': 'Auto-Complete'
+                  };
+                  return lineNames[value] || value;
+                }}
               />
-              <Line type="monotone" dataKey="Peer Approved" stroke={COLORS.peer} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-              <Line type="monotone" dataKey="LLM" stroke={COLORS.llm} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-              <Line type="monotone" dataKey="RAG" stroke={COLORS.rag} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-              <Line type="monotone" dataKey="Admin" stroke={COLORS.admin} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+              <Line type="monotone" dataKey="Peer Approved" stroke={COLORS.peer} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Peer Approved" />
+              <Line type="monotone" dataKey="LLM" stroke={COLORS.llm} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="LLM" />
+              <Line type="monotone" dataKey="RAG" stroke={COLORS.rag} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="RAG" />
+              <Line type="monotone" dataKey="Escalated" stroke={COLORS.escalated} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Escalated" />
+              <Line type="monotone" dataKey="Admin" stroke={COLORS.admin} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Admin Override" />
+              <Line type="monotone" dataKey="Auto-Complete" stroke={COLORS.autoComplete} strokeWidth={2} dot={false} activeDot={{ r: 4 }} name="Auto-Complete" />
             </LineChart>
           </ResponsiveContainer>
         </Card>

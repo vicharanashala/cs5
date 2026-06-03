@@ -15,6 +15,7 @@
 const FAQ = require('../models/FAQ');
 const Query = require('../models/Query');
 const SimilarQueryInterest = require('../models/SimilarQueryInterest');
+const ResolutionLog = require('../models/ResolutionLog');
 const { trackNoFaqQuery, trackResolution, ResolutionType } = require('./analyticsController');
 const { getGrokResponse } = require('../services/grokService');
 

@@ -21,6 +21,7 @@ const Response = require('../models/Response');
 const User = require('../models/User');
 const ModeratorFaqSuggestion = require('../models/ModeratorFaqSuggestion');
 const SimilarQueryInterest = require('../models/SimilarQueryInterest');
+const ResolutionLog = require('../models/ResolutionLog');
 const { createNotification, warnIntern } = require('./notificationController');
 
 let getIO;
@@ -230,6 +231,15 @@ const approvePeerResponse = async (req, res) => {
       },
     });
 
+    await ResolutionLog.create({
+      intern_id: query.intern_id,
+      resolution_type: 'peer_approved',
+      source: 'peer',
+      query_id: query._id,
+      response_id: response._id,
+      metadata: { rating: response.rating },
+    });
+
     await createNotification({
       recipient_id: query.intern_id,
       type: 'query_resolved',
@@ -339,6 +349,15 @@ const overrideWithAdminResponse = async (req, res) => {
         resolution_type: 'admin_override',
         is_locked: true,
       },
+    });
+
+    const isModerator = req.user.role === 'moderator';
+    await ResolutionLog.create({
+      intern_id: query.intern_id,
+      resolution_type: isModerator ? 'moderator_override' : 'admin_override',
+      source: isModerator ? 'moderator' : 'admin',
+      query_id: query._id,
+      response_id: adminResponse._id,
     });
 
     await createNotification({

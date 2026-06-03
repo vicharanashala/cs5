@@ -1802,3 +1802,39 @@ Implemented previously resolved query detection feature:
 - `README.md` - Added issue #121 to Recent Fixes table
 
 ---
+
+### Prompt 76: Analytics Charts - Add Percentages and Fix Labels
+**Prompt:** Update all analytics charts to show percentages. Use different colors for each chart. Remove floating percentage labels from pie chart slices.
+
+**Response:**
+Updated `frontend/src/pages/admin/AdminAnalytics.jsx`:
+
+1. **Added new colors:**
+   - `autoComplete: '#06B6D4'` (cyan)
+   - `escalated: '#EC4899'` (pink)
+   - `CHART_COLORS_ARRAY` with 12 distinct colors for resolution distribution pie chart
+
+2. **Added percentage calculations to all chart data:**
+   - `aiPerformanceData` - includes `upPercent` for RAG/LLM share
+   - `bottleneckData` - includes `percent` and `rawPercent` for Pending/Resolved
+   - `humanInterventionData` - includes `percent` for Admin/Mod overrides
+   - `peerPerformanceData` - includes `percent` for Admin/Mod approved
+   - `resolutionDistributionData` - includes `percent` and `rawPercent` for all 7 resolution types
+   - `dailyTrendsData` - includes `*-Percent` fields for each day
+
+3. **Updated tooltips** to show both count and percentage (e.g., "15 (25.5%)")
+
+4. **Removed floating labels** from bottleneck and resolution distribution pie charts (`label={false}`)
+
+5. **Added Escalated line** to Daily Trends chart with pink color
+
+6. **Updated legend formatter** to show percentages in legend
+
+7. **Fixed percentage bug:** The `rawPercent` field (decimal 0-1) is used for pie chart labels to avoid double-multiplication
+
+**Files modified:**
+- `frontend/src/pages/admin/AdminAnalytics.jsx` - Full chart update with percentages and new colors
+- `context.md` - Added issue #128
+- `README.md` - Added issue #128 to Recent Fixes table
+
+---

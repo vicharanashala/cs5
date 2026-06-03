@@ -400,6 +400,7 @@ Announcements support three priority levels with color-coded badges:
 | 125 | "Resolve Hub" naming inconsistent | Moderator dashboard showed "Resolve Hub" while admin called it "Query Management" | Changed moderator "Resolve Hub" to "Query Management" in both navConfig.jsx and ModeratorOverview.jsx |
 | 126 | Moderator "View All Notifications" didn't work | Clicking "View All notifications" in bell dropdown redirected to intern page which wasn't accessible for moderator | Created /moderator/notifications route with ModeratorAllNotifications page; NotificationBell now correctly routes to /moderator/notifications for moderators |
 | 127 | Notifications in moderator sidebar | Moderator sidebar had a "Notifications" nav item that was unnecessary | Removed Notifications from moderatorNavItems in navConfig.jsx; notifications accessible via bell icon only |
+| 128 | Analytics charts missing percentages | Charts showed counts but not percentage breakdowns | Added percentage calculations to all chart data; tooltips now show both count and percentage; removed floating labels from pie charts |
 
 ---
 
