@@ -197,6 +197,7 @@ borderRadius: {
 | Toast | Notifications | Slide-in from bottom-right, shadow-xl, auto-dismiss 5s |
 | NotificationBell | Alert indicator | Bell icon with unread count badge |
 | FormattedAnswer | AI responses | bg-white rounded-xl p-4 whitespace-pre-wrap |
+| RollingCounter | Animated stats | Odometer-style digit animation, smooth ease-out cubic |
 
 ### UI/UX Modernization Changes
 
