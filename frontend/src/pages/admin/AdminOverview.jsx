@@ -14,6 +14,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
+import RollingCounter from '../../components/RollingCounter';
 import api from '../../utils/api';
 import { useNotifications } from '../../context/NotificationContext';
 
@@ -164,7 +165,9 @@ const AdminOverview = () => {
 const StatCard = ({ label, value }) => (
   <Card className="border border-gray-200 hover:shadow-lg hover:scale-105 transition-all cursor-pointer">
     <div className="text-sm font-medium text-gray-500 mb-1">{label}</div>
-    <div className="text-3xl font-bold text-black">{value}</div>
+    <div className="text-3xl font-bold text-black">
+      <RollingCounter value={value} duration={1200} rollDigitDuration={600} />
+    </div>
   </Card>
 );
 

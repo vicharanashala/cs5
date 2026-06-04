@@ -14,6 +14,7 @@ import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import Badge from '../../components/Badge';
 import Button from '../../components/Button';
+import RollingCounter from '../../components/RollingCounter';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -107,7 +108,9 @@ const InternDashboard = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm font-medium text-gray-500 mb-1">Active Queries</div>
-                  <div className="text-3xl font-bold text-black">{stats.activeQueries}</div>
+                  <div className="text-3xl font-bold text-black">
+                    <RollingCounter value={stats.activeQueries} duration={1200} rollDigitDuration={600} />
+                  </div>
                   <div className="text-sm text-gray-500 mt-1">Pending resolution</div>
                 </div>
                 <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
@@ -122,9 +125,11 @@ const InternDashboard = () => {
           <Card className="border border-gray-200 hover:shadow-lg transition-shadow" hover={false}>
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-sm font-medium text-gray-500 mb-1">Peer Responses</div>
-                <div className="text-3xl font-bold text-black">{stats.peerResponses}</div>
-                <div className="text-sm text-gray-500 mt-1">Given to others</div>
+<div className="text-sm font-medium text-gray-500 mb-1">Peer Responses</div>
+                  <div className="text-3xl font-bold text-black">
+                    <RollingCounter value={stats.peerResponses} duration={1200} rollDigitDuration={600} />
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Given to others</div>
               </div>
               <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +144,9 @@ const InternDashboard = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm font-medium text-gray-500 mb-1">Resolved</div>
-                  <div className="text-3xl font-bold text-black">{stats.resolved}</div>
+                  <div className="text-3xl font-bold text-black">
+                    <RollingCounter value={stats.resolved} duration={1200} rollDigitDuration={600} />
+                  </div>
                   <div className="text-sm text-gray-500 mt-1">Successfully answered</div>
                 </div>
                 <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">

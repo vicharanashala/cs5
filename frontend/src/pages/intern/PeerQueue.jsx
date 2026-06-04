@@ -91,15 +91,11 @@ const PeerQueue = () => {
 
     try {
       await api.post('/peer/skip', { query_id: query._id });
-      if (currentIndex < queries.length - 1) {
-        setCurrentIndex((prev) => prev + 1);
-        setAnswerText('');
-        setMessage('');
-        setMessageType('');
-      } else {
-        setMessage('Query skipped. No more queries in queue.');
-        setMessageType('info');
-      }
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      setAnswerText('');
+      setMessage('');
+      setMessageType('');
     } catch (err) {
       setMessage(err.response?.data?.error || 'Failed to skip query');
       setMessageType('error');

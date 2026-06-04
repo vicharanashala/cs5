@@ -11,6 +11,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
+import RollingCounter from '../../components/RollingCounter';
 import api from '../../utils/api';
 import { useNotifications } from '../../context/NotificationContext';
 
@@ -65,13 +66,17 @@ const ModeratorOverview = () => {
         <Link to="/moderator/resolve">
           <div className="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:scale-105 transition-all cursor-pointer">
             <div className="text-sm font-medium text-gray-500 mb-1">Pending Queries</div>
-            <div className="text-3xl font-bold text-black">{stats.pendingQueries}</div>
+            <div className="text-3xl font-bold text-black">
+              <RollingCounter value={stats.pendingQueries} duration={1200} rollDigitDuration={600} />
+            </div>
           </div>
         </Link>
         <Link to="/moderator/resolve">
           <div className="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:scale-105 transition-all cursor-pointer">
             <div className="text-sm font-medium text-gray-500 mb-1">Resolved Today</div>
-            <div className="text-3xl font-bold text-black">{stats.resolvedToday}</div>
+            <div className="text-3xl font-bold text-black">
+              <RollingCounter value={stats.resolvedToday} duration={1200} rollDigitDuration={600} />
+            </div>
           </div>
         </Link>
       </div>
