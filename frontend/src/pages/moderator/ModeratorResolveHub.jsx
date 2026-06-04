@@ -13,10 +13,11 @@ import DashboardLayout from '../../components/DashboardLayout';
 import Card from '../../components/Card';
 import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { io } from 'socket.io-client';
+import { useNotifications } from '../../context/NotificationContext';
 
 const ModeratorResolveHub = () => {
   const { token } = useAuth();
+  const { socket } = useNotifications();
   const [activeSection, setActiveSection] = useState('pending');
   const [queries, setQueries] = useState([]);
   const [selectedQuery, setSelectedQuery] = useState(null);
@@ -45,23 +46,10 @@ const ModeratorResolveHub = () => {
   }, [fetchQueries]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!socket) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const socketUrl = apiUrl.replace('/api', '');
-    const socket = io(socketUrl, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on('query_resolved', () => {
-      fetchQueries();
-    });
-
-    socket.on('escalation_deleted', () => {
-      fetchQueries();
-    });
-    
+    socket.on('query_resolved', fetchQueries);
+    socket.on('escalation_deleted', fetchQueries);
     socket.on('query_state_changed', fetchQueries);
     socket.on('new_query_in_queue', fetchQueries);
 
