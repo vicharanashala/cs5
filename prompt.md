@@ -11,7 +11,19 @@
 
 ---
 
-### Prompt 29: LLM Improvements & Groq Integration
+### Prompt 1: Phase 15 - QA, Bug Fixes, and Demo Data Seeding
+**Prompt:** Fix identified QA bugs (Bug 5, 8, 15, 16, 17, 20), implement "Needs Your Attention" card, and populate the database with realistic demo data from `vins_faq_structured.json` covering all workflow scenarios.
+
+**Response:**
+- Created comprehensive `backend/seed_demo_data.js` script that clears existing collections (except FAQs).
+- Script populates realistic mock data representing all stages of the query lifecycle: Pending, Peer Answered, Ambiguous, High-Rated, Low-Rated, Stagnant, and Resolved.
+- Added 1 Admin, 2 Moderators, and 10 Interns with correct credentials.
+- Added `npm run seed` command to backend `package.json`.
+- Identified 5 Critical/High severity QA bugs and scheduled them for fixing.
+
+---
+
+### Prompt 2: LLM Improvements & Groq Integration
 **Prompt:** Add Groq API as Gemini fallback, implement multi-model switching, increase max tokens to 2000, add image error logging, enforce plain text LLM responses
 
 **Response:**
@@ -32,7 +44,7 @@ Updated askAIController.js and queryController.js:
 
 ---
 
-### Prompt 28: Phase 11 - Documentation Engine
+### Prompt 3: Phase 11 - Documentation Engine
 **Prompt:** Execute Milestone 11: Documentation Engine
 
 **Response:**
@@ -50,7 +62,7 @@ All documents use professional formatting with code blocks, tables, and diagrams
 
 ---
 
-### Prompt 27: Phase 9 - Realtime Notifications & Queue System
+### Prompt 4: Phase 9 - Realtime Notifications & Queue System
 **Prompt:** Execute Milestone 9: Realtime Notifications & Queue System
 
 **Response:**
@@ -68,7 +80,7 @@ Both events emit to intern's personal room `user:{intern_id}` for targeted notif
 
 ---
 
-### Prompt 26: Phase 8 - AI FAQ Suggestion Engine
+### Prompt 5: Phase 8 - AI FAQ Suggestion Engine
 **Prompt:** Execute Milestone 8: AI FAQ Suggestion Engine
 
 **Response:**
@@ -86,7 +98,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 1: Project Initialization (Milestone 0)
+### Prompt 6: Project Initialization (Milestone 0)
 **Prompt:** Initialize project structure with Git, context.md, and frontend/backend folders.
 
 **Response:**
@@ -95,7 +107,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 2: Architecture & Planning Context (Milestone 1)
+### Prompt 7: Architecture & Planning Context (Milestone 1)
 **Prompt:** Internalize architecture blueprint, 6 MongoDB schemas, and Query lifecycle state machine.
 
 **Response:**
@@ -103,7 +115,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 3: Execute Milestone 2 - MERN Stack Setup
+### Prompt 8: Execute Milestone 2 - MERN Stack Setup
 **Prompt:** Set up complete boilerplate for backend and frontend with B&W design system.
 
 **Response:**
@@ -113,7 +125,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 4: Execute Milestone 3 - Database & Backend APIs
+### Prompt 9: Execute Milestone 3 - Database & Backend APIs
 **Prompt:** Create 6 Mongoose schemas and REST API controllers/routes.
 
 **Response:**
@@ -123,7 +135,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 5: Seed 125 FAQs from JSON file
+### Prompt 10: Seed 125 FAQs from JSON file
 **Prompt:** Add all FAQs from `vins_faq_structured.json` to the database.
 
 **Response:**
@@ -131,7 +143,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 6: Execute Milestone 4 - Authentication & RBAC
+### Prompt 11: Execute Milestone 4 - Authentication & RBAC
 **Prompt:** Build JWT authentication and role-based access control middleware.
 
 **Response:**
@@ -141,7 +153,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 7: Execute Milestone 5 - Dashboards & UI/UX
+### Prompt 12: Execute Milestone 5 - Dashboards & UI/UX
 **Prompt:** Build landing page, login portal, and dashboard shells for all three roles.
 
 **Response:**
@@ -151,7 +163,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 8-13: Various fixes (Login redirect, FAQs page, auto-complete, RAG downvote, LLM API changes)
+### Prompt 13: Various fixes (Login redirect, FAQs page, auto-complete, RAG downvote, LLM API changes)
 **Response:**
 - Fixed login redirect loop, FAQs accordion, auto-complete dropdown, RAG downvote flow
 - Switched LLM from Grok to Groq to Gemini (gemini-2.5-flash)
@@ -159,7 +171,7 @@ Updated askAIController to use trackNoFaqQuery when LLM fails
 
 ---
 
-### Prompt 24: Phase 7 - Peer Escalation Workflow Engine
+### Prompt 14: Phase 7 - Peer Escalation Workflow Engine
 **Prompt:** Execute Milestone 7: Peer Escalation Workflow Engine
 
 **Response:**
@@ -180,7 +192,7 @@ Created frontend intern pages:
 
 ---
 
-### Prompt 25: Fix Missing Route Files
+### Prompt 15: Fix Missing Route Files
 **Prompt:** Backend crashed - missing ratingRoutes.js and adminRoutes.js
 
 **Response:**
@@ -305,7 +317,7 @@ Created frontend intern pages:
 
 ---
 
-### Prompt 72: Real-time Page Synchronization
+### Prompt 16: Real-time Page Synchronization
 **Prompt:** Make all the pages of admin, intern and moderator dynamic in nature such that updated information automatically gets displayed without the need of refreshing the page again without have conflict with existing code. it is updating in admin page but not on intern page which are already viewing that page they got notification but not page update
 
 **Response:**
@@ -317,7 +329,7 @@ Implemented 100% real-time synchronization across all dashboards:
    - Admin Pages: ResolveHub, UserManagement, Overview, Announcements, FaqEditor
 3. Ensured background data re-fetching happens seamlessly on socket events without requiring a hard reload.
 
-### Prompt 73: Fix ReferenceError in Announcements
+### Prompt 17: Fix ReferenceError in Announcements
 **Prompt:** Announcements.jsx:34 Uncaught ReferenceError: Cannot access 'fetchAnnouncements' before initialization
 
 **Response:**
@@ -325,7 +337,7 @@ Fixed JavaScript hoisting error in `frontend/src/pages/intern/Announcements.jsx`
 - `fetchAnnouncements` was placed inside a `useEffect` dependency array before it was initialized.
 - Wrapped `fetchAnnouncements` in `useCallback` and moved it above the `useEffect` hooks.
 
-### Prompt 74: Fix WebSocket Connection Errors
+### Prompt 18: Fix WebSocket Connection Errors
 **Prompt:** NotificationContext.jsx:121 WebSocket connection to 'ws://localhost:5000/socket.io/?EIO=4&transport=websocket' failed: WebSocket is closed before the connection is established. this in in console
 
 **Response:**
@@ -334,7 +346,7 @@ Identified and fixed rogue WebSocket connections:
 - Refactored both files to use `const { socket } = useNotifications()`, eliminating duplicate socket creation and resolving the "WebSocket is closed" console errors caused by race conditions.
 - Explained that the remaining single warning in `NotificationContext` is a harmless artifact of React 18 StrictMode rapid re-mounting in development.
 
-### Prompt 35: Query Input Sanity Check
+### Prompt 19: Query Input Sanity Check
 **Prompt:** Add sanity check when intern asks query before sending to RAG model to prevent garbage input. On failure, ask intern to re-enter valid query.
 
 **Response:**
@@ -362,7 +374,7 @@ Now `ajflafjllafffaafas` is blocked with: *"Please enter a valid question with a
 
 ---
 
-### Prompt 71: Moderator FAQ Suggestion Workflow
+### Prompt 20: Moderator FAQ Suggestion Workflow
 **Prompt:** On the admin dashboard, remove the "Query Monitor" and "Ambiguous queries" also remove them from the page navigation from the left side. Change name of "Resolve Hub" to "Query Management" and update the description accordingly making it easy for the user to understand that all query related things are managed from here. also fix the logo of "User Management" card as it is not correct. The moderator can not query from the "Archive" Category into the faq database, instead add a button for the moderator by which it can suggest the admin for queries in the "Archive" category which should be added to the faq database. in the admin's resolve hub, add a new category as "Moderator Suggested" which shows the suggested query which should be added to the Faq databse with the a button "Add to FAQ database" for the admin along with all the options for adding a query (category,tags, etc.)
 
 **Response:**
@@ -423,7 +435,7 @@ Implemented complete Moderator FAQ Suggestion workflow:
 
 ## Recent Changes
 
-### Prompt 33: Workflow Documentation & Issue Updates
+### Prompt 21: Workflow Documentation & Issue Updates
 **Prompt:** Document the complete query workflow, update all doc files (context.md, prompt.md, README.md, docs/), and list all resolved issues.
 
 **Response:**
@@ -470,7 +482,7 @@ Updated docs/database_schema.md with:
 - All indexes documented
 - Notification types table
 
-### Prompt 32: Notification System Implementation
+### Prompt 22: Notification System Implementation
 **Prompt:** Create a complete notification system for Query.in with:
 1. Three notification types: Intern alerts (peer answer, query resolved), Admin alerts (10-occurrence threshold), Announcements (broadcast)
 2. Hybrid approach: Socket.IO for real-time + MongoDB for persistence
@@ -500,7 +512,7 @@ Created complete notification system:
 
 Updated docs: context.md, prompt.md
 
-### Prompt 34: Fix LLM Upvote Showing RAG Answer
+### Prompt 23: Fix LLM Upvote Showing RAG Answer
 **Prompt:** When user upvoting LLM answer, it shows RAG answer instead of thank you message. Fix this error.
 
 **Response:**
@@ -517,7 +529,7 @@ Flow now works correctly:
 
 Updated prompt.md, context.md with bug #17
 
-### Prompt 31: Moderator Dashboard 3-Card Layout Implementation
+### Prompt 24: Moderator Dashboard 3-Card Layout Implementation
 **Prompt:** Create complete Moderator Dashboard with all 3 cards as per specification
 
 **Response:**
@@ -528,7 +540,7 @@ Created complete ModeratorDashboard.jsx with all 3 cards:
 
 Updated docs: context.md, prompt.md
 
-### Prompt 36: Fix Peer Answer Submission 500 Error
+### Prompt 25: Fix Peer Answer Submission 500 Error
 **Prompt:** When I submit an answer for a query using peer answer queue it shows "Failed to submit answer" and in console this error "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
 
 **Response:**
@@ -549,7 +561,7 @@ This caused `author_id` to be `undefined` when creating notifications, which fai
 
 ---
 
-### Prompt 37: Add Clear All Data Endpoint & Fix AskAI Error Display
+### Prompt 26: Add Clear All Data Endpoint & Fix AskAI Error Display
 **Prompt:** Add endpoint to clear all escalation data for testing, fix AskAI to show actual backend error message
 
 **Response:**
@@ -571,7 +583,7 @@ setError(errorMsg);
 
 **Commit:** `d66a88b`
 
-### Prompt 38: Add More Test Users
+### Prompt 27: Add More Test Users
 **Prompt:** Create more intern test users and add them to database
 
 **Response:**
@@ -584,7 +596,7 @@ Updated `testCredentials.md`, `README.md`, `context.md` with new credentials.
 
 **Commit:** `d66a88b`
 
-### Prompt 39: Peer Queue Empty After First Answer & Submit Answer Rejected
+### Prompt 28: Peer Queue Empty After First Answer & Submit Answer Rejected
 **Prompt:** When intern1 posts a query and intern2 answers it, the query becomes empty for all other interns. Also, when intern3 tries to answer, it shows "Query is no longer pending. Current status: Peer Answered".
 
 **Response:**
@@ -608,7 +620,7 @@ Fixed two related bugs in `backend/controllers/peerController.js`:
 
 **Commit:** `fix: resolve peer queue visibility and submit answer status check`
 
-### Prompt 40: Consolidate High Rated and Ambiguous into Resolve Hub
+### Prompt 29: Consolidate High Rated and Ambiguous into Resolve Hub
 **Prompt:** High-rated queries (4-5 stars) and ambiguous queries (3-strike) should be resolved through the Resolve Hub, not separate pages. Consolidate them into a "Pending Resolution" section in Resolve Hub.
 
 **Response:**
@@ -624,7 +636,7 @@ Updated AdminResolveHub.jsx and ModeratorResolveHub.jsx:
 - frontend/src/pages/moderator/ModeratorResolveHub.jsx
 - frontend/src/pages/moderator/ModeratorOverview.jsx
 
-### Prompt 41: MyEscalations Shows "Resolved" Instead of "Approved"
+### Prompt 30: MyEscalations Shows "Resolved" Instead of "Approved"
 **Prompt:** When admin approves a peer response, MyEscalations shows "Resolved" badge but should show "Approved" to distinguish peer_approved resolution from admin_override.
 
 **Response:**
@@ -638,7 +650,7 @@ if (query.resolution_type === 'peer_approved') {
 **Files modified:**
 - frontend/src/pages/intern/MyEscalations.jsx
 
-### Prompt 42: Update Documentation for Resolve Hub Changes
+### Prompt 31: Update Documentation for Resolve Hub Changes
 **Prompt:** Update all documentation files (context.md, prompt.md, docs/, README.md) to reflect the new 5-section Resolve Hub structure with Pending Resolution section.
 
 **Response:**
@@ -652,7 +664,7 @@ Updated:
 
 **Commit:** `docs: update Resolve Hub structure documentation`
 
-### Prompt 43: Git Commit All Changes
+### Prompt 32: Git Commit All Changes
 **Prompt:** Commit all changes made to admin/moderator resolve workflow and documentation.
 
 **Response:**
@@ -669,7 +681,7 @@ Staged and committed all modified files:
 - context.md
 - prompt.md
 
-### Prompt 44: Phase 14 - UI/UX Modernization
+### Prompt 33: Phase 14 - UI/UX Modernization
 **Prompt:** Improve UI/UX of Query.in MERN stack application with modern SaaS-style design. Strictly frontend UI improvements only - no backend changes, API routes, database schemas, or business logic. Black and white colors only, yellow (#FFD000) for highlighting.
 
 **Response:**
@@ -711,7 +723,7 @@ Modernized the entire frontend with a professional SaaS aesthetic:
 
 **4 Commits on ui-update branch:** e5a7a83, 15f3195, a205ad7, 0e5de37
 
-### Prompt 45: UI Fixes - Cursor, Icons, Stars, Borders, FAQ Navigation
+### Prompt 34: UI Fixes - Cursor, Icons, Stars, Borders, FAQ Navigation
 **Prompt:** Fix multiple UI issues: text cursor appearing on click, vague thumbs up icon, gold rating stars, hide keywords in Popular FAQs, static browse FAQ button, question mark logo alignment.
 
 **Response:**
@@ -754,7 +766,7 @@ Fixed multiple UI issues:
 
 **6 Commits on ui-update branch:** e5a7a83, 15f3195, a205ad7, 0e5de37, 6302866, f5e75c8
 
-### Prompt 46: Fix Sidebar Navigation - All Cards Visible on Every Page
+### Prompt 35: Fix Sidebar Navigation - All Cards Visible on Every Page
 **Prompt:** On the dashboard of every user, whenever a card apart from "Dashboard" is clicked, the new card opens and all the other cards available to the user are removed from the left side (which shows all the cards for a user). Suppose I click "Announcements" card as an intern, then it opens the announcement page and shows only the dashboard and announcement card in the left side. Fix it so that upon clicking any card, all the cards are visible and upon clicking them I should be rerouted to that particular page.
 
 **Response:**
@@ -783,7 +795,7 @@ Created centralized navigation configuration to fix the sidebar issue:
 
 **Commit:** `be258f1` - fix: centralized navigation with navConfig.jsx - all sidebar cards visible on every page
 
-### Prompt 47: Fix Intern Dashboard Stats and Add Navigation Links
+### Prompt 36: Fix Intern Dashboard Stats and Add Navigation Links
 **Prompt:** On the intern dashboard, in the "Active queries" card, only the number of pending queries of that particular user should be displayed, in the "Peer Responses" card, it should only display the number of times the user has answered a particular query of a peer, it should not include skipped question or mark as ambiguous questions. The "Resolved" card should display the number of queries for an intern which has been successfully approved by the admin. And upon clicking the "Active queries" card and "Resolved" card, it should be redirected to the "My Escalations" page.
 
 **Response:**
@@ -811,7 +823,7 @@ Created a new backend endpoint and updated the frontend to show accurate stats:
 
 ---
 
-### Prompt 48: Ask AI Page Input Improvements
+### Prompt 37: Ask AI Page Input Improvements
 **Prompt:** In the "Ask AI" page, replace the single-line input with a textarea for multiline support (Shift+Enter for new line), remove the "Get Answer" button and replace the bulb logo with a send button (right arrow) positioned at the rightmost part of the input bar. Also ensure pressing Enter closes suggestions dropdown AND submits the query in one action.
 
 **Response:**
@@ -842,7 +854,7 @@ Updated `frontend/src/pages/intern/AskAI.jsx`:
 
 ---
 
-### Prompt 49: Documentation Update for Ask AI Improvements
+### Prompt 38: Documentation Update for Ask AI Improvements
 **Prompt:** Update all documentation files (context.md, prompt.md) to reflect the Ask AI page improvements (issue #51).
 
 **Response:**
@@ -857,7 +869,7 @@ Updated `prompt.md`:
 
 ---
 
-### Prompt 51: Fix Auto-complete Suggestions Dropdown Not Closing on Enter
+### Prompt 39: Fix Auto-complete Suggestions Dropdown Not Closing on Enter
 **Prompt:** On hitting Enter, the suggestion window remains open but it should close. The Enter should work the same as clicking on arrow button to submit.
 
 **Response:**
@@ -903,7 +915,7 @@ const handleKeyDown = (e) => {
 
 ---
 
-### Prompt 52: Update Documentation and Commit All Changes
+### Prompt 40: Update Documentation and Commit All Changes
 **Prompt:** Update all doc folder files including readme, context.md and prompt.md. Also commit all changes and share all git commit history branch wise.
 
 **Response:**
@@ -916,7 +928,7 @@ Staged and committed:
 
 ---
 
-### Prompt 53: Fix Thumbs Up/Down Icons on Ask AI Page
+### Prompt 41: Fix Thumbs Up/Down Icons on Ask AI Page
 **Prompt:** The thumbs up logo on the "Yes Helpful" button in the Ask AI should be proper. Currently it is not proper.
 
 **Response:**
@@ -938,7 +950,7 @@ Updated `AskAI.jsx` with proper Material Design thumbs up/down icons:
 
 ---
 
-### Prompt 54: Fix Browse FAQs Button Visibility on Black Card
+### Prompt 42: Fix Browse FAQs Button Visibility on Black Card
 **Prompt:** The "Browse FAQ" button at the bottom of the intern dashboard has no border like the "Ask AI" button beside it. Add a proper border so both buttons look symmetric.
 
 **Response:**
@@ -952,7 +964,7 @@ Now both buttons have proper black borders for symmetry.
 
 ---
 
-### Prompt 55: Fix Question Mark Icon Centering on Landing Page
+### Prompt 43: Fix Question Mark Icon Centering on Landing Page
 **Prompt:** In the landing page, the FAQ card has a question mark logo that is not properly aligned. Align it properly in the middle of the card with respect to the "Explore FAQs" text.
 
 **Response:**
@@ -965,7 +977,7 @@ Updated `Landing.jsx` - Adjusted the question mark icon:
 
 ---
 
-### Prompt 56: Add Hover Effects to Buttons
+### Prompt 44: Add Hover Effects to Buttons
 **Prompt:** Make the "Browse FAQ" button and "Ask AI" button hover or show some effect when mouse cursor comes above it.
 
 **Response:**
@@ -975,7 +987,7 @@ Updated `InternDashboard.jsx` - Added `hover:scale-105 transition-transform dura
 
 ---
 
-### Prompt 57: Add Hover Effects Across Pages
+### Prompt 45: Add Hover Effects Across Pages
 **Prompt:** Decide on your own make parts of the webpage hover so that it looks good and neat.
 
 **Response:**
@@ -997,7 +1009,7 @@ Added tasteful hover effects across multiple pages:
 
 ---
 
-### Prompt 58: Update Documentation and Commit All Changes
+### Prompt 46: Update Documentation and Commit All Changes
 **Prompt:** Update all the doc folder files including readme, context.md and prompt.md. Also commit all changes.
 
 **Response:**
@@ -1014,7 +1026,7 @@ Updated prompt.md with Prompts 53-58 documenting all recent fixes.
 
 ---
 
-### Prompt 59: Fix Read-Only Stars Showing Before Rating
+### Prompt 47: Fix Read-Only Stars Showing Before Rating
 **Prompt:** When a user tries to rate the answer to their query reply in "my-queries" page, it shows a View Only stars even if it is not rated by the user yet. Only show those Read Only stars when it is already rated by the user.
 
 **Response:**
@@ -1027,7 +1039,7 @@ Updated `MyEscalations.jsx`:
 
 ---
 
-### Prompt 60: Fix Suggestions Dropdown and Escalated/Resolved Card Styling
+### Prompt 48: Fix Suggestions Dropdown and Escalated/Resolved Card Styling
 **Prompt:** On the intern/ask page, when the user tries to submit a query, sometimes even if the RAG answers upon submitting, the suggestions box does not disappear. And upon successful escalation, the checkmark and Ask Another Question button is yellow, instead the checkmark must be green and the button must be black.
 
 **Response:**
@@ -1046,7 +1058,7 @@ Updated `AskAI.jsx`:
 
 ---
 
-### Prompt 61: Update Documentation and Commit All Changes
+### Prompt 49: Update Documentation and Commit All Changes
 **Prompt:** Update all the doc folder files including readme, context.md and prompt.md. Also commit all changes.
 
 **Response:**
@@ -1062,7 +1074,7 @@ Updated prompt.md with Prompts 59-61 documenting all recent fixes.
 
 ---
 
-### Prompt 62: Combine User Registration, User Management, and Spoiled Users Pages
+### Prompt 50: Combine User Registration, User Management, and Spoiled Users Pages
 **Prompt:** On the Admin panel, combine User Registration, User Management and Spoiled Users on a single page. Add isActive field to User model, add toggle active/inactive functionality, prevent admin from making themselves inactive.
 
 **Response:**
@@ -1098,7 +1110,7 @@ Combined three separate pages into single `AdminUserManagement.jsx` page:
 
 ---
 
-### Prompt 63: Fix Pending Resolution Response Display
+### Prompt 51: Fix Pending Resolution Response Display
 **Prompt:** In the Resolution Hub, in the "Pending Resolution" query drawer only the responses rated 4 stars and 5 stars should be visible for a given query, where the 5 star rated responses will come above the 4 star rates responses. Don't show lower rated responses (1-3 stars) for a query in the "Pending Resolution" category
 
 **Response:**
@@ -1115,7 +1127,7 @@ Updated both `AdminResolveHub.jsx` and `ModeratorResolveHub.jsx`:
 
 ---
 
-### Prompt 64: Fix Low-Rated Queue Display
+### Prompt 52: Fix Low-Rated Queue Display
 **Prompt:** In the "Low-Rated" category in the resolve hub, only queries with all the responses as low rated (1-3 stars) should be visible along with all the responses in descending order with "Approve Response" button available for each response so that it can be resolved.
 
 **Response:**
@@ -1135,7 +1147,7 @@ Updated both `AdminResolveHub.jsx` and `ModeratorResolveHub.jsx`:
 
 ---
 
-### Prompt 65: Fix Stagnant Category - Rename and Change Criteria
+### Prompt 53: Fix Stagnant Category - Rename and Change Criteria
 **Prompt:**
 1. Change "Stagnant (0 Answers)" category name to "Stagnant (Locked, 24h+)"
 2. Remove "Unanswered" category entirely
@@ -1168,7 +1180,7 @@ stagnant: queries.filter(q => {
 
 ---
 
-### Prompt 72: Ngrok Configuration & Vite Proxy Fixes
+### Prompt 54: Ngrok Configuration & Vite Proxy Fixes
 **Prompt:** "give me step to start ngrok server to share this website for testing to otheres", "there is no .env in frontend", "Blocked request. This host is not allowed.", "Failed to load resource: the server responded with a status of 404 ()", "update all the doc folder files including readme, api_doc, database_schema, features, representation, setup, context.md and prompt.md"
 
 **Response:**
@@ -1193,7 +1205,7 @@ Configured the application to support external internet testing via Ngrok tunnel
 
 ---
 
-### Prompt 75: Add Show Password Toggle to Login Page
+### Prompt 55: Add Show Password Toggle to Login Page
 **Prompt:** Add show password option in the login page while logging in so that the user can see the password they are entering.
 
 **Response:**
@@ -1208,7 +1220,7 @@ Updated `Landing.jsx`:
 
 ---
 
-### Prompt 76: Fix Login Page Refresh on Wrong Password
+### Prompt 56: Fix Login Page Refresh on Wrong Password
 **Prompt:** it is refreshing every time i enter a wrong password but it should say wrong credentials and then after re entering right it should login
 
 **Response:**
@@ -1223,7 +1235,7 @@ Updated `api.js`:
 
 ---
 
-### Prompt 77: Remove Demo Credentials from Login Card
+### Prompt 57: Remove Demo Credentials from Login Card
 **Prompt:** remove demo credentials line in landing page in login card there is admin id and password are written
 
 **Response:**
@@ -1236,7 +1248,7 @@ Updated `Landing.jsx`:
 
 ---
 
-### Prompt 78: Add Consistent Borders to Landing Page Cards
+### Prompt 58: Add Consistent Borders to Landing Page Cards
 **Prompt:** add borders to the "explore FAQs" card similar to the "welcome back" card
 
 **Response:**
@@ -1249,7 +1261,7 @@ Updated `Landing.jsx`:
 
 ---
 
-### Prompt 79: Moderator Response Shown as "Admin" in Intern's MyEscalations
+### Prompt 59: Moderator Response Shown as "Admin" in Intern's MyEscalations
 **Prompt:** when a moderator answers the query, on the response page of the intern it should show response by moderator and not by admin as currently it is showing the moderator response as admin's response
 
 **Response:**
@@ -1271,7 +1283,7 @@ Updated `MyEscalations.jsx` to correctly distinguish between moderator and admin
 
 ---
 
-### Prompt 80: Remove Duplicate "Approved" Badge on Responses
+### Prompt 60: Remove Duplicate "Approved" Badge on Responses
 **Prompt:** (part of Prompt 79) - also mentioned that moderator approved should show which peer answer was approved before approver, and for admin same
 
 **Response:**
@@ -1293,7 +1305,7 @@ Removed the redundant second "Approved" badge that was showing alongside the fir
 
 ---
 
-### Prompt 81: Add Response Type & Approval States to Database Schema
+### Prompt 61: Add Response Type & Approval States to Database Schema
 **Prompt:** add this in database schema too
 
 **Response:**
@@ -1304,7 +1316,7 @@ Added "Response Type & Approval States" table to `docs/database_schema.md` docum
 
 ---
 
-### Prompt 82: Add peer_note Visibility in Admin Query Views
+### Prompt 62: Add peer_note Visibility in Admin Query Views
 **Prompt:** make sure that the admin is able to view the note provided by other users for a question asked by a intern
 
 **Response:**
@@ -1328,7 +1340,7 @@ Added `peer_note` display in all admin/moderator query detail views:
 
 ---
 
-### Prompt 83: Add Announcement Priority Levels
+### Prompt 63: Add Announcement Priority Levels
 **Prompt:** while adding an anouncement, the admin should have an option of adding 3 priorities as "Low","Medium","High" with red highlight for high priority, yellow for medium and dark green for low priority.
 
 **Response:**
@@ -1353,7 +1365,7 @@ Added priority field to Announcement model and UI:
 
 ---
 
-### Prompt 84: Remove Admin from Role Dropdown
+### Prompt 64: Remove Admin from Role Dropdown
 **Prompt:** from the user registration page of the admin, remove "Admin" from the dropdown menu for role as there can be only one admin for the entire application.
 
 **Response:**
@@ -1364,7 +1376,7 @@ Removed "Admin" option from the role dropdown in `AdminUserManagement.jsx` Singl
 
 ---
 
-### Prompt 85: Add Moderator Name to FAQ Suggestion
+### Prompt 65: Add Moderator Name to FAQ Suggestion
 **Prompt:** for the query suggested by the moderator to the admin, it is not showing which moderator send the suggestion to the admin, so add a From space which shows which moderator suggested the query to the admin
 
 **Response:**
@@ -1379,7 +1391,7 @@ The backend already populated `suggested_by` with email and role in `getModerato
 
 ---
 
-### Prompt 86: Add rater_note Visibility in Admin Query Views
+### Prompt 66: Add rater_note Visibility in Admin Query Views
 **Prompt:** note which is ask to author of query while taking review is not added in query drawer where it can approve in in query manager
 
 **Response:**
@@ -1405,7 +1417,7 @@ Display format: "Author's Review Note: {rater_note}" with blue background to dis
 
 ---
 
-### Prompt 87: Add "From" Field to Moderator Suggested Query List
+### Prompt 67: Add "From" Field to Moderator Suggested Query List
 **Prompt:** In the query management page of the admin, for the queries under the "Moderator Suggested" category, add a "From" field which should contain the details of that particular moderator who sent the query as a suggestion so that it becomes easy for the admin to identify which moderator suggested which query.
 
 **Response:**
@@ -1420,7 +1432,7 @@ Updated `AdminResolveHub.jsx` to show moderator details in the query list for th
 
 ---
 
-### Prompt 88: Fix Stagnant Queries Not Appearing in Stagnant Tab
+### Prompt 68: Fix Stagnant Queries Not Appearing in Stagnant Tab
 **Prompt:** High Priority Fix: In the Intern2 account, all escalations are currently locked and show 0 responses, indicating they have exceeded the 24-hour threshold and should be classified as Stagnant. However, on the Admin Dashboard → Query Management → Stagnant tab, none of these escalations are appearing.
 
 Investigate and fix the underlying issue. Verify the logic used to determine stagnant queries, including time-based filtering, lock status checks, response count conditions, query visibility rules, database queries, and any backend/frontend filtering that could prevent valid stagnant escalations from being displayed.
@@ -1437,7 +1449,7 @@ Investigate and fix the underlying issue. Verify the logic used to determine sta
 
 ---
 
-### Prompt 89: Similar Query Interest Tracking & Notification
+### Prompt 69: Similar Query Interest Tracking & Notification
 **Prompt:** Fix: if an intern A asks a similar query as asked by another intern B, the system says that similar query is already in peer queue, also add a line saying that the intern A will be notified when the asked query will be approved by the admin. When that query is resolved for intern B, Intern A should also be notified for the approved response of the query and also it should be added in intern A's "My escalation" page showing that the query is approved by the admin along with the correct response.
 
 **Response:**
@@ -1467,7 +1479,7 @@ Implemented Similar Query Interest Tracking:
 
 ---
 
-### Prompt 90: Add Moderator Announcements Page
+### Prompt 70: Add Moderator Announcements Page
 **Prompt:** On the moderator dashboard, add a new card for "Announcements" that takes the moderator to a page where they can see all the announcements created by the admin with their priority levels shown.
 
 **Response:**
@@ -1492,7 +1504,7 @@ Created a new dedicated page and route for moderators to view announcements:
 
 ---
 
-### Prompt 91: Documentation Update - Announcements Priority & Similar Query Tracking
+### Prompt 71: Documentation Update - Announcements Priority & Similar Query Tracking
 **Prompt:** Update all documentation files including context.md, prompt.md, README.md, and docs/ folder to reflect the latest changes: announcement priority system and similar query interest tracking.
 
 **Response:**
@@ -1521,7 +1533,7 @@ Updated all documentation files:
 
 ---
 
-### Prompt 92: Fix Announcements Dynamic Updates & Moderator Suggestion FAQ Removal
+### Prompt 72: Fix Announcements Dynamic Updates & Moderator Suggestion FAQ Removal
 **Prompt:** Fix two issues:
 1. The announcements page for intern should be dynamic - if any new announcement is added, it should be displayed without the need of refreshing.
 2. After adding the moderator suggested query to the FAQ database, it should be removed from the "Moderator Suggested" category on admin's Query Management page.
@@ -1551,7 +1563,7 @@ Updated `frontend/src/pages/intern/Announcements.jsx`:
 
 ---
 
-### Prompt 96: Allow Interns to Delete Own Escalations
+### Prompt 73: Allow Interns to Delete Own Escalations
 **Prompt:** Add this - Allow every intern to delete only their own escalations. Add a delete option for escalations created by the currently logged-in intern, ensuring proper ownership validation and access control. Interns must not be able to delete escalations submitted by other users
 
 **Response:**
@@ -1593,7 +1605,7 @@ Implemented ability for interns to delete only their own escalations with full o
 
 ---
 
-### Prompt 72: Cascading Deletion, Socket Events, and UI Updates for Escalation Deletion
+### Prompt 74: Cascading Deletion, Socket Events, and UI Updates for Escalation Deletion
 
 **Prompt:** When an escalation is deleted, it should be removed consistently across all related views, lists, counters, filters, and database records. Include an appropriate confirmation step before deletion to prevent accidental removals, and ensure the UI updates immediately after a successful delete operation.
 
@@ -1619,7 +1631,7 @@ Implemented comprehensive cascading deletion for escalations:
 **Frontend (`PeerQueue.jsx`):**
 - Added timestamp display with clock icon alongside response count
 
-### Prompt 73: Timestamp Display on Escalation Cards
+### Prompt 75: Timestamp Display on Escalation Cards
 
 **Prompt:** In the My Escalations page, display the exact date and time when each escalation was created. The timestamp should be clearly visible within every escalation card, alongside the existing response count and status information.
 
@@ -1638,7 +1650,7 @@ Updated My Escalations and Peer Queue pages with full timestamp display:
 
 ---
 
-### Prompt 101: Add "Remove Warnings" Option in User Management
+### Prompt 76: Add "Remove Warnings" Option in User Management
 
 **Prompt:** Under the "Actions" section of the User management page, add an option as "Remove Warnings" so that the warning count becomes 0 and the disabled account automatically gets enabled.
 
@@ -1667,7 +1679,7 @@ Added "Remove Warnings" functionality to User Management:
 
 ---
 
-### Prompt 102: Auto-Logout Disabled/Inactive Users
+### Prompt 77: Auto-Logout Disabled/Inactive Users
 
 **Prompt:** When an intern was disabled due to 5 warnings and same for when admin set a user inactive, he was still able to perform functions on the dashboard, only when he logout of the session, it showed that the account is disabled. Make sure that once disabled, an intern should immediately be logged out of his session automatically.
 
@@ -1704,7 +1716,7 @@ Implemented immediate logout for disabled/inactive accounts:
 
 ---
 
-### Prompt 103: Skipped Queries Reappear After Refresh
+### Prompt 78: Skipped Queries Reappear After Refresh
 
 **Prompt:** Once an intern skips a query on the "Peer Answer Queue", that same query shouldn't be displayed again to that intern even after refreshing the page or logging in again.
 
@@ -1734,7 +1746,7 @@ Implemented persistent skip tracking for peer queue:
 
 ---
 
-### Prompt 104: Query Management UI Improvements
+### Prompt 79: Query Management UI Improvements
 
 **Prompt:** 
 1. In the query management, add timestamp for every query. 
@@ -1776,7 +1788,7 @@ Implemented comprehensive UI improvements for Query Management:
 
 ---
 
-### Prompt 75: Previously Resolved Query Detection
+### Prompt 80: Previously Resolved Query Detection
 **Prompt:** When an intern asks a same or similar question in the "Ask AI" page and if that same question is already resolved for another intern, it should be displayed along with the question and the approved response.
 
 **Response:**
@@ -1809,7 +1821,7 @@ Implemented previously resolved query detection feature:
 
 ---
 
-### Prompt 77: Fix AI Helpfulness Rate and AI Performance Comparison Chart
+### Prompt 81: Fix AI Helpfulness Rate and AI Performance Comparison Chart
 
 **Prompt:** The "AI Helpfulness Rate" and "AI Performance Comparison" charts on our Admin Analytics Dashboard are currently inaccurate because they are only calculating metrics based on upvotes. They completely ignore downvotes, which skews the data and masks poor AI performance. You need to update the data processing logic for these two specific charts so that downvotes are properly accounted for in the visual metrics.
 
@@ -1855,7 +1867,7 @@ Fixed the AI Performance analytics to properly track and display downvotes:
 
 ---
 
-### Prompt 78: Update AI Metrics Display
+### Prompt 82: Update AI Metrics Display
 
 **Prompt:** remove the helpfulness metric from ai performance comparison in ai helpfulness rate card at the top, instead of showing only llm rate it should show both of rate which is of rag and llm rates in bigger font
 

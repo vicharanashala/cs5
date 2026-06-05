@@ -132,23 +132,23 @@ Open browser to: `http://localhost:5173`
 
 ---
 
-## 4.5 Internet Testing with ngrok (Optional)
+## 5. Internet Testing with ngrok (Optional)
 
 To test the application over the internet or with mobile devices, use ngrok to create secure tunnels.
 
-### 4.5.1 Start Backend Tunnel
+### 5.1 Start Backend Tunnel
 ```bash
 ngrok http 5000
 ```
 Note the `https://...ngrok-free.app` URL provided for the backend.
 
-### 4.5.2 Update Frontend Environment
+### 5.2 Update Frontend Environment
 In `frontend/.env`, set `VITE_API_URL` to the backend ngrok URL:
 ```env
 VITE_API_URL=https://your-backend-url.ngrok-free.app/api
 ```
 
-### 4.5.3 Start Frontend Tunnel
+### 5.3 Start Frontend Tunnel
 ```bash
 ngrok http 5173
 ```
@@ -158,7 +158,7 @@ Note the `https://...ngrok-free.app` URL provided for the frontend. Share this U
 
 ---
 
-## 5. Test Accounts
+## 6. Test Accounts
 
 **Pattern:** `{role}{number}@query.in` / `{Role}{number}@123`
 
@@ -180,7 +180,19 @@ Note the `https://...ngrok-free.app` URL provided for the frontend. Share this U
 
 ---
 
-## 6. Project Structure
+## 7. Database Seeding (Demo Data)
+
+To quickly populate the database with realistic demo data (users, queries, responses, announcements, etc.) based on the VINS internship workflow, run the seed script:
+
+```bash
+cd backend
+npm run seed
+```
+**Warning:** This will delete all existing data in your database except for the `faqs` collection.
+
+---
+
+## 8. Project Structure
 
 ```
 faq project/
@@ -233,7 +245,7 @@ faq project/
 
 ---
 
-## 7. LLM Configuration Details
+## 9. LLM Configuration Details
 
 ### Gemini Models (Primary)
 
@@ -267,7 +279,7 @@ faq project/
 
 ---
 
-## 8. Active Query Cap
+## 10. Active Query Cap
 
 - Each intern can have **max 5 unresolved queries** in the peer queue
 - When cap is reached, new escalations are blocked with `QUERY_CAP_REACHED` error
@@ -275,7 +287,7 @@ faq project/
 
 ---
 
-## 8b. 24-Hour Sweeper Automation
+## 11. 24-Hour Sweeper Automation
 
 The sweeper runs every 15 minutes to enforce SLA timeouts:
 
@@ -291,7 +303,7 @@ The sweeper runs every 15 minutes to enforce SLA timeouts:
 
 ---
 
-## 9. Admin & Moderator Page Structure
+## 12. Admin & Moderator Page Structure
 
 Admin and Moderator dashboards use a page-based structure with sidebar navigation:
 
@@ -315,7 +327,7 @@ Admin and Moderator dashboards use a page-based structure with sidebar navigatio
 
 ---
 
-## 10. Resolve Hub Sections
+## 13. Resolve Hub Sections
 
 The Admin/Moderator Resolve Hub presents 6 sections for query resolution:
 
@@ -330,7 +342,7 @@ The Admin/Moderator Resolve Hub presents 6 sections for query resolution:
 
 ---
 
-## 10. Common Issues & Solutions
+## 14. Common Issues & Solutions
 
 ### MongoDB Connection Failed
 
@@ -369,7 +381,7 @@ taskkill /PID <process_id> /F
 
 ---
 
-## 11. Development Workflow
+## 15. Development Workflow
 
 ```bash
 # 1. Create feature branch
@@ -389,7 +401,7 @@ git merge feature/my-feature
 
 ---
 
-## 12. Production Deployment
+## 16. Production Deployment
 
 ### Backend
 ```bash
@@ -409,7 +421,7 @@ VITE_API_URL=https://api.query.in npm run build
 
 ---
 
-## 13. Backend Logs
+## 17. Backend Logs
 
 LLM calls are logged with format:
 ```
@@ -424,7 +436,7 @@ LLM calls are logged with format:
 
 ---
 
-## 14. Design System (UI/UX Modernization)
+## 18. Design System (UI/UX Modernization)
 
 ### Color Palette
 

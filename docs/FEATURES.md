@@ -211,10 +211,6 @@ When an intern asks a question that is similar to a query already resolved for a
 
 ## Full Feature List
 
----
-
-## Full Feature List
-
 ### Authentication & Authorization
 - **JWT Authentication** - Token-based with bcrypt
 - **RBAC Middleware** - admin, moderator, intern roles

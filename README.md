@@ -231,7 +231,7 @@ npm install
 npm run dev
 ```
 
-*For instructions on how to share your local environment for internet testing using Ngrok, see the [Setup Guide](docs/setup_guide.md#45-internet-testing-with-ngrok-optional).*
+*For instructions on how to share your local environment for internet testing using Ngrok, see the [Setup Guide](docs/setup_guide.md#5-internet-testing-with-ngrok-optional).*
 
 ---
 
@@ -275,6 +275,16 @@ VITE_API_URL=http://localhost:5000/api
 | Intern | intern9@query.in | Intern9@123 |
 | Intern | intern10@query.in | Intern10@123 |
 
+### Database Seeding (Demo Data)
+
+To quickly populate the database with realistic demo data (users, queries, responses, announcements, etc.) based on the VINS internship workflow, run the seed script:
+
+```bash
+cd backend
+npm run seed
+```
+**Warning:** This will delete all existing data in your database except for the `faqs` collection.
+
 ---
 
 ## Analytics Tracking
@@ -315,6 +325,9 @@ Announcements support three priority levels with color-coded badges:
 ---
 
 ## Recent Fixes
+
+<details>
+<summary>Click to expand all recent bug fixes and updates</summary>
 
 | # | Issue | Fix |
 |---|-------|-----|
@@ -419,6 +432,8 @@ Announcements support three priority levels with color-coded badges:
 | 132 | AI Helpfulness Rate inaccurate | Downvotes not tracked separately - ragDownvotes counted escalated queries, not actual downvotes | Added RAG_DOWNVOTED and LLM_DOWNVOTED resolution types, properly track downvotes when user downvotes RAG/LLM answer; metric card shows RAG and LLM rates prominently in big font |
 | 133 | Dashboard stats appear statically | Numbers just pop in without animation on load/refresh | Created RollingCounter component with odometer-style animation; applied to AdminOverview, InternDashboard, ModeratorOverview stat cards |
 | 134 | Peer queue skip shows wrong message | When last query is skipped, message says "no more queries" but user can still answer | Fixed handleSkip to always increment currentIndex; render condition `currentIndex >= queries.length` now correctly shows "All Done!" |
+
+</details>
 
 ---
 
