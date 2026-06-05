@@ -4,23 +4,23 @@ Use these credentials to test the authentication system across different dashboa
 
 ## Test Accounts
 
-| Role       | Email                    | Password          |
-|------------|--------------------------|-------------------|
-| Admin      | admin@query.in           | Admin@1234        |
-| Moderator  | mod@query.in             | Mod@1234          |
-| Moderator  | mod2@query.in            | Mod2!1234         |
-| Intern 1   | intern1@query.in         | Intern1@1234      |
-| Intern 2   | intern2@query.in         | Intern2@1234      |
-| Intern 3   | intern3@query.in         | Intern3@1234      |
-| Intern 4   | intern4@query.in         | Intern4!234       |
-| Intern 5   | intern5@query.in         | Intern5!234       |
-| Intern 6   | intern6@query.in         | Intern6!234       |
-| Intern 7   | intern7@query.in         | Intern7!234       |
-| Intern 8   | intern8@query.in         | Intern8!234       |
-| Intern 9   | intern9@query.in         | Intern9!234       |
-| Intern 10  | intern10@query.in        | Intern10!234      |
+**Pattern:** `{role}{number}@query.in` / `{Role}{number}@123`
 
-**Password Requirements:** 8+ characters, 1 uppercase, 1 lowercase, 1 number, 1 special character (`!@#$%^&*(),.?":{}|<>`)
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@query.in | Admin1@123 |
+| Moderator | mod1@query.in | Mod1@123 |
+| Moderator | mod2@query.in | Mod2@123 |
+| Intern | intern1@query.in | Intern1@123 |
+| Intern | intern2@query.in | Intern2@123 |
+| Intern | intern3@query.in | Intern3@123 |
+| Intern | intern4@query.in | Intern4@123 |
+| Intern | intern5@query.in | Intern5@123 |
+| Intern | intern6@query.in | Intern6@123 |
+| Intern | intern7@query.in | Intern7@123 |
+| Intern | intern8@query.in | Intern8@123 |
+| Intern | intern9@query.in | Intern9@123 |
+| Intern | intern10@query.in | Intern10@123 |
 
 ---
 
@@ -37,19 +37,19 @@ const User = require('./models/User');
 require('dotenv').config();
 
 const users = [
-  { email: 'admin@query.in', password: 'Admin@1234', role: 'admin' },
-  { email: 'mod@query.in', password: 'Mod@1234', role: 'moderator' },
-  { email: 'mod2@query.in', password: 'Mod2!1234', role: 'moderator' },
-  { email: 'intern1@query.in', password: 'Intern1@1234', role: 'intern' },
-  { email: 'intern2@query.in', password: 'Intern2@1234', role: 'intern' },
-  { email: 'intern3@query.in', password: 'Intern3@1234', role: 'intern' },
-  { email: 'intern4@query.in', password: 'Intern4!234', role: 'intern' },
-  { email: 'intern5@query.in', password: 'Intern5!234', role: 'intern' },
-  { email: 'intern6@query.in', password: 'Intern6!234', role: 'intern' },
-  { email: 'intern7@query.in', password: 'Intern7!234', role: 'intern' },
-  { email: 'intern8@query.in', password: 'Intern8!234', role: 'intern' },
-  { email: 'intern9@query.in', password: 'Intern9!234', role: 'intern' },
-  { email: 'intern10@query.in', password: 'Intern10!234', role: 'intern' },
+  { email: 'admin@query.in', password: 'Admin1@123', role: 'admin' },
+  { email: 'mod1@query.in', password: 'Mod1@123', role: 'moderator' },
+  { email: 'mod2@query.in', password: 'Mod2@123', role: 'moderator' },
+  { email: 'intern1@query.in', password: 'Intern1@123', role: 'intern' },
+  { email: 'intern2@query.in', password: 'Intern2@123', role: 'intern' },
+  { email: 'intern3@query.in', password: 'Intern3@123', role: 'intern' },
+  { email: 'intern4@query.in', password: 'Intern4@123', role: 'intern' },
+  { email: 'intern5@query.in', password: 'Intern5@123', role: 'intern' },
+  { email: 'intern6@query.in', password: 'Intern6@123', role: 'intern' },
+  { email: 'intern7@query.in', password: 'Intern7@123', role: 'intern' },
+  { email: 'intern8@query.in', password: 'Intern8@123', role: 'intern' },
+  { email: 'intern9@query.in', password: 'Intern9@123', role: 'intern' },
+  { email: 'intern10@query.in', password: 'Intern10@123', role: 'intern' },
 ];
 
 async function seed() {
@@ -80,14 +80,14 @@ seed().catch(console.error);
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@query.in","password":"Admin@1234"}'
+  -d '{"email":"admin@query.in","password":"Admin1@123"}'
 ```
 
 **Register:**
 ```bash
 curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"newuser@query.in","password":"NewUser@1234","role":"intern"}'
+  -d '{"email":"newuser@query.in","password":"NewUser@123","role":"intern"}'
 ```
 
 **Get Me (requires token):**

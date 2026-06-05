@@ -160,17 +160,23 @@ Note the `https://...ngrok-free.app` URL provided for the frontend. Share this U
 
 ## 5. Test Accounts
 
+**Pattern:** `{role}{number}@query.in` / `{Role}{number}@123`
+
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@query.in | Admin@1234 |
-| Moderator | mod@query.in | Mod@1234 |
-| Moderator | mod2@query.in | Mod2!1234 |
-| Intern 1 | intern1@query.in | Intern1@1234 |
-| Intern 2 | intern2@query.in | Intern2@1234 |
-| Intern 3 | intern3@query.in | Intern3@1234 |
-| Intern 4-10 | intern{N}@query.in | Intern{N}!234 |
-
-**Password Requirements:** 8+ characters, 1 uppercase, 1 lowercase, 1 number, 1 special character (`!@#$%^&*`, etc.)
+| Admin | admin@query.in | Admin1@123 |
+| Moderator | mod1@query.in | Mod1@123 |
+| Moderator | mod2@query.in | Mod2@123 |
+| Intern | intern1@query.in | Intern1@123 |
+| Intern | intern2@query.in | Intern2@123 |
+| Intern | intern3@query.in | Intern3@123 |
+| Intern | intern4@query.in | Intern4@123 |
+| Intern | intern5@query.in | Intern5@123 |
+| Intern | intern6@query.in | Intern6@123 |
+| Intern | intern7@query.in | Intern7@123 |
+| Intern | intern8@query.in | Intern8@123 |
+| Intern | intern9@query.in | Intern9@123 |
+| Intern | intern10@query.in | Intern10@123 |
 
 ---
 
