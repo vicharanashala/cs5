@@ -207,7 +207,7 @@ graph TD
 | Document | Description |
 |----------|-------------|
 | [query.pdf](./query.pdf) | Minimum Viable Product (MVP) specifications and initial requirements |
-| [transcript.pdf](./transcript.pdf) | Team discussion and brainstorming transcript |
+| [transcript.pdf](./transcipt.pdf) | Team discussion and brainstorming transcript |
 | [context.md](./context.md) | Complete project context, resolved issues, and development logs |
 | [./docs/workflow_chart.md](./docs/workflow_chart.md) | End-to-end user journey and system workflow Mermaid flowchart |
 | [./docs/FEATURES.md](./docs/FEATURES.md) | Complete feature breakdown with flagship highlights |

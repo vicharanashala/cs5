@@ -1,4 +1,4 @@
-/**
+/** NOTE: This feature has been removed from the project but the file still remains so if we found a better way to implement in we can
  * =============================================================================
  * QUERY.IN - NOFAQ MODEL (Content Gap Tracking)
  * =============================================================================
