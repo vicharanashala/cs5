@@ -27,6 +27,8 @@
 
 ---
 
+![FAQ Architecture](./FAQ_Architecture.drawio.png)
+
 ## Core Workflow
 
 ```mermaid
