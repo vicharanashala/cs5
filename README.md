@@ -526,9 +526,3 @@ The Admin Dashboard presents 6 sections for managing escalated queries:
 | Moderator Suggested | Pending FAQ suggestions from moderators. Admin can Add to FAQ or Dismiss |
 
 **FAQ Creation Bridge:** Admin can click "+ Add to FAQ Database" on any resolved query to create a permanent FAQ entry.
-
----
-
-## License
-
-Internal project - All rights reserved.
