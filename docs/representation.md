@@ -101,7 +101,7 @@ The platform follows a **democratic, crowd-sourced approach** to knowledge shari
 - **High-Rating Lock:** 5-star rating immediately locks query for admin review
 - **Low-Rating Lock:** 1-3 stars with 5 responses locks query for admin review
 - **24-Hour Sweeper:** Automated cron job locks stale queries
-- **5-Section Resolve Hub:** Admin/Moderator can batch-process by category
+- **6-Section Resolve Hub:** Admin/Moderator can batch-process by category
 - **Bulk Operations:** Approve/Override with page refresh
 
 **Crowd-Sourcing Aspect:** The CROWD (peer interns) does the initial answering; admin only reviews
@@ -159,7 +159,7 @@ STEP 2: LLM FALLBACK (Gemini → Groq)
 STEP 3: PEER ESCALATION (if LLM fails or downvoted)
 │
 ├─ Check active query cap (max 5 unresolved per intern)
-├─ Check for similar query spam
+├─ Check for similar query spam (logs in SimilarQueryInterest and notifies when original is resolved)
 ├─ Create Query document (status: 'Pending')
 ├─ Track in NoFaq collection (for FAQ suggestions)
 └─ Query enters Peer Queue (CROWD-SOURCING BEGINS)
@@ -188,7 +188,7 @@ STEP 5: RATING & LOCKING - QUALITY CONTROL
 
 STEP 6: ADMIN RESOLUTION - FINAL REVIEW
 │
-├─ Admin views escalated queries (Resolve Hub - 5 sections)
+├─ Admin views escalated queries (Resolve Hub - 6 sections)
 ├─ Options:
 │   ├─ APPROVE PEER RESPONSE → Query resolved (peer_approved)
 │   ├─ ADMIN OVERRIDE → Query resolved (admin_override)
@@ -400,7 +400,7 @@ graph TD
 |---------|------------------------|
 | **Query Repetition** | RAG Auto-complete, FAQ Database, No-FAQ Tracking |
 | **Delay in Answer** | Multi-Provider LLM + Peer Queue (any intern can answer) |
-| **Workload on Admin** | Peer Rating System, 24-Hour Sweeper, 5-Section Resolve Hub |
+| **Workload on Admin** | Peer Rating System, 24-Hour Sweeper, 6-Section Resolve Hub |
 | **Ambiguous Queries** | Input Validation, 3-Strike Rule, Peer Quality Control |
 
 ### Supporting Features
@@ -414,6 +414,8 @@ graph TD
 | **Warning System** | Admin warns misbehaving interns |
 | **Announcements** | Admin broadcasts |
 | **Socket.IO** | Real-time notifications |
+| **Similar Query Detection** | Warns users of duplicates & auto-notifies when original is resolved |
+| **Warning System** | Admin sends warning notifications; disables user at 5 strikes |
 | **MongoDB Persistence** | Offline notification access |
 
 ---
